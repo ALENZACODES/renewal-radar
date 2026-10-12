@@ -27,6 +27,8 @@ from .services.ledger import ledger_csv,annual_summary
 from .services import store
 from .providers.bank_rates import fetch_bank_posted_rates
 from .providers.tavily import discover
+from .security.rate_limit import SlidingWindowLimiter
+from .observability.health import readiness
 
 ROOT=Path(__file__).resolve().parents[2]
 FRONTEND=ROOT/'frontend'
@@ -41,6 +43,25 @@ async def lifespan(app:FastAPI):
 app=FastAPI(title='Renewal Radar 2.0',version='2.0.0',
     description='Canadian mortgage renewal analysis, source-backed rule engine, privacy-conscious agent and PDF reports',lifespan=lifespan)
 app.add_middleware(CORSMiddleware,allow_origins=list(settings.allowed_origins),allow_methods=['GET','POST','PUT','DELETE'],allow_headers=['Content-Type','X-Case-Token'])
+
+limiter=SlidingWindowLimiter()
+
+@app.middleware('http')
+async def rate_limit(request,call_next):
+    if not settings.rate_limit_enabled:
+        return await call_next(request)
+    client=request.client.host if request.client else 'unknown'
+    decision=limiter.check(client,request.url.path)
+    if decision is not None and not decision.allowed:
+        retry=max(1,int(decision.retry_after+0.999))
+        return JSONResponse({'detail':'Too many requests; please retry shortly.'},status_code=429,
+                            headers={'Retry-After':str(retry),'X-RateLimit-Limit':str(decision.limit),
+                                     'X-RateLimit-Remaining':'0'})
+    response=await call_next(request)
+    if decision is not None:
+        response.headers['X-RateLimit-Limit']=str(decision.limit)
+        response.headers['X-RateLimit-Remaining']=str(decision.remaining)
+    return response
 
 @app.middleware('http')
 async def add_security_headers(request,call_next):
@@ -62,6 +83,26 @@ async def health():
     return {'status':'ok','product':'Renewal Radar','version':'2.0.0',
             'ai_configured':bool(settings.nebius_api_key),'tavily_configured':bool(settings.tavily_api_key),
             'timestamp':datetime.now(timezone.utc).isoformat()}
+
+@app.get('/api/health/live')
+async def health_live():
+    return {'status':'alive'}
+
+def _store_check():
+    with store.engine.connect() as conn:
+        conn.exec_driver_sql('SELECT 1')
+    return 'case store reachable'
+
+def _frontend_check():
+    if not (FRONTEND/'index.html').is_file():
+        raise FileNotFoundError('frontend/index.html')
+    return 'frontend assets present'
+
+@app.get('/api/health/ready')
+async def health_ready():
+    report=readiness([('case_store',_store_check),('frontend',_frontend_check)],
+                     connectors={'model':bool(settings.nebius_api_key),'search':bool(settings.tavily_api_key)})
+    return JSONResponse(report,status_code=200 if report['status']=='ready' else 503)
 
 @app.get('/api/demo')
 async def demo():
