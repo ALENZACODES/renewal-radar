@@ -794,3 +794,31 @@ async def broker_reveal_lead(wid: str, lead_id: str, x_broker_token: str | None 
     with broker_workspace._db() as db:
         broker_workspace._audit(db, wid, None, 'lead_contact_revealed', {'lead_id': lead_id})
     return {'lead_id': lead_id, 'contact': contact}
+
+
+# Renewal brief: confirmed facts -> offer vs posted market, break-today estimate, gaps.
+from .cases.brief import ConfirmedFacts, build_brief
+
+
+class BriefBody(BaseModel):
+    lender: str = Field(min_length=1, max_length=40)
+    balance: Decimal = Field(gt=0, le=50_000_000)
+    rate_pct: Decimal = Field(ge=0, le=30)
+    maturity_date: date
+    term_months: int = Field(ge=6, le=120)
+    amortization_months: int | None = Field(None, ge=6, le=480)
+    renewal_rate_pct: Decimal | None = Field(None, ge=0, le=30)
+    renewal_term_months: int = Field(60, ge=6, le=120)
+    rate_type: str = Field('fixed', pattern='^(fixed|variable)$')
+    frequency: str = 'monthly'
+    contract_discount: Decimal | None = Field(None, ge=0, le=10)
+    cashback: Decimal = Field(Decimal('0'), ge=0)
+
+
+@app.post('/api/v5/cases/brief')
+async def renewal_brief(body: BriefBody, as_of: date | None = None):
+    try:
+        facts = ConfirmedFacts(**body.model_dump())
+        return build_brief(facts, reference_book(), as_of or date.today()).as_dict()
+    except (ValueError, ArithmeticError) as exc:
+        raise HTTPException(422, str(exc)) from exc
