@@ -409,6 +409,85 @@ async def read_mortgage_statement(file: UploadFile = File(...)):
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
 
+import json as _json
+from .banklink.adapters import FlinksAdapter, PlaidAdapter, SandboxTransport
+from .banklink.models import CredentialRefused, Provider as LinkProvider, Scope as LinkScope
+from .banklink.service import BankLinkService, ConsentError, to_renewal_inputs
+
+_BANKLINK_FIXTURES = Path(__file__).resolve().parent / 'banklink' / 'sandbox'
+_banklink: BankLinkService | None = None
+
+def banklink_service() -> BankLinkService:
+    """Sandbox-only service; refuses to run unless explicitly enabled."""
+    global _banklink
+    if os.environ.get('RR_ENABLE_BANKLINK_SANDBOX') != '1':
+        raise HTTPException(403, 'Bank linking is not enabled on this server')
+    if _banklink is None:
+        def load(name):
+            return SandboxTransport(_json.loads((_BANKLINK_FIXTURES / f'{name}_sandbox.json').read_text()))
+        _banklink = BankLinkService({LinkProvider.PLAID: PlaidAdapter(load('plaid')),
+                                     LinkProvider.FLINKS: FlinksAdapter(load('flinks'))})
+    return _banklink
+
+class LinkConsentBody(BaseModel):
+    subject: str = Field(min_length=1, max_length=64)
+    provider: LinkProvider
+    purpose: str
+    days: int = Field(30, ge=1, le=90)
+
+class LinkCompleteBody(BaseModel):
+    public_token: str = Field(min_length=1, max_length=200)
+    extra: dict[str, Any] = Field(default_factory=dict)
+
+@app.get('/api/v5/banklink/providers')
+async def banklink_providers():
+    return {'providers': [p.value for p in LinkProvider], 'credential_collection': False,
+            'mode': 'sandbox' if os.environ.get('RR_ENABLE_BANKLINK_SANDBOX') == '1' else 'disabled',
+            'notice': 'Connections use the provider-hosted widget. Renewal Radar never sees bank passwords.'}
+
+@app.post('/api/v5/banklink/consents', status_code=201)
+async def banklink_consent(body: LinkConsentBody):
+    svc = banklink_service()
+    try:
+        c = svc.grant(body.subject, body.provider, {LinkScope.MORTGAGE_READ}, body.purpose, body.days)
+    except (ConsentError, CredentialRefused) as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return {'consent_id': c.id, 'expires_at': c.expires_at.isoformat(), 'scopes': sorted(s.value for s in c.scopes)}
+
+@app.post('/api/v5/banklink/consents/{cid}/session')
+async def banklink_session(cid: str):
+    try:
+        s = banklink_service().start(cid)
+    except ConsentError as exc:
+        raise HTTPException(403, str(exc)) from exc
+    return {'provider': s.provider.value, 'link_token': s.link_token, 'widget_url': s.widget_url,
+            'expires_at': s.expires_at.isoformat(), 'sandbox': s.sandbox}
+
+@app.post('/api/v5/banklink/consents/{cid}/complete')
+async def banklink_complete(cid: str, body: LinkCompleteBody):
+    try:
+        return {'link_id': banklink_service().complete(cid, body.public_token, body.extra)}
+    except CredentialRefused as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except ConsentError as exc:
+        raise HTTPException(403, str(exc)) from exc
+
+@app.get('/api/v5/banklink/links/{link_id}/mortgages')
+async def banklink_mortgages(link_id: str, refresh: bool = False):
+    try:
+        snaps = banklink_service().mortgages(link_id, refresh)
+    except ConsentError as exc:
+        raise HTTPException(403, str(exc)) from exc
+    return {'mortgages': [s.as_dict() for s in snaps], 'prefill': [to_renewal_inputs(s) for s in snaps]}
+
+@app.delete('/api/v5/banklink/consents/{cid}', status_code=204)
+async def banklink_revoke(cid: str):
+    try:
+        banklink_service().revoke(cid)
+    except ConsentError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    return Response(status_code=204)
+
 # Phase IV: provenance-backed historical rates and tenant-isolated broker tools.
 # Neither service pulls third-party bank account data without consent.
 from .intelligence.rate_history import RateArchive, RateObservation
