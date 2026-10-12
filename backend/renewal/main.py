@@ -690,3 +690,107 @@ async def broker_task_done(wid: str, task_id: str, x_broker_token: str | None = 
     broker_auth(wid, x_broker_token)
     _broker_call(broker_dashboard.complete_task, wid, x_broker_token or '', task_id)
     return Response(status_code=204)
+
+# Lead engine: explicit-consent homeowner handoff to a named brokerage.
+from .leads.consent import CONSENT_TEXTS, CURRENT_VERSION, ConsentInvalid, validate_consent
+from .leads.engine import LeadEngine, LeadInput
+from .leads.identity import Vault
+
+LEADS_DB = ROOT / 'data' / 'leads.sqlite3'
+_lead_engine: LeadEngine | None = None
+
+
+def lead_engine() -> LeadEngine:
+    """Needs RR_LEAD_KEY (Fernet key) and RR_LEAD_DEDUPE_SECRET (32+ chars); off otherwise."""
+    global _lead_engine
+    key = os.environ.get('RR_LEAD_KEY', '')
+    secret = os.environ.get('RR_LEAD_DEDUPE_SECRET', '')
+    if not key or len(secret) < 32:
+        raise HTTPException(503, 'Lead handoff is not configured on this server')
+    if _lead_engine is None:
+        try:
+            vault = Vault(key.encode())
+        except ValueError as exc:
+            raise HTTPException(503, 'Lead encryption key is invalid') from exc
+        _lead_engine = LeadEngine(LEADS_DB, vault, secret.encode())
+    return _lead_engine
+
+
+class LeadConsentBody(BaseModel):
+    version: str
+    text_digest: str
+    agreed: bool
+    agreed_at: datetime
+    contact_methods: list[str]
+    brokerage: str = Field(max_length=120)
+
+
+class LeadBody(BaseModel):
+    workspace_id: str
+    name: str = Field(min_length=1, max_length=120)
+    email: str | None = Field(None, max_length=254)
+    phone: str | None = Field(None, max_length=30)
+    province: str = Field(min_length=2, max_length=2)
+    renewal_date: date | None = None
+    balance: Decimal | None = Field(None, gt=0, le=50_000_000)
+    current_rate: Decimal | None = Field(None, ge=0, le=30)
+    has_statement: bool = False
+    completed_analysis: bool = False
+    consent: LeadConsentBody
+
+
+class LeadWithdrawBody(BaseModel):
+    withdraw_token: str = Field(min_length=10, max_length=100)
+
+
+@app.get('/api/v5/leads/consent-text')
+async def lead_consent_text():
+    text = CONSENT_TEXTS[CURRENT_VERSION]
+    return {'version': text.version, 'text': text.text, 'digest': text.digest}
+
+
+@app.post('/api/v5/leads', status_code=201)
+async def submit_lead(body: LeadBody):
+    engine = lead_engine()
+    with broker_workspace._db() as db:
+        found = db.execute('SELECT 1 FROM broker_workspaces WHERE id=?', (body.workspace_id,)).fetchone()
+    if not found:
+        raise HTTPException(404, 'Brokerage not found')
+    try:
+        consent = validate_consent(**body.consent.model_dump(), now=datetime.now(timezone.utc))
+        market = reference_book().posted_at('chartered_banks', 60, date.today())
+        return engine.submit(LeadInput(
+            body.workspace_id, body.name, body.email, body.phone, body.province.upper(), consent,
+            body.renewal_date, body.balance, body.current_rate, None if market is None else market.rate,
+            body.has_statement, body.completed_analysis))
+    except (ConsentInvalid, ValueError) as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@app.delete('/api/v5/leads/{lead_id}', status_code=204)
+async def withdraw_lead(lead_id: str, body: LeadWithdrawBody):
+    try:
+        lead_engine().withdraw(lead_id, body.withdraw_token)
+    except PermissionError as exc:
+        raise HTTPException(404, 'Lead not found') from exc
+    return Response(status_code=204)
+
+
+@app.get('/api/v5/broker/workspaces/{wid}/leads')
+async def broker_leads(wid: str, status: str | None = None, x_broker_token: str | None = Header(None)):
+    broker_auth(wid, x_broker_token)
+    return {'leads': lead_engine().for_broker(wid, status=status),
+            'notice': 'Contact details are masked; reveal only when you are about to contact the homeowner.'}
+
+
+@app.post('/api/v5/broker/workspaces/{wid}/leads/{lead_id}/reveal')
+async def broker_reveal_lead(wid: str, lead_id: str, x_broker_token: str | None = Header(None)):
+    """Unmask one lead's contact details and record the access in the audit trail."""
+    broker_auth(wid, x_broker_token)
+    try:
+        contact = lead_engine().reveal(wid, lead_id)
+    except PermissionError as exc:
+        raise HTTPException(404, 'Lead not found') from exc
+    with broker_workspace._db() as db:
+        broker_workspace._audit(db, wid, None, 'lead_contact_revealed', {'lead_id': lead_id})
+    return {'lead_id': lead_id, 'contact': contact}
