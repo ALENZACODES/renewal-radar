@@ -1,0 +1,13 @@
+{
+  "Authorize": {"RequestId": "req-sandbox-77"},
+  "DeleteCard": {"HttpStatusCode": 200},
+  "GetAccountsDetail": {
+    "Login": {"Institution": "FlinksCapital"},
+    "Accounts": [
+      {"Id": "fl-acc-1", "Title": "Mortgage 5yr fixed", "Type": "Mortgage", "Category": "Loans",
+       "Balance": {"Current": -398765.43}},
+      {"Id": "fl-acc-2", "Title": "Chequing", "Type": "Chequing", "Category": "Operations",
+       "Balance": {"Current": 1020.00}}
+    ]
+  }
+}
