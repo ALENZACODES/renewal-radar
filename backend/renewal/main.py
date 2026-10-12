@@ -389,6 +389,26 @@ async def posted_workbench_inputs(lender: str = Query(min_length=1, max_length=4
     out['current_posted'] = as_strings(out['current_posted'])
     return out
 
+from .documents.statement import read_statement
+from .documents.text import OcrUnavailable, TesseractEngine
+
+def _ocr_engine():
+    try:
+        return TesseractEngine()
+    except OcrUnavailable:
+        return None
+
+@app.post('/api/v5/documents/statement')
+async def read_mortgage_statement(file: UploadFile = File(...)):
+    """Statement or renewal letter (PDF or photo). Bytes are read in memory and discarded."""
+    data = await file.read(12 * 1024 * 1024 + 1)
+    try:
+        return read_statement(data, ocr=_ocr_engine()).as_dict()
+    except OcrUnavailable as exc:
+        raise HTTPException(422, f'{exc} Upload a text PDF or enter the fields manually.') from exc
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
 # Phase IV: provenance-backed historical rates and tenant-isolated broker tools.
 # Neither service pulls third-party bank account data without consent.
 from .intelligence.rate_history import RateArchive, RateObservation
