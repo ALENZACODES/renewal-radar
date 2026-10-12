@@ -298,7 +298,12 @@ app.mount('/js',StaticFiles(directory=FRONTEND/'js'),name='js')
 from .penalty import PenaltyInputs as DetailedPenaltyInputs, calculate_penalty as detailed_penalty
 from .penalty.profiles import lender_profiles as detailed_lender_profiles
 from decimal import Decimal
+from datetime import date
 from typing import Any
+from pydantic import BaseModel, Field
+from .penalty.comparison import TermRule
+from .penalty.methods import all_specs as all_method_specs
+from .penalty.workbench import WorkbenchCase, run_workbench
 
 @app.get('/api/penalty/v3/lenders')
 async def penalty_v3_lenders():
@@ -325,6 +330,36 @@ async def penalty_v3_estimate(payload: dict[str, Any]):
         return result.as_dict()
     except (TypeError,ValueError,ArithmeticError) as exc:
         raise HTTPException(422,str(exc))
+
+class WorkbenchBody(BaseModel):
+    lender: str = Field(min_length=1, max_length=40)
+    balance: Decimal = Field(gt=0, le=1_000_000_000)
+    contract_rate: Decimal = Field(ge=0, le=30)
+    term_start: date
+    maturity: date
+    payout: date
+    current_posted: dict[int, Decimal] = Field(default_factory=dict, max_length=40)
+    original_posted_rate: Decimal | None = Field(None, ge=0, le=30)
+    contract_discount: Decimal | None = Field(None, ge=0, le=30)
+    remaining_amortization_months: int | None = Field(None, ge=1, le=480)
+    privilege_available: Decimal = Field(Decimal('0'), ge=0)
+    privilege_applicable_to_full_payout: bool = False
+    cashback: Decimal = Field(Decimal('0'), ge=0)
+    discharge_fee: Decimal = Field(Decimal('0'), ge=0)
+    is_open: bool = False
+    term_rule_override: TermRule | None = None
+
+@app.get('/api/penalty/v3/methods')
+async def penalty_v3_methods():
+    return {'methods': all_method_specs(),
+            'notice': 'Unverified specs are assumptions; the payout statement is authoritative.'}
+
+@app.post('/api/penalty/v3/workbench')
+async def penalty_v3_workbench(body: WorkbenchBody):
+    try:
+        return run_workbench(WorkbenchCase(**body.model_dump())).as_dict()
+    except (ValueError, ArithmeticError) as exc:
+        raise HTTPException(422, str(exc)) from exc
 
 # Phase IV: provenance-backed historical rates and tenant-isolated broker tools.
 # Neither service pulls third-party bank account data without consent.

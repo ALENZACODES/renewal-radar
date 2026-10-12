@@ -49,3 +49,31 @@ All money and rates are serialized as strings, not binary floating-point numbers
 - FCAC: https://www.canada.ca/en/financial-consumer-agency/services/mortgages/prepayment-penalty.html
 
 **Validation gap:** Golden tests matching dated authenticated lender calculator statements across all applicable contract versions are still required before claiming lender-exact commercial calculations.
+
+## Comparison-term rules and the date-driven workbench
+
+`penalty/comparison.py` picks the IRD comparison rate from a table of published
+terms (`{term_months: rate}`) with an explicit rule:
+
+| Rule | Picks | Fails when |
+|---|---|---|
+| `nearest` | closest term, shorter on a tie | never (if the table has a rate) |
+| `nearest_longer_on_tie` | closest term, longer on a tie | never |
+| `round_down` | longest term not above the time left | time left is shorter than every term |
+| `round_up` | shortest term not below the time left | time left is longer than every term |
+| `interpolate` | straight line between neighbours | never; uses the edge rate outside the range rather than extrapolating |
+
+`penalty/daycount.py` turns dates into contract month counts (`remaining_term`,
+with part months rounded up, down or to nearest), gives actual-day three-month
+interest, and pro-rates cash-back clawbacks.
+
+`penalty/methods.py` records, per lender, the term rule, month rounding,
+three-month basis and where the discount comes from (`contract`,
+`original_posted` or `none`). Every spec is `verified: false` until it has been
+checked against a payout statement, and the API says so.
+
+`penalty/workbench.py` (`POST /api/penalty/v3/workbench`) takes dates, the
+current posted table and the posted rate at funding, then runs the Decimal
+engine and a sensitivity pass over every rule the table supports. If the rule
+alone moves the estimate by $500 or more, the response warns about it. Missing
+inputs are reported in `missing_fields`; nothing is filled in silently.
