@@ -35,7 +35,7 @@ def validate_source(url: str) -> str:
     p = urlparse(url)
     if p.scheme != 'https' or not p.hostname or p.username or p.password:
         raise ValueError('An HTTPS public source URL without credentials is required')
-    if p.hostname in ('localhost', '127.0.0.1', '0.0.0.0') or p.hostname.endswith('.local'):  # nosec B104 - deny-list check, not a bind
+    if p.hostname in ('localhost', '127.0.0.1', '0.0.0.0') or p.hostname.endswith('.local'):  # nosec B104
         raise ValueError('Local network addresses are not valid publication sources')
     return url
 
@@ -175,8 +175,10 @@ class RateArchive:
             conditions.append('captured_at<=?')
             parameters.append(utc(as_of).isoformat())
         parameters.append(limit)
-        query = 'SELECT * FROM rate_observations WHERE ' + ' AND '.join(conditions) + \
-                ' ORDER BY effective_at DESC,captured_at DESC,id LIMIT ?'  # nosec B608 - fixed column names, values bound
+        # Column names are fixed literals above; every value is a bound parameter.
+        query = ('SELECT * FROM rate_observations WHERE '  # nosec B608
+                 + ' AND '.join(conditions)
+                 + ' ORDER BY effective_at DESC,captured_at DESC,id LIMIT ?')
         with self._connect() as db:
             return [dict(row) for row in db.execute(query, parameters)]
 
