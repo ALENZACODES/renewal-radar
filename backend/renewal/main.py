@@ -607,3 +607,86 @@ async def broker_check_consent(wid: str, cid: str, scope: str,
 async def broker_audit(wid: str, x_broker_token: str | None = Header(None)):
     broker_auth(wid, x_broker_token)
     return {'events': broker_workspace.audit(wid, x_broker_token or '')}
+
+# Broker dashboard: pipeline stages, priorities and follow-up tasks (tenant scoped).
+from .broker.dashboard import BrokerDashboard
+from .broker.pipeline import InvalidTransition, Stage as BrokerStage
+
+
+def _market_five_year(lender: str | None, day: date) -> Decimal | None:
+    hit = reference_book().posted_at(lender or 'chartered_banks', 60, day)
+    return None if hit is None else hit.rate
+
+
+broker_dashboard = BrokerDashboard(broker_workspace, market_rate=_market_five_year)
+
+
+class BrokerProfileBody(BaseModel):
+    lender: str | None = Field(None, max_length=40)
+    balance: Decimal | None = None
+    rate_pct: Decimal | None = None
+    rate_type: str | None = None
+
+
+class BrokerStageBody(BaseModel):
+    stage: BrokerStage
+    note: str = Field('', max_length=500)
+
+
+class BrokerTaskBody(BaseModel):
+    kind: str
+    title: str = Field(min_length=1, max_length=200)
+    due: date
+
+
+def _broker_call(fn, *args, **kwargs):
+    try:
+        return fn(*args, **kwargs)
+    except AccessDenied as exc:
+        raise HTTPException(404 if 'not found' in str(exc).lower() else 403, str(exc)) from exc
+    except (InvalidTransition, ValueError, ArithmeticError) as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@app.get('/api/v5/broker/workspaces/{wid}/dashboard')
+async def broker_dashboard_summary(wid: str, top: int = Query(10, ge=1, le=100),
+                                   x_broker_token: str | None = Header(None)):
+    broker_auth(wid, x_broker_token)
+    return _broker_call(broker_dashboard.summary, wid, x_broker_token or '', top)
+
+
+@app.get('/api/v5/broker/workspaces/{wid}/clients/{cid}')
+async def broker_client_detail(wid: str, cid: str, x_broker_token: str | None = Header(None)):
+    broker_auth(wid, x_broker_token)
+    token = x_broker_token or ''
+    client = _broker_call(broker_dashboard.client, wid, token, cid)
+    client['history'] = _broker_call(broker_dashboard.history, wid, token, cid)
+    return client
+
+
+@app.patch('/api/v5/broker/workspaces/{wid}/clients/{cid}/profile')
+async def broker_client_profile(wid: str, cid: str, body: BrokerProfileBody,
+                                x_broker_token: str | None = Header(None)):
+    broker_auth(wid, x_broker_token)
+    return _broker_call(broker_dashboard.update_profile, wid, x_broker_token or '', cid, **body.model_dump())
+
+
+@app.post('/api/v5/broker/workspaces/{wid}/clients/{cid}/stage')
+async def broker_client_stage(wid: str, cid: str, body: BrokerStageBody,
+                              x_broker_token: str | None = Header(None)):
+    broker_auth(wid, x_broker_token)
+    return _broker_call(broker_dashboard.move, wid, x_broker_token or '', cid, body.stage, body.note)
+
+
+@app.post('/api/v5/broker/workspaces/{wid}/clients/{cid}/tasks', status_code=201)
+async def broker_client_task(wid: str, cid: str, body: BrokerTaskBody,
+                             x_broker_token: str | None = Header(None)):
+    broker_auth(wid, x_broker_token)
+    return _broker_call(broker_dashboard.add_task, wid, x_broker_token or '', cid, body.kind, body.title, body.due)
+
+
+@app.post('/api/v5/broker/workspaces/{wid}/tasks/{task_id}/done', status_code=204)
+async def broker_task_done(wid: str, task_id: str, x_broker_token: str | None = Header(None)):
+    broker_auth(wid, x_broker_token)
+    _broker_call(broker_dashboard.complete_task, wid, x_broker_token or '', task_id)
+    return Response(status_code=204)
