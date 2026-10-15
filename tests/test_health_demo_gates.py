@@ -1,4 +1,5 @@
 """Public health strip + production demo rejection."""
+from cryptography.fernet import Fernet
 from fastapi.testclient import TestClient
 
 from renewal.main import app
@@ -28,6 +29,7 @@ def test_demo_samples_ok_in_development():
 
 def test_demo_rejected_in_production(monkeypatch):
     monkeypatch.setattr(access, "_env_name", lambda: "production")
+    monkeypatch.setenv("RR_BANKLINK_KEY", Fernet.generate_key().decode())
     monkeypatch.setenv("RR_ENABLE_DEMO_WORKSPACES", "1")  # even if set, prod blocks
     monkeypatch.setenv("RR_API_ACCESS_KEY", "k" * 32)
     with TestClient(app) as c:
