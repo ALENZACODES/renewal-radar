@@ -121,7 +121,7 @@ def test_pdf_audit_does_not_stop_at_short_preview_length():
 
 @pytest.mark.parametrize("data,error", [
     (b"not pdf", "valid PDF"), (b"%PDF-invalid", "open"),
-    (b"%PDF-" + b"x" * (8 * 1024 * 1024), "8 MB"),
+    (b"%PDF-" + b"x" * (16 * 1024 * 1024), "16 MB"),
 ], ids=["invalid-header", "malformed-pdf", "oversized-pdf"])
 def test_invalid_pdf_bytes_raise_domain_error(data, error):
     with pytest.raises(DocumentSemanticAuditError, match=error):
@@ -159,7 +159,7 @@ def test_pdf_endpoint_rejects_unreadable_file(client):
 
 def test_pdf_endpoint_rejects_oversized_file(client):
     response = client.post("/api/v16/ocr/semantic-audit/pdf", files={
-        "file": ("mortgage.pdf", b"%PDF-" + b"x" * (8 * 1024 * 1024), "application/pdf"),
+        "file": ("mortgage.pdf", b"%PDF-" + b"x" * (16 * 1024 * 1024), "application/pdf"),
     })
     assert response.status_code == 413
 
