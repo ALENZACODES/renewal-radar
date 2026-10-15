@@ -6,6 +6,7 @@ identity provider, tenant policy and encryption-at-rest infrastructure.
 """
 import os,json,uuid,secrets,hashlib
 from datetime import datetime,timezone,timedelta
+from pathlib import Path
 from sqlalchemy import create_engine,Column,String,DateTime,Text
 from sqlalchemy.orm import DeclarativeBase,sessionmaker
 from ..config import settings
@@ -27,7 +28,21 @@ class Share(Base):
     case_id=Column(String(64),nullable=False)
     expires=Column(DateTime(timezone=True),nullable=False)
 
-engine=create_engine(settings.database_url,connect_args={'check_same_thread':False} if settings.database_url.startswith('sqlite:') else {},pool_pre_ping=True)
+ROOT=Path(__file__).resolve().parents[3]
+
+def database_url() -> str:
+    url=settings.database_url
+    if not url.startswith('sqlite:///') or url == 'sqlite:///:memory:':
+        return url
+    raw=url.removeprefix('sqlite:///')
+    if raw.startswith('/'):
+        target=Path(raw)
+    else:
+        target=(ROOT/raw).resolve()
+    target.parent.mkdir(parents=True,exist_ok=True)
+    return 'sqlite:///'+target.as_posix()
+
+engine=create_engine(database_url(),connect_args={'check_same_thread':False} if settings.database_url.startswith('sqlite:') else {},pool_pre_ping=True)
 Session=sessionmaker(engine,expire_on_commit=False)
 
 def initialize():Base.metadata.create_all(engine)

@@ -1,0 +1,59 @@
+# Ratewatch: live lender rates, exact penalties, backtests
+
+Module: `backend/renewal/ratewatch/`. Data: `data/ratewatch/`. All sources are free and need no keys.
+
+| Command (run from `backend/`) | What it does |
+|---|---|
+| `python -m renewal.ratewatch.run daily` | Scrape every source, auto-repair moved pages, run back-checks |
+| `python -m renewal.ratewatch.backfill` | Five-year history from the Wayback Machine (resumable, polite pace) |
+| `python -m renewal.ratewatch.backtest` | TD oracle + rate-history checks -> `data/ratewatch/backtest_report.json` |
+| `python -m renewal.ratewatch.letter` | Sample one-page penalty assessment PDF |
+| `python -m renewal.ratewatch.loanbook download` | OSFI mortgage book sizes for every regulated lender |
+| `python -m renewal.ratewatch.ontario` | Verify the 100 Ontario lenders |
+| `python -m renewal.ratewatch.live` | Refresh the live rates board (big banks + credit unions) |
+| `python -m renewal.ratewatch.dataset` | Rebuild the 5-year rate dataset (`rates_5yr.csv`, `big6_posted_5yr.csv`) |
+| `python tools/package_zip.py` | Build and check the release ZIP |
+
+## Live rates board (`live.py`, web page "Live rates")
+
+6 big banks and 20 credit unions. For each lender, sources are tried in order until one passes validation:
+
+| Order | Source |
+|---|---|
+| Primary | The lender's own data feed or rates page |
+| Backup 1 | A second live source from the lender (French page, alternate feed), else automatic rediscovery of its moved page |
+| Backup 2 | The last good reading (up to 14 days old, shown with its age) |
+| Backup 3 | The newest web-archive copy of the lender's own source (Wayback, then Common Crawl) |
+
+Validation: banks' 5-year posted must sit within 0.75 of the Bank of Canada big-six figure; credit-union rates must sit
+in a plausible band above the 5-year bond; a "special" above "posted" is rejected. If everything fails, a big bank shows
+the Bank of Canada big-six figure marked "not lender-specific"; a credit union shows "Unavailable". No rate is estimated.
+
+API (server running): `GET /api/ratewatch/live`, `POST /api/ratewatch/live/refresh`, `GET /api/ratewatch/rates/{lender}`, `POST /api/ratewatch/penalty`,
+`POST /api/ratewatch/forecast`, `POST /api/ratewatch/letter`, `GET /api/ratewatch/backtest`.
+
+## Lender data feeds
+
+| Lender | Feed |
+|---|---|
+| TD | `psservice.td.com/ca/en/carate/getRates` (POST): posted, discount, special per term |
+| CIBC | `cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy`: type 1 posted, 18 special |
+| Scotiabank | `dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage`: posted per term |
+| BMO | `bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json` (posted), `.../v2.0/bmo-ca-mortgages-rates.json` (specials) |
+| Simplii | `online.simplii.com/ebm-pno/api/v2/json/rates/ALL` (posted) + CIBC specials |
+| RBC, National Bank, ATB, Desjardins, Tangerine | HTML tables (`parse.py`) |
+| Bank of Canada / StatCan | Valet `CHARTERED_BANK_INTEREST`, `A4_RATES_MORTGAGES`; StatCan vector 80691335 |
+
+## Backtest: TD's own code as the answer key
+
+TD publishes its prepayment-charge maths as browser JavaScript. `tools/td_oracle.mjs` runs that file
+unmodified in Node; `backtest.py` feeds 2,000 random mortgages to it and to our engine.
+Run `python tools/fetch_td_oracle.py` first (TD's files are downloaded locally, not stored in git).
+
+TD rules found in its code: comparison term by months left (0-8.99 -> 6-month, 9-17.99 -> 1-yr, 18-29.99 -> 2-yr,
+30-41.99 -> 3-yr, 42-53.99 -> 4-yr, 54-65.99 -> 5-yr, 66-77.99 -> 6-yr, 78-101.99 -> 7-yr, 102+ -> 10-yr);
+months left = whole months + (days + 1)/31; IRD = amount x (contract - (posted - discount)) x months / 12;
+three months' interest = amount x rate / 4; cents rounded half-up.
+
+Other lenders stay labelled **estimate** until real payout statements in `data/ratewatch/penalty_cases.csv`
+pass `python -m renewal.ratewatch.run accuracy` (10+ cases, 99% within 1%).

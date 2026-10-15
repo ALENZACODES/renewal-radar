@@ -1,0 +1,29 @@
+{
+  "run": "2026-10-14",
+  "td_oracle": {
+    "cases": 2000,
+    "exact_to_the_cent": 2000,
+    "exact_rate": 1.0,
+    "ird_exact": 2000,
+    "three_month_exact": 2000,
+    "within_1_dollar": 2000,
+    "examples_of_misses": []
+  },
+  "td_history_vs_boc": {
+    "weeks_compared": 1034,
+    "td_equals_boc_typical": 896,
+    "share": 0.8665,
+    "mean_abs_gap": 0.0181
+  },
+  "scraped_vs_boc": {
+    "weeks_with_3plus_banks": 1,
+    "mode_equals_boc": 1,
+    "share": 1.0,
+    "per_bank_rows": {
+      "P021": 1,
+      "P023": 1,
+      "P029": 1,
+      "P031": 1
+    }
+  }
+}
