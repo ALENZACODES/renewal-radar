@@ -1,13 +1,23 @@
 import {api,downloadResponse} from './api.js';
-import {state,resetState,storeCase,recoverCase,analyzeBody} from './state.js';
+import {state,resetState,storeCase,recoverCase,analyzeBody,legacyPenaltyMethod} from './state.js';
 import {esc,money,toast} from './ui.js';
 import {getView} from './views.js';
+import {mountLocalMortgageHelper} from './helper-panel.js';
+import {loadInitialWorkspace,registerOfflineShell} from './offline-workspace.js';
+import {RateRefreshController} from './rate-tracker.js';
+import {mountMortgageCharts} from './chart-runtime.js';
+import {timelineRequest,exitCostExample} from './penalty-studio.js';
+import {lenderExactRequest} from './lender-exact.js';
 
 const names={overview:'OVERVIEW',document:'LETTER X-RAY',scenarios:'COMPARE OFFERS',switch:'SWITCH ELIGIBILITY',market:'RATE INTELLIGENCE',penalty:'PENALTY WORKBENCH',negotiate:'NEGOTIATION COACH',plan:'ACTION PLAN',report:'STRATEGY REPORT',shared:'SHARED REPORT'};
 const $=id=>document.getElementById(id);
 let recalculationSeq=0;
+let documentUploadSeq=0;
+let penaltySeq=0;
 
 function render(){
+  const penaltyInputsOpen=document.getElementById('penalty-inputs')?.open;
+  if(penaltyInputsOpen!==undefined)state.penaltyInputsOpen=penaltyInputsOpen;
   $('content').innerHTML=getView();
   $('breadcrumb').textContent='YOUR MORTGAGE / '+(names[state.page]||'OVERVIEW');
   document.querySelectorAll('[data-nav]').forEach(b=>{
@@ -16,14 +26,18 @@ function render(){
     if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
   document.title=`${names[state.page]||'Renewal Radar'} · Renewal Radar`;
+  localHelper.refresh();
+  mortgageCharts.refresh();
 }
 function navigate(page){
   if(!state.loaded)return;
   state.page=page;
+  document.getElementById('mobile-more')?.removeAttribute('open');
   render();
   window.scrollTo({top:0,behavior:'smooth'});
   if(page==='negotiate'&&!state.negotiation)makeNegotiation().catch(handleError);
-  if(page==='penalty'&&!state.penalty)calcPenalty().catch(handleError);
+  if(page==='penalty'&&!state.penaltyTimeline)calcPenalty().catch(handleError);
+  if(page==='live'&&!state.liveRates)loadLiveRates(false).catch(handleError);
 }
 function handleError(e){toast('⚠ '+(e?.message||'Unable to complete the operation.'));console.warn('Action failed',e?.message||e)}
 async function recalculate(quiet=false){
@@ -38,7 +52,8 @@ async function recalculate(quiet=false){
   }catch(e){handleError(e)}
 }
 async function refreshMarket(){
-  try{state.market=await api.market();if(state.page==='market')render();toast(state.market?.data_status==='live-observation'?'✓ Official Bank of Canada observations updated':'Data service currently unavailable — no rates were substituted')}catch(e){handleError(e)}
+  const snapshot=await rateRefresh.refresh(true);
+  toast(snapshot?.data_status==='live-observation'?'Official observations refreshed':'Rates are cached or unavailable. Check the source status.');
 }
 function typed(value,field){
   if(['true','false','null'].includes(value)&&['standalone','existing_lender_federally_regulated','new_lender_federally_regulated','amortization_increase','combined_loan_plan'].includes(field))
@@ -48,11 +63,13 @@ function typed(value,field){
 }
 async function uploadDocument(file){
   if(!file)return;
-  if(!file.name.toLowerCase().endsWith('.pdf')){toast('Upload a PDF renewal letter.');return}
+  if(!/\.(pdf|png|jpe?g|webp|tiff?)$/i.test(file.name)){toast('Upload a PDF or document image.');return}
   if(file.size>8*1024*1024){toast('The PDF exceeds the 8 MB limit.');return}
-  toast('Reading the renewal letter…');
+  const uploadSeq=++documentUploadSeq;
+  toast('Reading the document locally. Scanned pages may take longer.');
   try{
-    const result=await api.pdfExtract(file);
+    const result=await api.documentRead(file,state.ocrLanguage||'eng');
+    if(uploadSeq!==documentUploadSeq)return;
     state.document=result;
     for(const [key,evidence] of Object.entries(result.fields)){
       if(Object.hasOwn(state.mortgage,key)&&evidence.value!==null)
@@ -63,12 +80,17 @@ async function uploadDocument(file){
   }catch(e){handleError(e)}
 }
 async function calcPenalty(){
+  const sequence=++penaltySeq;
   let m=state.mortgage,p=state.penaltyInputs||{};
-  state.penalty=await api.penalty({balance:p.balance??m.balance,current_rate:p.current_rate??m.current_rate,
+  const results=await Promise.allSettled([api.penalty({balance:p.balance??m.balance,current_rate:p.current_rate??m.current_rate,
     remaining_term_months:p.remaining_term_months??m.remaining_old_term_months,
     comparison_rate:p.comparison_rate??3.75, rate_type:p.rate_type??m.rate_type,
-    contract_method:p.contract_method??'simple',original_posted_rate:p.original_posted_rate??5.99,
-    original_discount:p.original_discount??1.25,is_open:false});
+    contract_method:legacyPenaltyMethod(timelineRequest(state).method),original_posted_rate:p.original_posted_rate??null,
+    original_discount:p.original_discount===''?null:p.original_discount??null,is_open:false}),api.penaltyTimeline(timelineRequest(state))]);
+  if(sequence!==penaltySeq)return;
+  if(results[0].status==='fulfilled')state.penalty=results[0].value;
+  if(results[1].status==='fulfilled'){state.penaltyTimeline=results[1].value;state.penaltyTimelineError=null;}
+  else {state.penaltyTimeline=null;state.penaltyTimelineError=results[1].reason?.message||'Timeline unavailable';}
   if(state.page==='penalty')render();
 }
 async function makeNegotiation(){
@@ -111,12 +133,18 @@ async function loadSamplePdf(){
   const response=await fetch('/api/demo/sample.pdf');if(!response.ok)throw new Error('Demo sample PDF unavailable');
   const blob=await response.blob();await uploadDocument(new File([blob],'fictional-renewal-letter.pdf',{type:'application/pdf'}));
 }
+async function loadSampleScan(){
+  const response=await fetch('/api/demo/sample-scan.png');
+  if(!response.ok)throw new Error('RBC illustration scan is unavailable');
+  const blob=await response.blob();await uploadDocument(new File([blob],'rbc-renewal-illustration.png',{type:'image/png'}));
+}
 async function action(name,element){
   switch(name){
     case 'run-analysis':await recalculate();break;
     case 'refresh-market':await refreshMarket();break;
     case 'load-bank-rates':state.bankRates=await api.bankRates();render();toast('✓ Official bank pages checked. Unverifiable quotes are excluded.');break;
     case 'sample-pdf':await loadSamplePdf();break;
+    case 'sample-scan':await loadSampleScan();break;
     case 'save-case':await saveCase();break;
     case 'create-share':await createShare();break;
     case 'revoke-share':await revokeShare();break;
@@ -125,6 +153,12 @@ async function action(name,element){
     case 'copy-email':if(state.negotiation)await copyText(state.negotiation.email);break;
     case 'make-negotiation':await makeNegotiation();toast('✓ Negotiation plan ready');break;
     case 'calc-penalty':await calcPenalty();toast('✓ Updated penalty sensitivity');break;
+    case 'lender-exact-calc':await lenderExactCalc();break;
+    case 'live-rates-refresh':toast('Checking every lender…');await loadLiveRates(true);toast('✓ Rates refreshed');break;
+    case 'lender-exact-letter':{const lx={...(state.lenderExact||{})};const response=await api.ratewatchLetter({...lenderExactRequest(lx),client_name:lx.client_name||'Homeowner',language:lx.language||'en'});await downloadResponse(response,'penalty-assessment.pdf');toast('✓ Letter downloaded');break;}
+    case 'lender-exact-csv':{const response=await api.ratewatchExtra('csv',lenderExactRequest(state.lenderExact));await downloadResponse(response,'penalty.csv');break;}
+    case 'penalty-example':state.penaltyInputs=exitCostExample();state.penaltyExample=true;state.penaltyMonth=0;await calcPenalty();break;
+    case 'penalty-workspace':state.penaltyInputs=null;state.penaltyExample=false;state.penaltyMonth=0;await calcPenalty();break;
     case 'generate-insight':await makeInsight();break;
     case 'run-agent':toast('Agent running verified market, rules and financial tools…');state.agentRun=await api.agentRun(analyzeBody());state.insight=state.agentRun.summary;render();toast('✓ Eight-step agent run complete');break;
     case 'download-report':await downloadReport();break;
@@ -148,6 +182,23 @@ async function action(name,element){
 }
 
 // All events are delegated so re-rendering forms never duplicates listeners.
+async function loadLiveRates(force){
+  state.liveRatesError=null;
+  try{state.liveRates=force?await api.liveRatesRefresh():await api.liveRates();}
+  catch(err){state.liveRatesError=err.message;}
+  render();
+}
+async function lenderExactCalc(){
+  const body=lenderExactRequest(state.lenderExact);
+  state.lenderExactError=null;
+  try{
+    state.lenderExactResult=await api.ratewatchPenalty(body);
+    const matured=state.lenderExactResult.method==='matured';
+    state.lenderExactForecast=matured?null:await api.ratewatchForecast(body);
+    state.lenderExactCheapest=matured?null:await api.ratewatchExtra('cheapest-day',body);
+  }catch(err){state.lenderExactResult=null;state.lenderExactError=err.message;}
+  render();
+}
 document.addEventListener('click',e=>{
   const nav=e.target.closest('[data-nav]');
   if(nav){navigate(nav.dataset.nav);return}
@@ -156,6 +207,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',e=>{
   const t=e.target;
+  if(t.matches('.document-language')){state.ocrLanguage=t.value;return;}
   if(t.id==='pdf-upload'){uploadDocument(t.files?.[0]);t.value='';return}
   if(t.matches('.plan-check')){if(t.checked)state.checklist.add(t.dataset.id);else state.checklist.delete(t.dataset.id);render();return}
   if(t.matches('.mortgage-field')){
@@ -174,10 +226,25 @@ document.addEventListener('change',e=>{
     if(t.dataset.key==='horizon')state.horizon=Number(t.value);
     recalculate(true);return;
   }
+  if(t.matches('.lx-field')){
+    state.lenderExact??={};
+    state.lenderExact[t.dataset.key]=t.value;
+    return;
+  }
   if(t.matches('.penalty-field')){
     state.penaltyInputs??={};
-    state.penaltyInputs[t.dataset.key]=['rate_type','contract_method'].includes(t.dataset.key)?t.value:Number(t.value);
+    state.penaltyInputs[t.dataset.key]=t.type==='checkbox'?t.checked:t.value;
     calcPenalty().catch(handleError);return;
+  }
+  if(t.matches('.penalty-ladder-rate')){
+    state.penaltyInputs??={};
+    state.penaltyInputs.ladder??=[6,12,24,36,48,60].map(months=>({months,rate:''}));
+    state.penaltyInputs.ladder[Number(t.dataset.index)].rate=t.value;
+    calcPenalty().catch(handleError);return;
+  }
+  if(t.matches('.penalty-month')){
+    state.penaltyMonth=Number(t.value);render();
+    document.querySelector('.penalty-month')?.focus({preventScroll:true});return;
   }
   if(t.matches('.neg-field')){
     state.negInputs??={};
@@ -192,6 +259,7 @@ document.addEventListener('drop',e=>{const drop=e.target.closest('#file-drop');i
 $('theme-toggle').addEventListener('click',()=>{
   state.theme=state.theme==='light'?'dark':'light';document.documentElement.dataset.theme=state.theme;
   try{localStorage.setItem('rr_theme',state.theme)}catch{}
+  mortgageCharts.refresh();
 });
 $('restart-demo').addEventListener('click',()=>start(true).then(()=>navigate('overview')).then(()=>toast('✓ Sample restored')).catch(handleError));
 
@@ -208,10 +276,11 @@ async function start(forceReset=false){
     return;
   }
   if(sharedMatch&&forceReset)window.history.replaceState(null,'','/');
-  const demo=await api.demo();resetState(demo);
+  const initial=await loadInitialWorkspace(api);resetState(initial.data);
+  state.offlineWorkspace=initial.offline;
   state.page='overview';
   render();
-  const caseRecord=!forceReset?recoverCase():null;
+  const caseRecord=!forceReset&&!initial.offline?recoverCase():null;
   if(caseRecord&&window.confirm('A previous case is saved in this tab. Restore it?')){
     try{const saved=await api.load(caseRecord.id,caseRecord.access_token);
       state.mortgage=saved.data.mortgage;state.offers=saved.data.offers;storeCase(caseRecord);
@@ -220,8 +289,18 @@ async function start(forceReset=false){
   const health=api.health().then(x=>{
     const el=$('api-light');el.classList.add('good');el.querySelector('span').textContent=x.ai_configured?'API · AI ready':'API connected';
   }).catch(()=>{const el=$('api-light');el.querySelector('span').textContent='Offline'});
-  const analysis=recalculate(true);
-  const market=api.market().then(data=>{state.market=data;if(state.page==='market')render()}).catch(()=>{});
+  const analysis=initial.offline?Promise.resolve():recalculate(true);
+  const market=initial.offline?Promise.resolve():rateRefresh.refresh();
   await Promise.allSettled([health,analysis,market]);
 }
+const localHelper=mountLocalMortgageHelper({getWorkspace:()=>state});
+const mortgageCharts=mountMortgageCharts($('content'),()=>state);
+const rateRefresh=new RateRefreshController({fetchSnapshot:()=>api.rateSnapshot(),forceRefresh:()=>api.rateRefresh(),
+  onUpdate:snapshot=>{state.rateTracking=snapshot;state.market=snapshot.market;state.bankRates={bank_rates:snapshot.banks};
+    if(state.page==='market')render();else localHelper.refresh();},
+  onError:()=>{if(state.market?.series){state.market={...state.market,data_status:'cached-stale',from_cache:true};
+    if(state.rateTracking)state.rateTracking={...state.rateTracking,data_status:'cached-stale'};
+    if(state.page==='market')render();else localHelper.refresh();}}});
+registerOfflineShell();
+rateRefresh.start();
 start().catch(handleError);

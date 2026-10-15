@@ -175,10 +175,11 @@ class RateArchive:
             conditions.append('captured_at<=?')
             parameters.append(utc(as_of).isoformat())
         parameters.append(limit)
-        # Column names are fixed literals above; every value is a bound parameter.
-        query = ('SELECT * FROM rate_observations WHERE '  # nosec B608
-                 + ' AND '.join(conditions)
-                 + ' ORDER BY effective_at DESC,captured_at DESC,id LIMIT ?')
+        # Column names come from a fixed whitelist above; values are bound parameters.
+        query = (
+            'SELECT * FROM rate_observations WHERE ' + ' AND '.join(conditions) +  # nosec B608
+            ' ORDER BY effective_at DESC,captured_at DESC,id LIMIT ?'
+        )
         with self._connect() as db:
             return [dict(row) for row in db.execute(query, parameters)]
 

@@ -7,7 +7,6 @@ COPY backend ./backend
 COPY frontend ./frontend
 COPY fixtures ./fixtures
 COPY docs ./docs
-COPY data/reference ./data/reference
 ENV PYTHONPATH=/app/backend
 EXPOSE 8000
 CMD ["uvicorn","renewal.main:app","--host","0.0.0.0","--port","8000"]
