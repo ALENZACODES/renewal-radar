@@ -48,3 +48,27 @@ on every branch.
 - `created_by` is set server-side to the workspace id (audit `lead_created`); client `id` / `status` / `created_by` / `workspace_id` are dropped.
 - DELETE loads the lead row, takes `workspace_id` from DB, authorizes via withdraw token or broker token for that workspace, audits `lead_withdrawn`, returns **404** on failure.
 - Principal today = broker workspace token (no OIDC yet).
+
+## Case tokens (broker-first, no Auth0)
+
+- `POST /api/cases` requires `X-Broker-Token` + body `workspace_id`. Returns **case id only** (no long-lived access token).
+- `POST /api/cases/{id}/tokens` (broker of owning workspace) mints a scoped token: allowlisted scopes, TTL, rate limit, SHA-256 hash at rest. Plaintext returned once.
+- Allowed scopes: `case:read`, `case:write`, `case:share`, `banklink:connect`, `banklink:read`.
+- API-key-only callers cannot mint case tokens.
+- **TODO:** email OTP verification before handing a borrower invite token (email send not in repo).
+
+## Bank-link binding + PKCE
+
+- Consents bind to `case_id` + `workspace_id` (broker or `banklink:connect` case token).
+- Session requires case token `banklink:connect` + PKCE S256 `code_challenge`; optional HttpOnly `rr_banklink_nonce` cookie.
+- `POST /api/v5/banklink/complete` is **public** (no `X-Api-Key`): one-time `state` + `code_verifier` + optional cookie. Atomic state claim.
+- Provider handles sealed with Fernet when `RR_BANKLINK_KEY` is set; otherwise plaintext sandbox stub (**TODO:** fail closed in production).
+- Mortgages: same-workspace broker **or** case token `banklink:read` / `banklink:connect`.
+- Revoke is idempotent and deletes consent/link/state bindings.
+
+## Remaining gaps
+
+- Case / banklink token stores are in-process (need shared store for multi-instance).
+- Email OTP for borrower invites (stubbed TODO).
+- No OIDC yet — broker workspace token is the principal.
+- `RR_BANKLINK_KEY` optional in sandbox; should be required in production.
