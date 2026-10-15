@@ -383,6 +383,63 @@ from pydantic import BaseModel, Field
 rates_archive = RateArchive(ROOT / 'data' / 'rate-history.sqlite3')
 broker_workspace = BrokerWorkspace(ROOT / 'data' / 'broker-workspaces.sqlite3')
 
+from .broker.dashboard import BrokerDashboard
+from .leads.engine import LeadEngine
+from .leads.identity import Vault
+from .rates.service import reference_book
+from .rates.models import CHARTERED
+from .routers.v5 import build_router, _sandbox_service
+from .services import store as case_store
+
+def _frontend_check():
+    index = FRONTEND / 'index.html'
+    if not index.is_file():
+        raise FileNotFoundError('frontend assets missing')
+    return 'ok'
+
+def _case_store_check():
+    case_store.initialize()
+    return 'ok'
+
+def _market_rate(lender, day):
+    hit = reference_book().posted_at(lender or CHARTERED, 60, day)
+    return None if hit is None else hit.rate
+
+broker_dashboard = BrokerDashboard(broker_workspace, market_rate=_market_rate)
+banklink_service = _sandbox_service()
+_lead_engine = None
+LEADS_DB = ROOT / 'data' / 'leads.sqlite3'
+
+def get_lead_engine():
+    global _lead_engine
+    from renewal import main as main_mod
+    if main_mod._lead_engine is not None:
+        return main_mod._lead_engine
+    key = os.environ.get('RR_LEAD_KEY', '')
+    secret = os.environ.get('RR_LEAD_DEDUPE_SECRET', '')
+    if not key or len(secret) < 32:
+        raise HTTPException(503, 'Lead engine not configured')
+    engine = LeadEngine(
+        main_mod.LEADS_DB,
+        Vault(key.encode() if isinstance(key, str) else key),
+        secret.encode() if isinstance(secret, str) else secret,
+    )
+    main_mod._lead_engine = engine
+    return engine
+
+app.include_router(build_router(
+    broker_workspace=broker_workspace,
+    broker_dashboard=broker_dashboard,
+    banklink_service=banklink_service,
+    get_lead_engine=get_lead_engine,
+    frontend_check=_frontend_check,
+    case_store_check=_case_store_check,
+    connectors=lambda: {
+        'model': bool(settings.nebius_api_key),
+        'search': bool(settings.tavily_api_key),
+    },
+))
+
 class RateSubmission(BaseModel):
     lender: str
     product: str
