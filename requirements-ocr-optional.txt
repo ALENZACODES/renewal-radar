@@ -1,0 +1,10 @@
+# Optional OCR/document-intelligence adapters for Renewal Radar.
+# These are not required for the default app or test suite.
+# Install deliberately after reviewing model, license, hardware and privacy posture.
+
+docling>=2.119,<3
+unstructured>=0.27,<1
+paddleocr>=3.7,<4
+surya-ocr>=0.22,<1
+marker-pdf>=2,<3
+olmocr>=0.4,<1

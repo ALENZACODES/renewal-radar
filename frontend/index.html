@@ -4,17 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#0b2c25" />
+  <meta name="theme-color" content="#011f5b" />
   <meta name="description" content="Renewal Radar: Canadian mortgage renewal intelligence. Read the letter, model your options, negotiate with confidence." />
   <title>Renewal Radar — Don't Just Renew. Renegotiate.</title>
   <link rel="stylesheet" href="/assets/app.css" />
+  <link rel="stylesheet" href="/assets/public-service.css" />
+  <link rel="stylesheet" href="/assets/naval-academic.css"/>
 </head>
 <body>
 <div id="app" class="shell">
   <aside class="sidebar" aria-label="Main navigation">
     <div class="brand">
-      <div class="brand-icon"><span class="radar-core"></span><span class="radar-ring radar-ring-a"></span><span class="radar-ring radar-ring-b"></span></div>
-      <div class="brand-word">renewal<span>radar</span><small>INTELLIGENT MORTGAGE RENEWAL</small></div>
+      <img class="naval-brand-mark" src="/assets/renewal-radar-naval-v17.png" width="58" height="58" alt=""/>
+      <div class="brand-word">Renewal<span>Radar</span><small>Mortgage Intelligence</small></div>
     </div>
     <div class="nav-kicker">YOUR WORKSPACE</div>
     <nav id="side-nav">
@@ -23,6 +25,7 @@
       <button class="nav-link" data-nav="scenarios"><span class="nav-icon">▥</span>Compare offers</button>
       <button class="nav-link" data-nav="switch"><span class="nav-icon">⇄</span>Switch eligibility</button>
       <button class="nav-link" data-nav="market"><span class="nav-icon">↗</span>Rate intelligence</button>
+      <button class="nav-link" data-nav="live"><span class="nav-icon">◉</span>Live rates</button>
       <button class="nav-link" data-nav="penalty"><span class="nav-icon">◷</span>Penalty workbench</button>
       <button class="nav-link" data-nav="negotiate"><span class="nav-icon">✎</span>Negotiation coach</button>
       <button class="nav-link" data-nav="plan"><span class="nav-icon">☑</span>Action plan</button>
@@ -36,16 +39,30 @@
   </aside>
   <div class="body-wrap">
     <header class="topbar">
-      <div class="mobile-brand"><div class="mobile-brand-dot"></div> renewal<span>radar</span></div>
+      <div class="mobile-brand"><img class="naval-brand-mark" src="/assets/renewal-radar-naval-v17.png" width="34" height="34" alt=""/><span>RenewalRadar</span></div>
       <div class="breadcrumb" id="breadcrumb">YOUR MORTGAGE / OVERVIEW</div>
       <div class="top-actions"><span id="api-light" class="connection"><i></i><span>Connecting</span></span><button class="top-small" id="restart-demo" title="Load the synthetic sample">Reset demo</button><button class="top-primary" data-nav="report">Export report <span>↗</span></button></div>
     </header>
+    <div class="naval-wave-band" aria-hidden="true"></div>
     <main id="content" tabindex="-1" aria-live="polite"></main>
     <footer class="site-footer"><span>© 2026 Renewal Radar · Made for Canadian homeowners</span><span>Estimates, not approvals or lender quotes. <a href="https://www.canada.ca/en/financial-consumer-agency/services/mortgages/renew-mortgage.html" target="_blank" rel="noopener noreferrer">FCAC renewal guide ↗</a></span></footer>
   </div>
-  <nav id="mobile-nav" aria-label="Mobile navigation"><button data-nav="overview">◈<span>Home</span></button><button data-nav="document">▤<span>Letter</span></button><button data-nav="scenarios">▥<span>Compare</span></button><button data-nav="negotiate">✎<span>Coach</span></button><button data-nav="report">▧<span>Report</span></button></nav>
+  <nav id="mobile-nav" aria-label="Mobile navigation">
+    <button data-nav="overview">&#9672;<span>Home</span></button>
+    <button data-nav="document">&#9640;<span>Letter</span></button>
+    <button data-nav="scenarios">&#9641;<span>Compare</span></button>
+    <button data-nav="market">&#8599;<span>Rates</span></button>
+    <button data-nav="penalty">&#9677;<span>Penalty</span></button>
+    <details id="mobile-more" class="mobile-more"><summary aria-label="More workspaces">&#9776;<span>More</span></summary><div>
+      <button data-nav="live">Live rates</button><button data-nav="switch">Switch eligibility</button><button data-nav="negotiate">Negotiation coach</button>
+      <button data-nav="plan">Action plan</button><button data-nav="report">Strategy report</button>
+    </div></details>
+  </nav>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<button id="helper-launcher" class="helper-launcher" type="button" title="Mortgage helper" aria-label="Open mortgage helper" aria-expanded="false" aria-controls="local-helper">?</button>
+<div id="local-helper"></div>
+<script src="/assets/vendor/echarts-6.1.0.min.js"></script>
 <script type="module" src="/js/app.js"></script>
 </body>
 </html>

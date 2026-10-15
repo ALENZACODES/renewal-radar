@@ -1,5 +1,3 @@
 # Cron expression; install only on trusted authenticated host, never from browser:
 # Hourly bank-site checks require review of each institution's terms and traffic limits.
 0 * * * * cd /srv/renewal-radar && . .venv/bin/activate && ./scripts/refresh_market.sh >> /var/log/renewal-radar-feed.log 2>&1
-# Daily posted-rate scrape, 07:15 Toronto time
-15 7 * * * cd /app && PYTHONPATH=backend python -m renewal.scraper.runner --out data/current
