@@ -1,0 +1,9 @@
+File Number,Primary Applicant,Lender Name,Product,Rate Type,Mortgage Amount,Interest Rate,Posted Rate,Term (Years),Funded Date,Maturity Date,Amortization,Payment Frequency,Insured,Province,Status
+F-1001,Fictional Client A,TD Canada Trust,5 Year Fixed Closed,Fixed,520000,5.84,7.49,5,2023-10-16,2028-10-16,25,Monthly,No,ON,Funded
+F-1002,Fictional Client B,RBC Royal Bank,5 Year Fixed Closed,Fixed,410000,5.49,,5,2024-02-01,2029-02-01,30,Monthly,No,ON,Funded
+F-1003,Fictional Client C,CIBC,3 Year Fixed,Fixed,365000,5.99,7.19,3,2024-06-14,2027-06-14,25,Bi-weekly,Yes,BC,Funded
+F-1004,Fictional Client D,First National,5 Year Fixed,Fixed,612000,4.79,,5,2022-11-30,2027-11-30,25,Monthly,Yes,AB,Funded
+F-1005,Fictional Client E,Scotiabank,5 Year Variable,Variable,455000,5.95,,5,2023-04-03,2028-04-03,25,Monthly,No,ON,Funded
+F-1006,Fictional Client F,TD Canada Trust,5 Year Fixed Closed,Fixed,300000,2.29,4.79,5,2021-12-01,2026-12-01,25,Monthly,No,ON,Funded
+F-1007,Fictional Client G,National Bank,5 Year Fixed,Fixed,480000,6.24,7.59,5,2023-08-21,2028-08-21,25,Monthly,No,QC,Funded
+F-1008,Fictional Client H,MCAP,4 Year Fixed,Fixed,390000,5.69,,4,2024-01-15,2028-01-15,30,Monthly,Yes,ON,Funded
