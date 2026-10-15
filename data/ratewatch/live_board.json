@@ -1,0 +1,1275 @@
+{
+ "refreshed_at": "2026-10-15T03:19:52+00:00",
+ "anchor": {
+  "boc_5y_posted_date": "2026-10-14",
+  "boc_5y_posted": 6.19,
+  "goc_5y_date": "2026-10-13",
+  "goc_5y": 3.55
+ },
+ "summary": {
+  "primary": 21,
+  "backup1": 2,
+  "cache": 0,
+  "archive": 0,
+  "boc_typical": 1,
+  "unavailable": 3
+ },
+ "banks": [
+  {
+   "id": "P021",
+   "name": "RBC",
+   "type": "bank",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.rbcroyalbank.com/mortgages/mortgage-rates.html",
+   "rates": {
+    "6": {
+     "posted": 5.74
+    },
+    "12": {
+     "special": 5.14,
+     "posted": 5.74
+    },
+    "24": {
+     "special": 5.14,
+     "posted": 5.74
+    },
+    "36": {
+     "special": 4.99,
+     "posted": 6.25
+    },
+    "48": {
+     "special": 5.04,
+     "posted": 6.09
+    },
+    "60": {
+     "special": 5.14,
+     "posted": 6.19
+    },
+    "84": {
+     "special": 5.25,
+     "posted": 6.5
+    },
+    "120": {
+     "posted": 6.9
+    }
+   },
+   "five_year": {
+    "posted": 6.19,
+    "special": 5.14,
+    "advertised": 5.14
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "P023",
+   "name": "TD",
+   "type": "bank",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.td.com/ca/en/personal-banking/products/mortgages/mortgage-rates",
+   "rates": {
+    "6": {
+     "posted": 5.54,
+     "special": 5.93
+    },
+    "12": {
+     "posted": 5.49,
+     "special": 5.72
+    },
+    "24": {
+     "posted": 5.29,
+     "special": 5.21
+    },
+    "36": {
+     "posted": 6.05,
+     "special": 5.14
+    },
+    "48": {
+     "posted": 5.99,
+     "special": 4.25
+    },
+    "60": {
+     "posted": 6.09,
+     "special": 5.34
+    },
+    "72": {
+     "posted": 6.29,
+     "special": 5.39
+    },
+    "84": {
+     "posted": 6.4,
+     "special": 5.49
+    },
+    "120": {
+     "posted": 6.8,
+     "special": 5.5
+    }
+   },
+   "five_year": {
+    "posted": 6.09,
+    "special": 5.34,
+    "advertised": 5.34
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "P025",
+   "name": "Scotiabank",
+   "type": "bank",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage",
+   "rates": {
+    "12": {
+     "posted": 5.49
+    },
+    "24": {
+     "posted": 5.24
+    },
+    "36": {
+     "posted": 6.05
+    },
+    "48": {
+     "posted": 6.09
+    },
+    "60": {
+     "posted": 6.19
+    },
+    "84": {
+     "posted": 6.4
+    },
+    "120": {
+     "posted": 6.8
+    }
+   },
+   "five_year": {
+    "posted": 6.19,
+    "special": null,
+    "advertised": 6.19
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "P027",
+   "name": "BMO",
+   "type": "bank",
+   "tier": "boc_typical",
+   "tier_label": "Bank of Canada big-six typical",
+   "as_of": "2026-10-14",
+   "source_url": "https://www.bankofcanada.ca/rates/banking-and-financial-statistics/posted-interest-rates-offered-by-chartered-banks/",
+   "rates": {
+    "60": {
+     "posted": 6.19
+    }
+   },
+   "five_year": {
+    "posted": 6.19,
+    "special": null,
+    "advertised": 6.19
+   },
+   "lender_specific": false,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": false,
+     "reason": "ReadTimeout"
+    },
+    {
+     "tier": "backup1",
+     "ok": false,
+     "reason": "no rates found"
+    },
+    {
+     "tier": "cache",
+     "ok": false,
+     "reason": "no reading in the last 14 days"
+    },
+    {
+     "tier": "archive",
+     "ok": false,
+     "reason": "no rates found"
+    }
+   ]
+  },
+  {
+   "id": "P029",
+   "name": "CIBC",
+   "type": "bank",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2c5YRVARCLO%2cFOM%2cVROM%2c",
+   "rates": {
+    "12": {
+     "posted": 5.14,
+     "special": 5.09
+    },
+    "24": {
+     "special": 4.84,
+     "posted": 5.24
+    },
+    "36": {
+     "posted": 6.14,
+     "special": 5.09
+    },
+    "48": {
+     "special": 5.24,
+     "posted": 6.19
+    },
+    "60": {
+     "posted": 6.49,
+     "special": 5.34
+    },
+    "84": {
+     "posted": 6.3,
+     "special": 5.54
+    },
+    "120": {
+     "posted": 6.79
+    }
+   },
+   "five_year": {
+    "posted": 6.49,
+    "special": 5.34,
+    "advertised": 5.34
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "P031",
+   "name": "National Bank",
+   "type": "bank",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.nbc.ca/personal/mortgages/rates.html",
+   "rates": {
+    "12": {
+     "special": 5.49
+    },
+    "24": {
+     "special": 4.99,
+     "posted": 5.31
+    },
+    "36": {
+     "posted": 6.1
+    },
+    "48": {
+     "posted": 6.09
+    },
+    "60": {
+     "posted": 6.18
+    },
+    "72": {
+     "posted": 6.44
+    },
+    "84": {
+     "special": 5.34,
+     "posted": 6.43
+    },
+    "120": {
+     "posted": 6.83
+    }
+   },
+   "five_year": {
+    "posted": 6.18,
+    "special": null,
+    "advertised": 6.18
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  }
+ ],
+ "credit_unions": [
+  {
+   "id": "P035",
+   "name": "Desjardins",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.desjardins.com/en/mortgage/mortgage-rates.html",
+   "rates": {
+    "6": {
+     "posted": 7.99
+    },
+    "12": {
+     "posted": 5.49
+    },
+    "24": {
+     "posted": 5.59
+    },
+    "36": {
+     "posted": 6.04
+    },
+    "48": {
+     "posted": 6.09,
+     "special": 4.59
+    },
+    "60": {
+     "posted": 6.14,
+     "special": 4.69
+    },
+    "72": {
+     "posted": 6.29
+    },
+    "84": {
+     "posted": 6.39
+    },
+    "120": {
+     "posted": 6.89
+    }
+   },
+   "five_year": {
+    "posted": 6.14,
+    "special": 4.69,
+    "advertised": 4.69
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU01",
+   "name": "Meridian",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.meridiancu.ca/personal/rates-and-fees/mortgage-and-borrowing-rates",
+   "rates": {
+    "6": {
+     "posted": 7.84
+    },
+    "12": {
+     "posted": 6.09
+    },
+    "24": {
+     "posted": 5.74
+    },
+    "36": {
+     "special": 4.49,
+     "posted": 6.54
+    },
+    "48": {
+     "special": 4.29,
+     "posted": 6.19
+    },
+    "60": {
+     "special": 4.74,
+     "posted": 6.49
+    },
+    "84": {
+     "posted": 6.89
+    },
+    "120": {
+     "posted": 6.99
+    }
+   },
+   "five_year": {
+    "posted": 6.49,
+    "special": 4.74,
+    "advertised": 4.74
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU02",
+   "name": "Vancity",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.vancity.com/rates/mortgages",
+   "rates": {
+    "6": {
+     "posted": 5.69,
+     "special": 5.49
+    },
+    "12": {
+     "posted": 4.65,
+     "special": 4.55
+    },
+    "24": {
+     "posted": 4.65
+    },
+    "36": {
+     "special": 4.75,
+     "posted": 4.8
+    },
+    "48": {
+     "special": 4.79,
+     "posted": 4.84
+    },
+    "60": {
+     "special": 4.84,
+     "posted": 4.89
+    },
+    "84": {
+     "posted": 4.97
+    },
+    "120": {
+     "posted": 5.29
+    }
+   },
+   "five_year": {
+    "posted": 4.89,
+    "special": 4.84,
+    "advertised": 4.84
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU03",
+   "name": "Coast Capital",
+   "type": "credit_union",
+   "tier": "unavailable",
+   "tier_label": "Unavailable",
+   "as_of": null,
+   "source_url": "https://www.coastcapitalsavings.com/rates",
+   "rates": {},
+   "five_year": {
+    "posted": null,
+    "special": null,
+    "advertised": null
+   },
+   "lender_specific": false,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": false,
+     "reason": "ReadTimeout"
+    },
+    {
+     "tier": "backup1",
+     "ok": false,
+     "reason": "no rates found"
+    },
+    {
+     "tier": "cache",
+     "ok": false,
+     "reason": "no reading in the last 14 days"
+    },
+    {
+     "tier": "archive",
+     "ok": false,
+     "reason": "no rates found"
+    }
+   ]
+  },
+  {
+   "id": "CU04",
+   "name": "Servus",
+   "type": "credit_union",
+   "tier": "unavailable",
+   "tier_label": "Unavailable",
+   "as_of": null,
+   "source_url": "https://servus.ca/rates",
+   "rates": {},
+   "five_year": {
+    "posted": null,
+    "special": null,
+    "advertised": null
+   },
+   "lender_specific": false,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": false,
+     "reason": "5-year rate 3.1 outside the plausible band for a 5-year bond at 3.55"
+    },
+    {
+     "tier": "backup1",
+     "ok": false,
+     "reason": "no rates found"
+    },
+    {
+     "tier": "cache",
+     "ok": false,
+     "reason": "no reading in the last 14 days"
+    },
+    {
+     "tier": "archive",
+     "ok": false,
+     "reason": "no rates found"
+    }
+   ]
+  },
+  {
+   "id": "CU05",
+   "name": "Alterna Savings",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.alterna.ca/en/rates/mortgages",
+   "rates": {
+    "6": {
+     "special": 7.15,
+     "posted": 7.15
+    },
+    "12": {
+     "special": 5.69,
+     "posted": 6.55
+    },
+    "24": {
+     "special": 5.39,
+     "posted": 6.25
+    },
+    "36": {
+     "special": 4.94,
+     "posted": 5.74
+    },
+    "48": {
+     "special": 5.04,
+     "posted": 6.44
+    },
+    "60": {
+     "special": 5.04,
+     "posted": 6.04
+    }
+   },
+   "five_year": {
+    "posted": 6.04,
+    "special": 5.04,
+    "advertised": 5.04
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU06",
+   "name": "DUCA",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.duca.com/rates",
+   "rates": {
+    "6": {
+     "posted": 2.5
+    },
+    "12": {
+     "posted": 3.2
+    },
+    "24": {
+     "posted": 3.7
+    },
+    "36": {
+     "posted": 3.7
+    },
+    "48": {
+     "posted": 3.9
+    },
+    "60": {
+     "posted": 3.85
+    },
+    "84": {
+     "posted": 3.85
+    }
+   },
+   "five_year": {
+    "posted": 3.85,
+    "special": null,
+    "advertised": 3.85
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU07",
+   "name": "FirstOntario",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.firstontario.com/personal/rates/",
+   "rates": {
+    "6": {
+     "posted": 6.34
+    },
+    "12": {
+     "posted": 5.49
+    },
+    "24": {
+     "posted": 4.84
+    },
+    "36": {
+     "posted": 4.94
+    },
+    "48": {
+     "posted": 4.99
+    },
+    "60": {
+     "posted": 5.04
+    },
+    "84": {
+     "posted": 5.94
+    },
+    "120": {
+     "posted": 6.14
+    }
+   },
+   "five_year": {
+    "posted": 5.04,
+    "special": null,
+    "advertised": 5.04
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU08",
+   "name": "Libro",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.libro.ca/rates-fees/mortgage/",
+   "rates": {
+    "6": {
+     "posted": 7.75
+    },
+    "12": {
+     "posted": 5.39
+    },
+    "24": {
+     "posted": 5.19
+    },
+    "36": {
+     "posted": 5.09
+    },
+    "48": {
+     "posted": 5.09
+    },
+    "60": {
+     "posted": 5.14
+    },
+    "84": {
+     "posted": 6.29
+    }
+   },
+   "five_year": {
+    "posted": 5.14,
+    "special": null,
+    "advertised": 5.14
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU09",
+   "name": "Affinity",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.affinitycu.ca/rates/mortgage-rates",
+   "rates": {
+    "6": {
+     "posted": 5.99,
+     "special": 5.04
+    },
+    "12": {
+     "posted": 4.69,
+     "special": 4.09
+    },
+    "24": {
+     "posted": 4.09
+    },
+    "36": {
+     "posted": 4.14
+    },
+    "48": {
+     "posted": 4.19
+    },
+    "60": {
+     "posted": 4.24
+    },
+    "84": {
+     "posted": 4.79
+    }
+   },
+   "five_year": {
+    "posted": 4.24,
+    "special": null,
+    "advertised": 4.24
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU10",
+   "name": "Conexus",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.conexus.ca/rates/mortgage-rates",
+   "rates": {
+    "6": {
+     "posted": 5.24
+    },
+    "12": {
+     "posted": 4.89
+    },
+    "24": {
+     "posted": 4.49
+    },
+    "36": {
+     "posted": 4.59
+    },
+    "48": {
+     "posted": 4.69
+    },
+    "60": {
+     "posted": 4.59
+    }
+   },
+   "five_year": {
+    "posted": 4.59,
+    "special": null,
+    "advertised": 4.59
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU11",
+   "name": "Your Neighbourhood CU",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.yncu.com/resources/rates/mortgage-rates",
+   "rates": {
+    "12": {
+     "posted": 5.99
+    },
+    "24": {
+     "posted": 5.99
+    },
+    "36": {
+     "posted": 4.69
+    },
+    "48": {
+     "posted": 4.79
+    },
+    "60": {
+     "posted": 4.99
+    },
+    "84": {
+     "posted": 5.99
+    }
+   },
+   "five_year": {
+    "posted": 4.99,
+    "special": null,
+    "advertised": 4.99
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU12",
+   "name": "Synergy",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.synergycu.ca/en/rates/mortgages",
+   "rates": {
+    "12": {
+     "posted": 5.24,
+     "special": 4.89
+    },
+    "24": {
+     "posted": 4.84,
+     "special": 4.49
+    },
+    "36": {
+     "posted": 4.94,
+     "special": 4.59
+    },
+    "48": {
+     "posted": 5.04,
+     "special": 4.69
+    },
+    "60": {
+     "posted": 4.94,
+     "special": 4.59
+    }
+   },
+   "five_year": {
+    "posted": 4.94,
+    "special": 4.59,
+    "advertised": 4.59
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU13",
+   "name": "Coastal Community",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://cccu.ca/financial-tools/rates/mortgage-rates/",
+   "rates": {
+    "6": {
+     "posted": 9.65
+    },
+    "12": {
+     "posted": 5.45
+    },
+    "24": {
+     "posted": 4.79
+    },
+    "36": {
+     "posted": 4.74
+    },
+    "48": {
+     "posted": 4.79
+    },
+    "60": {
+     "posted": 4.05
+    },
+    "84": {
+     "posted": 5.04
+    },
+    "120": {
+     "posted": 5.34
+    }
+   },
+   "five_year": {
+    "posted": 4.05,
+    "special": null,
+    "advertised": 4.05
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU14",
+   "name": "Access Credit Union",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.accesscu.ca/en/rates",
+   "rates": {
+    "12": {
+     "posted": 4.19,
+     "special": 3.7
+    },
+    "24": {
+     "posted": 4.19,
+     "special": 3.8
+    },
+    "36": {
+     "posted": 4.19,
+     "special": 3.9
+    },
+    "48": {
+     "posted": 4.29,
+     "special": 4.0
+    },
+    "60": {
+     "posted": 4.39
+    }
+   },
+   "five_year": {
+    "posted": 4.39,
+    "special": null,
+    "advertised": 4.39
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU15",
+   "name": "beem",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://beemcreditunion.ca/rates",
+   "rates": {
+    "12": {
+     "posted": 4.89,
+     "special": 4.79
+    },
+    "24": {
+     "posted": 4.69,
+     "special": 4.59
+    },
+    "36": {
+     "posted": 4.64,
+     "special": 4.54
+    },
+    "48": {
+     "posted": 4.74,
+     "special": 4.64
+    },
+    "60": {
+     "posted": 4.79,
+     "special": 4.69
+    },
+    "84": {
+     "posted": 5.3,
+     "special": 5.2
+    }
+   },
+   "five_year": {
+    "posted": 4.79,
+    "special": 4.69,
+    "advertised": 4.69
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU16",
+   "name": "Mainstreet",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://mainstreetcu.ca/rates",
+   "rates": {
+    "12": {
+     "posted": 5.34
+    },
+    "24": {
+     "posted": 4.64
+    },
+    "36": {
+     "posted": 4.69
+    },
+    "48": {
+     "posted": 4.89
+    },
+    "60": {
+     "posted": 4.84
+    }
+   },
+   "five_year": {
+    "posted": 4.84,
+    "special": null,
+    "advertised": 4.84
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU17",
+   "name": "Innovation",
+   "type": "credit_union",
+   "tier": "primary",
+   "tier_label": "Live",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.innovationcu.ca/personal/borrowing/mortgage-rates.html",
+   "rates": {
+    "6": {
+     "special": 6.04,
+     "posted": 6.14
+    },
+    "12": {
+     "special": 4.89,
+     "posted": 5.5
+    },
+    "24": {
+     "special": 4.79,
+     "posted": 5.8
+    },
+    "36": {
+     "special": 4.69,
+     "posted": 6.05
+    },
+    "48": {
+     "special": 4.69,
+     "posted": 6.05
+    },
+    "60": {
+     "special": 4.79,
+     "posted": 6.1
+    },
+    "84": {
+     "special": 5.29,
+     "posted": 6.5
+    },
+    "120": {
+     "special": 5.49,
+     "posted": 6.8
+    }
+   },
+   "five_year": {
+    "posted": 6.1,
+    "special": 4.79,
+    "advertised": 4.79
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": true,
+     "reason": "ok"
+    }
+   ]
+  },
+  {
+   "id": "CU18",
+   "name": "Kawartha",
+   "type": "credit_union",
+   "tier": "backup1",
+   "tier_label": "Live (backup source)",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.kawarthacu.com/rates",
+   "rates": {
+    "36": {
+     "posted": 4.84,
+     "special": 4.39
+    },
+    "60": {
+     "posted": 4.44
+    }
+   },
+   "five_year": {
+    "posted": 4.44,
+    "special": null,
+    "advertised": 4.44
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": false,
+     "reason": "no rates found"
+    },
+    {
+     "tier": "backup1",
+     "ok": true,
+     "reason": "rediscovered: https://www.kawarthacu.com/personal/borrowing/mortgages"
+    }
+   ]
+  },
+  {
+   "id": "CU19",
+   "name": "Steinbach",
+   "type": "credit_union",
+   "tier": "unavailable",
+   "tier_label": "Unavailable",
+   "as_of": null,
+   "source_url": "https://scu.mb.ca/rates",
+   "rates": {},
+   "five_year": {
+    "posted": null,
+    "special": null,
+    "advertised": null
+   },
+   "lender_specific": false,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": false,
+     "reason": "no rates found"
+    },
+    {
+     "tier": "backup1",
+     "ok": false,
+     "reason": "no rates found"
+    },
+    {
+     "tier": "cache",
+     "ok": false,
+     "reason": "no reading in the last 14 days"
+    },
+    {
+     "tier": "archive",
+     "ok": false,
+     "reason": "no rates found"
+    }
+   ]
+  },
+  {
+   "id": "CU20",
+   "name": "Tandia",
+   "type": "credit_union",
+   "tier": "backup1",
+   "tier_label": "Live (backup source)",
+   "as_of": "2026-10-15T03:19:52+00:00",
+   "source_url": "https://www.tandia.com/rates",
+   "rates": {
+    "6": {
+     "posted": 7.34,
+     "special": 6.99
+    },
+    "12": {
+     "posted": 5.87,
+     "special": 5.69
+    },
+    "24": {
+     "posted": 5.48,
+     "special": 5.39
+    },
+    "36": {
+     "posted": 4.94
+    },
+    "48": {
+     "posted": 5.04
+    },
+    "60": {
+     "posted": 4.64
+    }
+   },
+   "five_year": {
+    "posted": 4.64,
+    "special": null,
+    "advertised": 4.64
+   },
+   "lender_specific": true,
+   "tried": [
+    {
+     "tier": "primary",
+     "ok": false,
+     "reason": "no 5-year fixed rate found"
+    },
+    {
+     "tier": "backup1",
+     "ok": true,
+     "reason": "rediscovered: https://www.tandia.com/rates/mortgage-rates"
+    }
+   ]
+  }
+ ]
+}

@@ -11,3 +11,13 @@ node_modules/
 .DS_Store
 coverage/
 *.log
+
+# ratewatch: generated or third-party data (rebuild with the commands in docs/RATEWATCH.md)
+data/ratewatch/rates.db
+data/ratewatch/osfi/
+data/ratewatch/td_oracle/
+data/ratewatch/letters/
+data/ratewatch/backfill_progress.json
+data/ratewatch/alerts.csv
+
+runtime/

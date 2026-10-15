@@ -35,7 +35,10 @@ test('all nine screens and report show content without browser globals',()=>{
  for(const p of ['overview','document','scenarios','switch','market','penalty','negotiate','plan','report']){
    state.page=p; const html=getView();
    assert.ok(html.length>120,`Empty ${p}`);
-   assert.ok(html.includes('card')||html.includes('hero'),`Missing layout ${p}`);
+   if(p==='penalty'){
+     assert.ok(html.includes('penalty-output-band'), 'Missing penalty result layout');
+     assert.ok(html.includes('Contract and payout inputs'), 'Missing penalty inputs');
+   }else assert.ok(html.includes('card')||html.includes('hero'),`Missing layout ${p}`);
    assert.ok(!html.includes('undefined'),`Unbound value ${p}`);
  }
 });
