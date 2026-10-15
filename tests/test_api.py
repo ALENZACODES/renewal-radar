@@ -56,11 +56,21 @@ def test_penalty_and_negotiate_and_ics():
         assert b'BEGIN:VCALENDAR' in x.content
 
 
-def test_case_auth_and_expiring_links():
+def test_case_auth_and_expiring_links(monkeypatch):
+    monkeypatch.setenv('RR_ENABLE_DEMO_WORKSPACES','1')
     with TestClient(app) as c:
         d=c.get('/api/demo').json()
-        case=c.post('/api/cases',json={'title':'Test','mortgage':d['mortgage'],'offers':d['offers']}).json()
-        id,token=case['id'],case['access_token']
+        ws=c.post('/api/v4/broker/workspaces',json={'name':'Case Auth WS'}).json()
+        case=c.post('/api/cases',json={'title':'Test','workspace_id':ws['workspace_id'],
+            'mortgage':d['mortgage'],'offers':d['offers']},
+            headers={'X-Broker-Token':ws['access_token']}).json()
+        assert 'access_token' not in case
+        id=case['id']
+        minted=c.post('/api/cases/'+id+'/tokens',
+            json={'scopes':['case:read','case:write','case:share'],'ttl_seconds':3600},
+            headers={'X-Broker-Token':ws['access_token']})
+        assert minted.status_code==201,minted.text
+        token=minted.json()['token']
         assert c.get('/api/cases/'+id).status_code==404
         assert c.get('/api/cases/'+id,headers={'X-Case-Token':'bad'}).status_code==404
         assert c.get('/api/cases/'+id,headers={'X-Case-Token':token}).status_code==200

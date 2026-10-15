@@ -23,6 +23,8 @@ PUBLIC_EXACT: frozenset[str] = frozenset({
     '/api/health',
     '/api/health/live',
     '/api/health/ready',
+    # One-time PKCE complete callback: auth is state + code_verifier (+ optional cookie).
+    '/api/v5/banklink/complete',
     '/',
     '/service-worker.js',
     '/robots.txt',
