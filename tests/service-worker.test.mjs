@@ -19,7 +19,7 @@ function environment({network = async () => new Response('fresh'), stored = null
     fetch: async request => {calls.network++; return network(request);},
     caches: {
       open: async () => cache,
-      keys: async () => ['other-app-cache', 'renewal-radar-shell-v16', 'renewal-radar-shell-v17', 'renewal-radar-shell-v18'],
+      keys: async () => ['other-app-cache', 'renewal-radar-shell-v16', 'renewal-radar-shell-v17', 'renewal-radar-shell-v18', 'renewal-radar-shell-v19'],
       delete: async name => {calls.deleted.push(name);},
     },
     self: {
@@ -74,7 +74,7 @@ test('the offline shell covers local JavaScript imports transitively', async () 
 test('activation preserves unrelated caches and removes only old Renewal Radar shells', async () => {
   const env = environment();
   await env.lifecycle('activate');
-  assert.deepEqual(env.calls.deleted, ['renewal-radar-shell-v16', 'renewal-radar-shell-v17']);
+  assert.deepEqual(env.calls.deleted, ['renewal-radar-shell-v16', 'renewal-radar-shell-v17', 'renewal-radar-shell-v18']);
   assert.equal(env.calls.claim, 1);
 });
 
