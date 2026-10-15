@@ -221,7 +221,7 @@ def question_profiles() -> tuple[QuestionProfile, ...]:
 
 def _safe_id(*parts: str) -> str:
     material = "|".join(str(part) for part in parts)
-    digest = hashlib.sha1(material.encode("utf-8")).hexdigest()[:10]
+    digest = hashlib.sha1(material.encode("utf-8"), usedforsecurity=False).hexdigest()[:10]
     readable = re.sub(r"[^a-z0-9]+", "-", str(parts[0]).lower()).strip("-")[:36]
     return f"{readable}-{digest}" if readable else digest
 

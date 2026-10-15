@@ -75,8 +75,12 @@ def build(years=5):
     rows += [[o["d"], "policy_rate", "", "Target for the overnight rate", float(o["V39079"]["v"]), "Bank of Canada Valet", "V39079"]
              for o in pol if o.get("V39079", {}).get("v")]
     with history.db() as c:
-        bank = c.execute("SELECT source, day, term, rtype, rate, how FROM rates WHERE kind='fixed_closed' AND day>=? "
-                         "AND source IN (%s) AND rtype IN ('posted','special')" % ",".join("?" * len(BIG6)), (start, *BIG6)).fetchall()
+        placeholders = ",".join("?" * len(BIG6))
+        bank = c.execute(
+            "SELECT source, day, term, rtype, rate, how FROM rates WHERE kind='fixed_closed' AND day>=? "  # nosec B608
+            f"AND source IN ({placeholders}) AND rtype IN ('posted','special')",
+            (start, *BIG6),
+        ).fetchall()
     rows += [[d, f"bank_{rt}", t, BIG6[s], r, f"{BIG6[s]} own data ({how})", s] for s, d, t, rt, r, how in bank]
     rows.sort(key=lambda r: (r[0], r[1], str(r[2])))
     with open(DATA / "rates_5yr.csv", "w", newline="", encoding="utf-8") as f:
