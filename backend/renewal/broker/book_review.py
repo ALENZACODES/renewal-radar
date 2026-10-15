@@ -20,15 +20,21 @@ from __future__ import annotations
 import csv
 import io
 import json
-import math
 from dataclasses import replace
-from datetime import date, timedelta
+from datetime import date
 
 from ..ratewatch import history
-from ..ratewatch.extras import _interest_path, monthly_payment
-from ..ratewatch.ird import POLICIES, Mortgage, Policy, add_months, balance_after, maturity_of, months_between, penalty
+from ..ratewatch.ird import POLICIES, Mortgage, Policy, add_months, balance_after, months_between, penalty
 from ..ratewatch.paths import DATA
 from .book_ingest import Deal, deal_from_dict
+from .book_values import csv_cell
+from .book_validation import (
+    lender_alias_matches, offer_issues, safe_review_date, summarize_diagnostics,
+    unique_deals, validate_deal, validate_rate_table,
+)
+from .book_economics import (
+    interest_comparison, project_balance, same_payment_projection, wait_economics,
+)
 
 # lender text in broker files -> (policy key, rate source id)
 LENDER_ALIASES = [
@@ -63,7 +69,7 @@ RENEWAL_WINDOW_DAYS = 120
 def resolve_lender(name: str | None) -> tuple[Policy, str | None, str]:
     n = (name or "").lower()
     for keys, policy_key, sid in LENDER_ALIASES:
-        if any(k in n for k in keys):
+        if any(lender_alias_matches(n, k) for k in keys):
             return POLICIES[policy_key], sid, policy_key
     if "credit union" in n or " cu" in f" {n}" or "caisse" in n:
         return POLICIES["Credit union (generic)"], None, "Credit union (generic)"
@@ -77,12 +83,14 @@ def _board() -> dict:
         return {}
 
 
-def best_offers(term_months: int = 60, board: dict | None = None, labelled_only: bool = True) -> list[dict]:
+def best_offers(term_months: int = 60, board: dict | None = None, labelled_only: bool = True,
+                as_of: date | None = None) -> list[dict]:
     """Validated lender-specific offers for a term from the live-rates board, lowest first.
     Only the lender's discounted/special rate counts (a posted rate is not what clients get). With labelled_only,
     a lender qualifies only if its page shows BOTH a posted and a special rate for the term, so the special rate is
     unambiguous; single unlabeled numbers (which may be variable or promotional) are listed but never the default."""
     board = board if board is not None else _board()
+    as_of = safe_review_date(as_of)
     out = []
     for group in ("banks", "credit_unions"):
         for r in board.get(group, []):
@@ -96,32 +104,36 @@ def best_offers(term_months: int = 60, board: dict | None = None, labelled_only:
                 rate = min(v for v in t.values() if v is not None)
             else:
                 continue
-            out.append({"lender": r["name"], "rate": rate, "term_months": term_months, "labelled": labelled,
-                        "posted": t.get("posted"), "as_of": r.get("as_of"), "source": r.get("tier_label")})
+            offer = {"lender": r["name"], "rate": rate, "term_months": term_months, "labelled": labelled,
+                     "posted": t.get("posted"), "as_of": r.get("as_of"), "source": r.get("tier_label")}
+            checks = offer_issues(offer, as_of)
+            if labelled and any(issue.blocking for issue in checks):
+                continue
+            if not labelled and not labelled_only:
+                offer["warnings"] = ["Unlabelled: not used for recommendations."]
+            else:
+                offer["warnings"] = [issue.message for issue in checks]
+            out.append(offer)
     return sorted(out, key=lambda o: o["rate"])
 
 
-def _months_to_repay(balance: float, annual_rate: float, payment: float) -> float | None:
-    j = (1 + annual_rate / 200) ** (1 / 6) - 1
-    if payment <= balance * j:
-        return None
-    return -math.log(1 - balance * j / payment) / math.log(1 + j)
-
-
 def _current_balance(d: Deal, as_of: date) -> tuple[float, str]:
-    if d.balance_basis == "original" and d.closing_date and d.amort_months:
-        m0 = Mortgage(d.balance, d.contract_rate, d.term_months or 60, d.closing_date, amort_months=d.amort_months)
-        k = max(int(months_between(d.closing_date, as_of)), 0)
-        return round(balance_after(m0, k), 2), f"projected from the original {d.balance:,.0f} over {k} months of payments"
-    return d.balance, "as stated"
+    result = project_balance(d, as_of)
+    return result["balance"], result["basis"]
 
 
 def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term_months: int = 60, fees: float = 0.0,
                 offers: list[dict] | None = None) -> dict:
     out = {"deal_id": d.deal_id, "borrower": d.borrower, "lender": d.lender, "closing_date": d.closing_date and d.closing_date.isoformat(),
            "maturity_date": d.maturity_date and d.maturity_date.isoformat(), "contract_rate": d.contract_rate,
-           "rate_type": d.rate_type or "fixed", "issues": list(d.issues), "recommendation": "Review manually",
+           "rate_type": d.rate_type, "issues": list(d.issues), "recommendation": "Review manually",
            "net_benefit": None, "status": "insufficient_data"}
+    validation = validate_deal(d, as_of)
+    out["validation"] = [issue.as_dict() for issue in validation]
+    if any(issue.blocking for issue in validation):
+        out.update(status="needs_data", recommendation="Confirm the highlighted source fields before calculating.")
+        out["issues"].extend(issue.message for issue in validation)
+        return out
     if d.balance is None or d.contract_rate is None or d.maturity_date is None or d.closing_date is None:
         out["issues"].append("cannot analyse without balance, rate, closing and maturity dates")
         return out
@@ -131,35 +143,49 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
     if d.closing_date > as_of:
         out.update(status="not_started", recommendation="Not funded yet on the review date")
         return out
-    balance, basis = _current_balance(d, as_of)
-    amort = d.amort_months or 300
-    if d.amort_months is None:
-        out["issues"].append("amortization not stated: 25 years assumed for projections")
-    remaining_amort = max(amort - int(months_between(d.closing_date, as_of)), 12) if d.balance_basis == "original" else amort
+    try:
+        projection = project_balance(d, as_of)
+    except ValueError as exc:
+        out.update(status="needs_data", recommendation=str(exc))
+        return out
+    balance, basis = projection["balance"], projection["basis"]
+    if balance <= 0:
+        out.update(status="matured", recommendation="The scheduled balance is repaid; obtain the discharge statement.")
+        return out
+    remaining_amort = projection["remaining_amort_months"]
+    if d.balance_basis == "current" and d.amort_basis == "original":
+        remaining_amort = max(d.amort_months - int(months_between(d.closing_date, as_of)), 1)
+    out["issues"].extend(projection["assumptions"])
+    out["balance_projection"] = projection
     policy, sid, policy_name = resolve_lender(d.lender)
     days_left = (d.maturity_date - as_of).days
     out.update(balance_today=balance, balance_basis=basis, policy=policy_name,
                method_status="exact-method" if policy.verified else "estimate", days_to_maturity=days_left)
 
     # best new rate
-    offers = offers if offers is not None else best_offers(new_term_months)
+    offers = offers if offers is not None else best_offers(new_term_months, as_of=as_of)
     if target_rate:
-        best = {"lender": "broker target", "rate": target_rate, "term_months": new_term_months, "source": "entered by broker"}
+        best = {"lender": "broker target", "rate": target_rate, "term_months": new_term_months,
+                "source": "entered by broker", "labelled": True, "as_of": as_of.isoformat(), "warnings": []}
     elif offers:
         best = offers[0]
     else:
         out["issues"].append("no validated market offers available (refresh the Live rates board or enter a target rate)")
+        out.update(status="needs_data", recommendation="Obtain a current labelled lender offer or enter a broker target.")
         return out
     out["best_offer"] = best
+    out["issues"].extend(best.get("warnings", []))
+    out["issues"].append("Offer eligibility and availability require the lender's written confirmation.")
     if best["rate"] >= d.contract_rate:
         out.update(status="no_opportunity", net_benefit=0.0,
                    recommendation=f"Current rate {d.contract_rate}% is not above the best offer {best['rate']}%")
         return out
 
     # penalty
-    m = Mortgage(balance, d.contract_rate, d.term_months or months_between(d.closing_date, d.maturity_date), d.closing_date,
-                 {}, d.discount, amort_months=remaining_amort, maturity=d.maturity_date)
-    if (d.rate_type or "fixed") == "variable":
+    m = Mortgage(balance, d.contract_rate, d.term_months, d.closing_date,
+                 {d.term_months: d.posted_rate} if d.posted_rate is not None else {},
+                 d.discount, amort_months=remaining_amort, maturity=d.maturity_date)
+    if d.rate_type == "variable":
         three = round(balance * d.contract_rate / 100 / 4, 2)
         pen = {"penalty": three, "three_month": three, "ird": None, "method": "3-month (variable)", "remaining_months":
                round(months_between(as_of, d.maturity_date), 2)}
@@ -167,17 +193,19 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
         table = None
     else:
         table, seen = history.table_on(sid, as_of, max_age_days=14) if sid else ({}, None)
-        if m.discount is None and d.posted_rate is None and sid:
+        if (m.discount is None or policy.three_month_basis == "posted_at_origination") and d.posted_rate is None and sid:
             orig, oday = history.table_on(sid, d.closing_date, max_age_days=45)
             term = d.term_months or 60
             if term in orig and orig[term] >= d.contract_rate:
-                m.discount = round(orig[term] - d.contract_rate, 4)
-                out["issues"].append(f"original discount {m.discount}% from {d.lender}'s recorded posted rate on {oday}")
-        elif d.posted_rate is not None and m.discount is None:
-            m.posted_at_origination = {m.term_months: d.posted_rate}
+                if m.discount is None:
+                    m.discount = round(orig[term] - d.contract_rate, 4)
+                m.posted_at_origination = {term: orig[term]}
+                out["issues"].append(f"original discount {m.discount}%; recorded posted rate {orig[term]}% from {d.lender} on {oday}.")
         needs = []
-        if not table:
+        if not validate_rate_table(table):
             needs.append(f"{d.lender}'s current {'posted ' if policy.comparison != 'offered' else ''}rates")
+        if policy.three_month_basis == "posted_at_origination" and not m.posted_at_origination:
+            needs.append("the original posted rate used for the three-month charge")
         if policy.comparison == "posted_minus_discount" and m.discount is None and not m.posted_at_origination:
             needs.append("the original discount (welcome letter or commitment)")
         if needs:
@@ -196,36 +224,43 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
 
     # economics, one basis: interest saved over min(remaining term, new term) - penalty - fees
     horizon = max(min(int(pen["remaining_months"]), new_term_months), 1)
-    old_i = _interest_path(balance, d.contract_rate, remaining_amort, horizon)
-    new_i = _interest_path(balance, best["rate"], remaining_amort, horizon)
-    saved = sum(old_i) - sum(new_i)
-    net_now = saved - pen["penalty"] - fees
-    cum, be = 0.0, None
-    for k, (a, b) in enumerate(zip(old_i, new_i), start=1):
-        cum += a - b
-        if be is None and cum >= pen["penalty"] + fees:
-            be = k
-    pay = d.payment or monthly_payment(balance, d.contract_rate, remaining_amort)
-    n_old = _months_to_repay(balance, d.contract_rate, pay)
-    n_new = _months_to_repay(balance + pen["penalty"] + fees, best["rate"], pay)   # penalty added to the new loan
-    years_saved = round((n_old - n_new) / 12, 2) if n_old and n_new else None
+    economics = interest_comparison(balance, d.contract_rate, best["rate"], remaining_amort,
+                                    horizon, pen["penalty"], fees)
+    saved, net_now, be = economics["interest_saved"], economics["net_benefit"], economics["break_even_months"]
+    try:
+        payment_projection = same_payment_projection(
+            balance, d.contract_rate, best["rate"], remaining_amort, pen["penalty"], fees,
+            d.payment, d.frequency or "monthly",
+        )
+    except ValueError as exc:
+        payment_projection = {"years_saved": None, "label": str(exc)}
+    years_saved = payment_projection["years_saved"]
+    out["economics"] = economics
+    out["same_payment_projection"] = payment_projection
 
     # breaking later: cheaper penalty vs higher interest while waiting (next 6 months, monthly steps)
     wait = None
     if table is not None:
-        for k in range(1, 7):
+        for k in range(1, min(7, horizon)):
             day = add_months(as_of, k)
             if day >= d.maturity_date:
                 break
             mk = replace(m, balance=balance_after(replace(m, balance=balance), k))
-            pk = penalty(mk, policy, table, day)["penalty"]
-            hk = max(min(int(months_between(day, d.maturity_date)), new_term_months), 1)
-            saved_k = sum(_interest_path(mk.balance, d.contract_rate, remaining_amort - k, hk)) - \
-                sum(_interest_path(mk.balance, best["rate"], remaining_amort - k, hk))
-            waiting_cost = sum(old_i[:k]) - sum(new_i[:k])              # extra interest paid by not switching now
-            net_k = saved_k - pk - fees - waiting_cost
+            if mk.balance <= 0:
+                break
+            try:
+                pk = penalty(mk, policy, table, day)["penalty"]
+            except ValueError:
+                out["issues"].append(f"No complete comparison table for {day}; that waiting date was omitted.")
+                continue
+            comparison = wait_economics(balance, d.contract_rate, best["rate"], remaining_amort,
+                                        horizon, k, pk, fees)
+            if comparison is None:
+                continue
+            net_k = comparison["net_benefit"]
             if wait is None or net_k > wait["net_benefit"]:
-                wait = {"date": day.isoformat(), "penalty": round(pk, 2), "net_benefit": round(net_k, 2)}
+                wait = {"date": day.isoformat(), "penalty": round(pk, 2), "net_benefit": round(net_k, 2),
+                        "comparison": comparison}
 
     out.update(net_benefit=round(net_now, 2), interest_saved=round(saved, 2), horizon_months=horizon,
                break_even_months=be, years_saved_same_payment=years_saved, fees=fees)
@@ -235,43 +270,57 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
         out.update(status="renewal_window",
                    recommendation=f"Maturity in {days_left} days: compare a switch at renewal (no penalty) with breaking now")
     elif net_now >= STRONG:
-        out.update(status="strong", recommendation=f"Break now: about ${net_now:,.0f} net saving over {horizon} months")
+        out.update(status="strong", recommendation=f"Potential switch: about ${net_now:,.0f} net saving over {horizon} months; obtain written quotes")
     elif net_now > 0:
         out.update(status="possible", recommendation=f"Small saving (${net_now:,.0f}); confirm the payout statement first")
     else:
         out.update(status="no_opportunity", recommendation="Penalty outweighs the saving at today's rates")
     if out.get("better_date") and out["status"] != "renewal_window":
         w = out["better_date"]
-        out["recommendation"] += f"; waiting until {w['date']} improves it to about ${w['net_benefit']:,.0f}"
+        out["recommendation"] = f"Compare a switch on {w['date']}: projected net saving ${w['net_benefit']:,.0f} on the same end date"
         if out["status"] == "no_opportunity" and w["net_benefit"] > 0:
             out["status"] = "possible"
     if out["method_status"] == "estimate":
         out["issues"].append("penalty method for this lender is an estimate: get the payout statement")
+    if out["status"] == "strong" and (
+        out["method_status"] == "estimate" or projection["estimated"] or best.get("warnings")
+    ):
+        out["status"] = "possible"
+        out["recommendation"] = "Estimated opportunity: confirm balance, rates, and written payout before acting."
+    out["opportunity_net_benefit"] = max(0.0, net_now, wait["net_benefit"] if wait else 0.0)
     return out
 
 
 def review_book(deals: list[dict | Deal], as_of: date | None = None, closed_from: date | None = None,
                 closed_to: date | None = None, lender: str | None = None, target_rate: float | None = None,
                 new_term_months: int = 60, fees: float = 0.0) -> dict:
-    as_of = as_of or date.today()
-    ds = [d if isinstance(d, Deal) else deal_from_dict(d) for d in deals]
+    as_of = safe_review_date(as_of)
+    if not 0 < len(deals) <= 2000:
+        raise ValueError("review between 1 and 2000 deals at a time")
+    ds = [d if isinstance(d, Deal) else deal_from_dict(
+        {**d, "deal_id": d.get("deal_id") or f"row-{index + 1}"}
+    ) for index, d in enumerate(deals)]
     if closed_from:
         ds = [d for d in ds if d.closing_date and d.closing_date >= closed_from]
     if closed_to:
         ds = [d for d in ds if d.closing_date and d.closing_date <= closed_to]
     if lender:
         ds = [d for d in ds if lender.lower() in (d.lender or "").lower()]
-    offers = best_offers(new_term_months)
+    ds, duplicates = unique_deals(ds)
+    snapshot = _board()
+    offers = best_offers(new_term_months, board=snapshot, as_of=as_of) if target_rate is None else []
     rows = [review_deal(d, as_of, target_rate, new_term_months, fees, offers) for d in ds]
     order = {"strong": 0, "possible": 1, "renewal_window": 2, "needs_data": 3, "no_opportunity": 4,
              "insufficient_data": 5, "matured": 6, "not_started": 7}
-    rows.sort(key=lambda r: (order.get(r["status"], 9), -(r.get("net_benefit") or 0)))
+    rows.sort(key=lambda r: (order.get(r["status"], 9), -(r.get("opportunity_net_benefit") or 0)))
     totals = {s: sum(1 for r in rows if r["status"] == s) for s in order}
     return {"as_of": as_of.isoformat(), "deals_reviewed": len(rows), "summary": totals,
-            "total_net_benefit": round(sum(r["net_benefit"] or 0 for r in rows if r["status"] in ("strong", "possible")), 2),
+            "total_net_benefit": round(sum(r.get("opportunity_net_benefit") or 0 for r in rows if r["status"] in ("strong", "possible")), 2),
             "best_offer": offers[0] if offers and not target_rate else ({"lender": "broker target", "rate": target_rate} if target_rate else None),
             "top_offers": offers[:5],
-            "unlabelled_offers": [o for o in best_offers(new_term_months, labelled_only=False) if not o["labelled"]][:10],
+            "unlabelled_offers": [o for o in best_offers(new_term_months, board=snapshot, labelled_only=False, as_of=as_of) if not o["labelled"]][:10],
+            "duplicates": duplicates, "diagnostics": summarize_diagnostics(rows),
+            "deals_input": len(deals),
             "results": rows}
 
 
@@ -283,9 +332,9 @@ def to_csv(review: dict) -> str:
                 "years_saved_same_payment", "better_date", "recommendation", "issues"])
     for r in review["results"]:
         p, b = r.get("penalty") or {}, r.get("best_offer") or {}
-        w.writerow([r["status"], r["deal_id"], r.get("borrower"), r.get("lender"), r.get("closing_date"), r.get("maturity_date"),
+        w.writerow([csv_cell(value) for value in [r["status"], r["deal_id"], r.get("borrower"), r.get("lender"), r.get("closing_date"), r.get("maturity_date"),
                     r.get("contract_rate"), r.get("balance_today"), p.get("penalty"), p.get("method"), r.get("method_status"),
                     b.get("rate"), b.get("lender"), r.get("net_benefit"), r.get("break_even_months"),
                     r.get("years_saved_same_payment"), (r.get("better_date") or {}).get("date"), r.get("recommendation"),
-                    "; ".join(r.get("issues", []))])
+                    "; ".join(r.get("issues", []))]])
     return buf.getvalue()
