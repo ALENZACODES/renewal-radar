@@ -81,11 +81,38 @@ on every branch.
 - CI installs `tesseract-ocr` (+ eng/fra). `requires_tesseract` **fails** when `CI=true` and Tesseract is missing; skips locally.
 - Ratewatch `csv_safe` prefixes cells starting with `= + - @ \\t \\r` with `'` before CSV write.
 
-## Next PR — Ratewatch quarantine (not in this chunk)
+## Ratewatch CSV quarantine (implemented on this branch)
 
-Remaining Ratewatch work deferred (no DB migrations in this PR):
+See **Ratewatch CSV batches** below. Remaining follow-ups:
 
-- Persist collector quarantine events with retention/TTL and broker-visible audit.
+- Persist collector / live-scrape quarantine with retention/TTL and broker-visible audit.
 - Harden live scrape/backfill failure quarantine (source URL review queue).
 - Shared/multi-instance case + banklink token stores (currently in-process).
-- Production fail-closed for `RR_BANKLINK_KEY` and borrower email OTP invites.
+- Production fail-closed for RR_BANKLINK_KEY and borrower email OTP invites.
+
+
+## Ratewatch CSV batches (quarantine + last-good)
+
+Durable file store (no SQL migration): ``$RATEWATCH_DATA/csv_batches``
+(default ``data/ratewatch/csv_batches``).
+
+| Path | Role |
+|---|---|
+| `pointer.json` | Atomic **active** batch pointer (readers use this only) |
+| `last_good.json` | Last successfully activated batch; **never** truncated on quarantine |
+| `batches/<sha>.csv` + `.meta.json` | Accepted immutable bodies |
+| `quarantine/<sha>.csv` + `.json` | Rejected bodies + reasons (audit) |
+
+- Schema: exact headers `date,lender,term_months,rate_pct,rate_type` (utf-8-sig),
+  Decimal rates in **0..25**, term allowlist, duplicate rejection, size/row caps.
+- Whole-batch quarantine if any row fails **or** sanity vs last-good fails
+  (row-count swing, rate jump > 2 pp, missing lender).
+- Same SHA-256 as active → no-op. Activate via temp file + `os.replace`.
+- HTTP: `POST /api/ratewatch/batches/csv` (`X-Rate-Ingest-Key`),
+  `GET .../batches/active`, `.../quarantine`, `.../last-good`.
+
+### Still open (later)
+
+- Wire live board / scrape refresh to consume active CSV batch when present.
+- Broker-visible quarantine UI and retention/TTL job.
+- Shared multi-instance locking beyond process `RLock` (e.g. lockfile / SQLite).

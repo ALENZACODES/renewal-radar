@@ -4,8 +4,8 @@ from __future__ import annotations
 import json
 from datetime import date
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import Response
+from fastapi import APIRouter, File, Header, HTTPException, UploadFile
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .ird import Mortgage, POLICIES, forecast, penalty
@@ -239,3 +239,62 @@ def live_board():
 def live_refresh():
     from . import live
     return live.refresh()
+
+
+# ---------------- CSV batch ingest (strict RateRow + quarantine + last-good) ----------------
+@router.post("/batches/csv", status_code=201)
+async def import_rate_csv(
+    file: UploadFile = File(...),
+    x_rate_ingest_key: str | None = Header(default=None),
+):
+    """Ingest a Ratewatch rates CSV. Whole-batch quarantine on any defect or sanity failure.
+
+    Requires `X-Rate-Ingest-Key` / `RR_RATE_INGEST_KEY` (min 24 chars).
+    Same SHA-256 as the active batch is a no-op. Bad imports never move last-good.
+    """
+    import os
+    import secrets
+
+    key = os.environ.get('RR_RATE_INGEST_KEY', '')
+    if len(key) < 24 or not secrets.compare_digest(x_rate_ingest_key or '', key):
+        raise HTTPException(403, 'Rate CSV ingest unavailable without configured ingest key')
+    from .batch_store import default_store
+    from .csv_batch import MAX_BYTES
+
+    raw = await file.read(MAX_BYTES + 1)
+    await file.close()
+    if len(raw) > MAX_BYTES:
+        raise HTTPException(413, f'CSV must be smaller than {MAX_BYTES // (1024 * 1024)} MB')
+    result = default_store.import_csv(raw, source=file.filename or 'upload')
+    status = result.get('status')
+    code = 201 if status in {'active', 'noop'} else 422
+    return JSONResponse(result, status_code=code)
+
+
+@router.get("/batches/active")
+def active_rate_batch():
+    """Readers see only the active batch pointer (never quarantined drafts)."""
+    from .batch_store import default_store
+    from .csv_batch import HEADERS
+
+    ptr = default_store.pointer()
+    rows = default_store.active_rows()
+    return {
+        'pointer': ptr,
+        'headers': list(HEADERS),
+        'rows': [r.as_dict() for r in rows],
+        'notice': 'Active Ratewatch CSV batch only; quarantined imports are excluded.',
+    }
+
+
+@router.get("/batches/quarantine")
+def list_quarantined_batches(limit: int = 25):
+    from .batch_store import default_store
+    return {'events': default_store.list_quarantine(limit=max(1, min(limit, 100)))}
+
+
+@router.get("/batches/last-good")
+def last_good_rate_batch_meta():
+    """Metadata for the last-good pointer (not truncated on quarantine)."""
+    from .batch_store import default_store
+    return {'last_good': default_store.last_good()}
