@@ -53,14 +53,45 @@ LENDER_ALIASES = [
     (("first national",), "First National", None),
     (("mcap",), "MCAP", None),
     (("rmg",), "RMG", None),
-    (("cmls",), "CMLS", None),
-    (("merix",), "Merix", None),
+    (("cmls",), "CMLS", "ALT09"),
+    (("merix",), "Merix", "ALT12"),
     (("lendwise",), "Lendwise", None),
     (("marathon",), "Marathon", None),
-    (("equitable", "eq bank"), "Equitable Bank", None),
-    (("home trust",), "Home Trust", None),
-    (("haventree",), "Haventree", None),
-    (("bridgewater",), "Bridgewater", None),
+    (("equitable", "eq bank"), "Equitable Bank", "ALT02"),
+    (("home trust",), "Home Trust", "ALT01"),
+    (("haventree",), "Haventree", "ALT03"),
+    (("bridgewater",), "Bridgewater", "ALT05"),
+    # B / private lenders (registered on the Live rates board as ALT01-ALT30)
+    (("home trust",), "ALT", "ALT01"),
+    (("equitable bank",), "ALT", "ALT02"),
+    (("haventree bank",), "ALT", "ALT03"),
+    (("community trust",), "ALT", "ALT04"),
+    (("bridgewater bank",), "ALT", "ALT05"),
+    (("wealth one bank of canada",), "ALT", "ALT06"),
+    (("rfa bank of canada",), "ALT", "ALT07"),
+    (("peoples group",), "ALT", "ALT08"),
+    (("cmls financial",), "ALT", "ALT09"),
+    (("mcan financial",), "ALT", "ALT10"),
+    (("optimum mortgage",), "ALT", "ALT11"),
+    (("merix financial",), "ALT", "ALT12"),
+    (("cameron stephens",), "ALT", "ALT13"),
+    (("effort trust",), "ALT", "ALT14"),
+    (("questbank",), "ALT", "ALT15"),
+    (("keb hana bank canada",), "ALT", "ALT16"),
+    (("homeequity bank",), "ALT", "ALT17"),
+    (("b2b bank",), "ALT", "ALT18"),
+    (("fisgard capital",), "ALT", "ALT19"),
+    (("antrim investments",), "ALT", "ALT20"),
+    (("cmi financial group",), "ALT", "ALT21"),
+    (("brightpath capital",), "ALT", "ALT22"),
+    (("hillmount capital",), "ALT", "ALT23"),
+    (("atrium mortgage investment corp",), "ALT", "ALT24"),
+    (("firm capital",), "ALT", "ALT25"),
+    (("trez capital",), "ALT", "ALT26"),
+    (("alpine credits",), "ALT", "ALT27"),
+    (("fairstone",), "ALT", "ALT28"),
+    (("neighbourhood holdings",), "ALT", "ALT29"),
+    (("bloom finance",), "ALT", "ALT30"),
 ]
 STRONG = 2000.0          # net benefit ($) above which an opportunity is "strong"
 RENEWAL_WINDOW_DAYS = 120
@@ -70,10 +101,47 @@ def resolve_lender(name: str | None) -> tuple[Policy, str | None, str]:
     n = (name or "").lower()
     for keys, policy_key, sid in LENDER_ALIASES:
         if any(lender_alias_matches(n, k) for k in keys):
+            if policy_key == "ALT":                   # B/private lender: compares against its own current rates
+                return Policy(name or "B lender", comparison="offered"), sid, name or "B lender"
             return POLICIES[policy_key], sid, policy_key
     if "credit union" in n or " cu" in f" {n}" or "caisse" in n:
         return POLICIES["Credit union (generic)"], None, "Credit union (generic)"
     return Policy(name or "Unknown lender"), None, name or "Unknown lender"
+
+
+def lender_rates(sids: set, as_of: date, fetch_live: bool = True) -> dict:
+    """{sid: (posted_table, source_label)} for every lender in the book, read ONCE per review.
+
+    For today's review each lender goes through the same chain as the Live rates page:
+      1. a reading already recorded today/yesterday (no network)
+      2. live.resolve: lender feed/page -> second lender source or rediscovered page -> last good reading
+         (up to 14 days) -> newest web-archive copy, each validated before use
+      3. the most recent recorded reading up to 14 days old
+    For a past review date only readings recorded on or before that date are used (never later data).
+    A lender with no valid reading returns ({}, reason); the deal is then flagged, never estimated."""
+    from ..ratewatch import live
+    out = {}
+    by_sid = {l[0]: l for l in live.LENDERS}
+    today = date.today()
+    anchor = None
+    for sid in sorted(s for s in sids if s):
+        fresh, day = history.table_on(sid, as_of, max_age_days=1)
+        if fresh:
+            out[sid] = (fresh, f"recorded {day}")
+            continue
+        if as_of >= today and fetch_live and sid in by_sid:
+            try:
+                anchor = anchor or live.market_anchor()
+                row = live.resolve(by_sid[sid], anchor)
+                table = {int(t): v["posted"] for t, v in (row.get("rates") or {}).items() if v.get("posted") is not None}
+                if table and row.get("lender_specific"):
+                    out[sid] = (table, f"{row['tier_label']} ({row.get('as_of')})")
+                    continue
+            except Exception:                                  # network trouble: fall through to recorded data
+                pass
+        recent, day = history.table_on(sid, as_of, max_age_days=14)
+        out[sid] = (recent, f"recorded {day}") if recent else ({}, "no valid reading in the last 14 days")
+    return out
 
 
 def _board() -> dict:
@@ -123,7 +191,7 @@ def _current_balance(d: Deal, as_of: date) -> tuple[float, str]:
 
 
 def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term_months: int = 60, fees: float = 0.0,
-                offers: list[dict] | None = None) -> dict:
+                offers: list[dict] | None = None, lender_tables: dict | None = None) -> dict:
     out = {"deal_id": d.deal_id, "borrower": d.borrower, "lender": d.lender, "closing_date": d.closing_date and d.closing_date.isoformat(),
            "maturity_date": d.maturity_date and d.maturity_date.isoformat(), "contract_rate": d.contract_rate,
            "rate_type": d.rate_type, "issues": list(d.issues), "recommendation": "Review manually",
@@ -192,7 +260,7 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
         out["method_status"] = "estimate"
         table = None
     else:
-        table, seen = history.table_on(sid, as_of, max_age_days=14) if sid else ({}, None)
+        table, seen = (lender_tables or {}).get(sid) or (history.table_on(sid, as_of, max_age_days=14) if sid else ({}, None))
         if (m.discount is None or policy.three_month_basis == "posted_at_origination") and d.posted_rate is None and sid:
             orig, oday = history.table_on(sid, d.closing_date, max_age_days=45)
             term = d.term_months or 60
@@ -220,6 +288,7 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
             out.update(status="needs_data", recommendation=str(e))
             return out
         out["rates_as_of"] = seen
+        out["rates_source"] = seen
     out["penalty"] = {k: pen[k] for k in ("penalty", "three_month", "ird", "method", "remaining_months") if k in pen}
 
     # economics, one basis: interest saved over min(remaining term, new term) - penalty - fees
@@ -308,8 +377,15 @@ def review_book(deals: list[dict | Deal], as_of: date | None = None, closed_from
         ds = [d for d in ds if lender.lower() in (d.lender or "").lower()]
     ds, duplicates = unique_deals(ds)
     snapshot = _board()
+    if as_of >= date.today():
+        try:                                                   # keeps the offers board fresh (background refresh)
+            from ..ratewatch import live
+            snapshot = live.board() or snapshot
+        except Exception:
+            pass
     offers = best_offers(new_term_months, board=snapshot, as_of=as_of) if target_rate is None else []
-    rows = [review_deal(d, as_of, target_rate, new_term_months, fees, offers) for d in ds]
+    tables = lender_rates({resolve_lender(d.lender)[1] for d in ds}, as_of)
+    rows = [review_deal(d, as_of, target_rate, new_term_months, fees, offers=offers, lender_tables=tables) for d in ds]
     order = {"strong": 0, "possible": 1, "renewal_window": 2, "needs_data": 3, "no_opportunity": 4,
              "insufficient_data": 5, "matured": 6, "not_started": 7}
     rows.sort(key=lambda r: (order.get(r["status"], 9), -(r.get("opportunity_net_benefit") or 0)))
