@@ -40,3 +40,11 @@ See the inventory comment on the PR / agent report: lead POST by workspace id,
 banklink sandbox without end-user identity, OCR session create, demo workspace
 creation flag, and any broker route that trusts `wid` without re-checking token
 on every branch.
+
+## Leads tenancy (batch 2)
+
+- Canonical create: `POST /api/v5/broker/workspaces/{wid}/leads` + `X-Broker-Token`.
+- Legacy `POST /api/v5/leads` still requires the broker token and only uses body `workspace_id` after membership checks (temporary until callers move).
+- `created_by` is set server-side to the workspace id (audit `lead_created`); client `id` / `status` / `created_by` / `workspace_id` are dropped.
+- DELETE loads the lead row, takes `workspace_id` from DB, authorizes via withdraw token or broker token for that workspace, audits `lead_withdrawn`, returns **404** on failure.
+- Principal today = broker workspace token (no OIDC yet).

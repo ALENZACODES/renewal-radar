@@ -236,3 +236,8 @@ App-level `Depends(require_api_access)` applies to all routes. Classification be
 8. Legacy `GET /api/health` — not on public allowlist; only `/api/health/live` and `/ready` are.
 9. `GET /api/v4/rates/history` + historical-discount — public market data historically; confirm OK behind API key only.
 10. Ratewatch `/api/ratewatch/*` — previously fully open scrape/penalty surface.
+
+## Batch 2 notes
+- Legacy GET /api/health is public, body only {status:ok}; details on gated /ready.
+- Leads create requires X-Broker-Token; prefer /broker/workspaces/{wid}/leads.
+

@@ -373,41 +373,48 @@ def build_router(
         text = CONSENT_TEXTS[CURRENT_VERSION]
         return {"version": text.version, "digest": text.digest, "text": text.text}
 
-    @router.post("/api/v5/leads", status_code=201)
-    async def leads_create(body: dict[str, Any]):
-        wid = str(body.get("workspace_id") or "")
-        # Unknown workspaces must 404 (no existence leak via other codes).
-        with broker_workspace._db() as db:
-            row = db.execute("SELECT id FROM broker_workspaces WHERE id=?", (wid,)).fetchone()
-        if row is None:
-            raise HTTPException(404, "Workspace not found")
+    def _lead_from_body(wid: str, body: dict[str, Any]) -> LeadInput:
+        """Build LeadInput from the client body. Never trusts client id/status/created_by."""
+        # Drop client-supplied identity / lifecycle fields (server owns these).
+        for banned in ("id", "status", "created_by", "workspace_id", "withdraw_token"):
+            body.pop(banned, None)
+        consent_body = body.get("consent") or {}
+        agreed_at = datetime.fromisoformat(str(consent_body.get("agreed_at")).replace("Z", "+00:00"))
+        consent = validate_consent(
+            version=str(consent_body.get("version") or ""),
+            text_digest=str(consent_body.get("text_digest") or ""),
+            agreed=consent_body.get("agreed"),
+            agreed_at=agreed_at,
+            contact_methods=list(consent_body.get("contact_methods") or []),
+            brokerage=str(consent_body.get("brokerage") or ""),
+            now=datetime.now(agreed_at.tzinfo),
+        )
+        return LeadInput(
+            workspace_id=wid,
+            name=str(body.get("name") or ""),
+            email=body.get("email"),
+            phone=body.get("phone"),
+            province=str(body.get("province") or ""),
+            consent=consent,
+            renewal_date=None if body.get("renewal_date") is None else _day(body["renewal_date"]),
+            balance=None if body.get("balance") is None else _dec(body["balance"]),
+            current_rate=None if body.get("current_rate") is None else _dec(body["current_rate"]),
+            market_rate=None if body.get("market_rate") is None else _dec(body["market_rate"]),
+            has_statement=bool(body.get("has_statement") or False),
+            completed_analysis=bool(body.get("completed_analysis") or False),
+        )
+
+    def _create_lead_for_workspace(wid: str, token: str | None, body: dict[str, Any]) -> dict:
+        """Authorize broker membership, then create. created_by is the workspace principal.
+
+        Temporary until OIDC/workspace SSO: X-Broker-Token is the principal, matching
+        other /api/v5/broker/workspaces/{wid}/* routes.
+        """
+        _broker_or_404(broker_workspace, wid, token)
         try:
-            consent_body = body.get("consent") or {}
-            agreed_at = datetime.fromisoformat(str(consent_body.get("agreed_at")).replace("Z", "+00:00"))
-            consent = validate_consent(
-                version=str(consent_body.get("version") or ""),
-                text_digest=str(consent_body.get("text_digest") or ""),
-                agreed=consent_body.get("agreed"),
-                agreed_at=agreed_at,
-                contact_methods=list(consent_body.get("contact_methods") or []),
-                brokerage=str(consent_body.get("brokerage") or ""),
-                now=datetime.now(agreed_at.tzinfo),
-            )
-            lead = LeadInput(
-                workspace_id=wid,
-                name=str(body.get("name") or ""),
-                email=body.get("email"),
-                phone=body.get("phone"),
-                province=str(body.get("province") or ""),
-                consent=consent,
-                renewal_date=None if body.get("renewal_date") is None else _day(body["renewal_date"]),
-                balance=None if body.get("balance") is None else _dec(body["balance"]),
-                current_rate=None if body.get("current_rate") is None else _dec(body["current_rate"]),
-                market_rate=None if body.get("market_rate") is None else _dec(body["market_rate"]),
-                has_statement=bool(body.get("has_statement") or False),
-                completed_analysis=bool(body.get("completed_analysis") or False),
-            )
-            return get_lead_engine().submit(lead)
+            payload = dict(body or {})
+            lead = _lead_from_body(wid, payload)
+            created = get_lead_engine().submit(lead)
         except ConsentInvalid as exc:
             raise HTTPException(422, str(exc)) from exc
         except ValueError as exc:
@@ -418,15 +425,83 @@ def build_router(
             if "not configured" in str(exc).lower() or "key" in str(exc).lower():
                 raise HTTPException(503, str(exc)) from exc
             raise
+        with broker_workspace._db() as db:
+            broker_workspace._audit(
+                db, wid, None, "lead_created",
+                {"lead_id": created.get("id"), "created_by": wid, "duplicate": bool(created.get("duplicate"))},
+            )
+        created = dict(created)
+        created["created_by"] = wid
+        return created
+
+    @router.post("/api/v5/broker/workspaces/{wid}/leads", status_code=201)
+    async def broker_create_lead(
+        wid: str, body: dict[str, Any], x_broker_token: str | None = Header(None)
+    ):
+        """Canonical lead create: workspace is the path id; broker token required."""
+        return _create_lead_for_workspace(wid, x_broker_token, body)
+
+    @router.post("/api/v5/leads", status_code=201)
+    async def leads_create_legacy(body: dict[str, Any], x_broker_token: str | None = Header(None)):
+        """Legacy path — still requires X-Broker-Token; ignores client workspace spoofing.
+
+        Prefer POST /api/v5/broker/workspaces/{wid}/leads. Body workspace_id is only used
+        after membership is verified for that same id.
+        """
+        wid = str(body.get("workspace_id") or "")
+        if not wid:
+            raise HTTPException(422, "workspace_id is required on the legacy path")
+        return _create_lead_for_workspace(wid, x_broker_token, body)
 
     @router.delete("/api/v5/leads/{lead_id}", status_code=204)
-    async def leads_withdraw(lead_id: str, body: dict[str, Any]):
-        try:
-            get_lead_engine().withdraw(lead_id, str(body.get("withdraw_token") or ""))
-        except PermissionError as exc:
-            raise HTTPException(403, str(exc)) from exc
-        except ValueError as exc:
-            raise HTTPException(422, str(exc)) from exc
+    async def leads_withdraw(
+        lead_id: str,
+        body: dict[str, Any] | None = None,
+        x_broker_token: str | None = Header(None),
+    ):
+        """Withdraw/delete a lead. Workspace comes from the DB row, never the client.
+
+        Auth: homeowner withdraw_token (capability) OR X-Broker-Token for that workspace.
+        Failures return 404 so existence is not confirmed to strangers.
+        """
+        engine = get_lead_engine()
+        with engine._db() as db:
+            row = db.execute(
+                "SELECT id, workspace_id, status FROM leads WHERE id=?", (lead_id,)
+            ).fetchone()
+        if row is None or row["status"] == "withdrawn":
+            raise HTTPException(404, "Not Found")
+        wid = row["workspace_id"]
+        body = body or {}
+        withdraw_token = str(body.get("withdraw_token") or "")
+        authorized = False
+        if withdraw_token:
+            try:
+                engine.withdraw(lead_id, withdraw_token)
+                authorized = True
+            except PermissionError:
+                authorized = False
+        if not authorized and x_broker_token:
+            try:
+                broker_workspace._assert_access(wid, x_broker_token)
+                # Broker-authorized delete uses the stored withdraw digest path via a
+                # controlled erase: reuse withdraw only when token known; else direct erase.
+                with engine._lock, engine._db() as db:
+                    db.execute(
+                        "UPDATE leads SET status='withdrawn', contact_sealed=NULL WHERE id=? AND workspace_id=?",
+                        (lead_id, wid),
+                    )
+                    db.execute("DELETE FROM lead_keys WHERE lead_id=?", (lead_id,))
+                authorized = True
+            except AccessDenied:
+                authorized = False
+        if not authorized:
+            raise HTTPException(404, "Not Found")
+        with broker_workspace._db() as db:
+            broker_workspace._audit(
+                db, wid, None, "lead_withdrawn",
+                {"lead_id": lead_id, "by": "withdraw_token" if withdraw_token else "broker"},
+            )
         return Response(status_code=204)
 
     @router.get("/api/v5/broker/workspaces/{wid}/leads")
