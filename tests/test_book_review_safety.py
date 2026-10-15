@@ -108,18 +108,26 @@ def test_future_market_data_is_not_used_in_a_historical_review():
 def test_cibc_three_month_basis_keeps_original_posted_rate():
     history.save("P029", "2026-10-14", [(t, "fixed_closed", "posted", 9) for t in TABLE], "api")
     response = result(lender="CIBC")
-    assert response["penalty"]["three_month"] == 10000
+    assert response["penalty"]["three_month"] == 9837.3          # CIBC code: 0.25 * 12 * ((1 + 8/200)**(1/6) - 1) * 500000
     mortgage = Mortgage(500000, 6.5, 60, date(2023, 10, 16), {60: 8}, 1.5,
                         amort_months=300, maturity=date(2028, 10, 16))
     expected = penalty(mortgage, POLICIES["CIBC"], {t: 9 for t in TABLE}, DAY)
     assert response["penalty"]["penalty"] == expected["penalty"]
 
 
-def test_cibc_missing_original_posted_cannot_use_contract_rate_floor():
+def test_cibc_needs_only_the_discount_not_the_original_posted_rate():
+    # CIBC's own code charges three months at contract + discount, so a known discount is enough
     history.save("P029", "2026-10-14", [(t, "fixed_closed", "posted", 9) for t in TABLE], "api")
     response = result(lender="CIBC", posted_rate=None, discount=1.5)
+    assert response["status"] != "needs_data"
+    assert response["penalty"]["three_month"] == 9837.3
+
+
+def test_cibc_without_discount_or_original_posted_needs_data():
+    history.save("P029", "2026-10-14", [(t, "fixed_closed", "posted", 9) for t in TABLE], "api")
+    response = result(lender="CIBC", posted_rate=None, discount=None)
     assert response["status"] == "needs_data"
-    assert "original posted rate" in response["recommendation"]
+    assert "original discount" in response["recommendation"]
 
 
 def test_unknown_rate_type_blocks_instead_of_assuming_fixed():
@@ -252,7 +260,7 @@ def test_history_lookup_preserves_explicit_discount(monkeypatch):
     response = result(lender="CIBC", posted_rate=None, discount=1.5)
     assert "penalty" in response
     assert captured and all(value == 1.5 for value in captured)
-    assert response["penalty"]["three_month"] == 10625
+    assert response["penalty"]["three_month"] == 9837.3          # explicit 1.5 discount kept: 6.5 + 1.5 = 8.0
 
 
 def test_csv_neutralizes_formulas_without_losing_amounts():

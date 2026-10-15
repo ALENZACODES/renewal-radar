@@ -348,3 +348,29 @@ if __name__ == "__main__":
             print(sid, how, len(rows))
         for r in sorted(rows):
             print("   ", r)
+
+
+def equitable_rows(html: str) -> list:
+    """Equitable Bank's own rate page (equitablebank.ca/mortgage-rates): a table with terms across the top.
+    'Standard Mortgage Rate' is the posted rate; other product rows (EQB Evolution) are offered rates.
+    The page also lists reverse-mortgage rates and APRs; those sit in other tables and are ignored."""
+    from bs4 import BeautifulSoup
+    out = []
+    for table in BeautifulSoup(html, "html.parser").find_all("table"):
+        rows = [[c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])] for tr in table.find_all("tr")]
+        head = next((r for r in rows if sum(bool(re.search(r"(Year|Month)", c)) for c in r) >= 4), None)
+        if head is None or not any("Mortgage" in r[0] for r in rows if r):
+            continue
+        for r in rows:
+            if r is head or not r or "APR" in r[0] or "Reverse" in r[0]:
+                continue
+            rtype = "posted" if r[0].lower().startswith("standard") else "special"
+            for label, cell in zip(head[1:], r[1:]):
+                m = re.match(r"(\d+)\s*(Year|Month)\s*(Fixed|Adjustable)?", label)
+                v = re.match(r"\s*(\d{1,2}\.\d{1,3})\s*%", cell)
+                if not m or not v:
+                    continue
+                months = int(m.group(1)) * (12 if m.group(2) == "Year" else 1)
+                kind = "variable" if m.group(3) == "Adjustable" else "fixed_closed"
+                out.append((months, kind, rtype, float(v.group(1))))
+    return out
