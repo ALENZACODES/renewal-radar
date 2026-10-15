@@ -121,7 +121,7 @@ def test_pdf_audit_does_not_stop_at_short_preview_length():
 
 @pytest.mark.parametrize("data,error", [
     (b"not pdf", "valid PDF"), (b"%PDF-invalid", "open"),
-    (b"%PDF-" + b"x" * (16 * 1024 * 1024), "16 MB"),
+    (b"%PDF-" + b"x" * (16 * 1024 * 1024), "15 MB"),
 ], ids=["invalid-header", "malformed-pdf", "oversized-pdf"])
 def test_invalid_pdf_bytes_raise_domain_error(data, error):
     with pytest.raises(DocumentSemanticAuditError, match=error):
