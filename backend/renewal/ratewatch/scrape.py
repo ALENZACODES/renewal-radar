@@ -13,8 +13,9 @@ from .linkcheck import UA
 from .parse import extract_rates
 from .registry import PRIMARY
 
-def _get(url, **kw):
-    return requests.get(url, headers={**UA, **kw.pop("headers", {})}, timeout=kw.pop("timeout", 30), **kw)
+def _get(url, timeout=30, **kw):
+    headers = {**UA, **kw.pop("headers", {})}
+    return requests.get(url, headers=headers, timeout=timeout, **kw)
 
 
 def td():
@@ -169,7 +170,9 @@ def _get_retry(url, tries=3, **kw):
     time.sleep(1.5)                     # archives are shared public services - stay polite or get blocked
     for i in range(tries):
         try:
-            r = requests.get(url, headers={**UA, **kw.pop("headers", {})}, timeout=kw.pop("timeout", 60), **kw)
+            timeout = kw.pop("timeout", 60)
+            headers = {**UA, **kw.pop("headers", {})}
+            r = requests.get(url, headers=headers, timeout=timeout, **kw)
             if r.status_code not in (429, 503):
                 return r
         except requests.RequestException:
