@@ -1,4 +1,4 @@
-﻿"""HTTP surface for health probes and v5 product APIs expected by the test suite."""
+"""HTTP surface for health probes and v5 product APIs expected by the test suite."""
 from __future__ import annotations
 
 import json
@@ -63,6 +63,13 @@ def _sandbox_service() -> BankLinkService:
 def _require_banklink_sandbox() -> None:
     if os.environ.get("RR_ENABLE_BANKLINK_SANDBOX") != "1":
         raise HTTPException(403, "Bank-link sandbox is disabled")
+    # Production fail-closed: no banklink traffic without a real RR_BANKLINK_KEY.
+    # /api/v5/banklink/complete stays on the API-key public allowlist; this gate is separate.
+    from ..banklink.crypto import BanklinkKeyError, require_production_banklink_key
+    try:
+        require_production_banklink_key()
+    except BanklinkKeyError as exc:
+        raise HTTPException(503, str(exc)) from exc
 
 
 def _broker_or_404(ws: BrokerWorkspace, wid: str, token: str | None) -> None:

@@ -1,4 +1,4 @@
-﻿# API access gates (PR security-data-gates)
+# API access gates (PR security-data-gates)
 
 ## Public allowlist (no credential)
 
@@ -116,3 +116,11 @@ Durable file store (no SQL migration): ``$RATEWATCH_DATA/csv_batches``
 - Wire live board / scrape refresh to consume active CSV batch when present.
 - Broker-visible quarantine UI and retention/TTL job.
 - Shared multi-instance locking beyond process `RLock` (e.g. lockfile / SQLite).
+
+## RR_BANKLINK_KEY (production fail-closed)
+
+- Required when `APP_ENV` is production/prod: must be a real Fernet key (`Fernet.generate_key()`).
+- Rejects empty, short, invalid, and placeholder values (`changeme`, `secret`, `test`, `dev`, …).
+- App lifespan calls `require_production_banklink_key()`; banklink routes return **503** if production and key is not ready.
+- Non-production may omit the key (sandbox plaintext handles).
+- `POST /api/v5/banklink/complete` remains on the **API-key public allowlist**; it still enforces the banklink key gate in production.

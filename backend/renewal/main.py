@@ -17,6 +17,7 @@ from pydantic import ValidationError
 from .config import settings
 from .security.access import require_api_access, demo_enabled, demo_samples_allowed, is_production
 from .security.log_redact import install_log_redaction
+from .banklink.crypto import require_production_banklink_key
 from .security.uploads import ingest_document_upload, read_upload_capped, MAX_UPLOAD_BYTES
 from .domain.schemas import AnalyzeRequest,Mortgage,Offer,PenaltyRequest,CaseCreate,CaseTokenMint,ShareRequest,NegotiationRequest
 from .domain.mortgage_math import compare_offers,stress_paths,simulate
@@ -44,6 +45,7 @@ logger=logging.getLogger('renewal_radar')
 @asynccontextmanager
 async def lifespan(app:FastAPI):
     install_log_redaction()
+    require_production_banklink_key()  # fail closed: no weak/missing RR_BANKLINK_KEY in production
     store.initialize()
     app.state.live_rate_tracker = LiveRateTracker()
     app.state.live_rate_tracker.start()
