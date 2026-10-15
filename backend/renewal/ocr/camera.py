@@ -17,8 +17,9 @@ import statistics
 
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps, ImageStat, UnidentifiedImageError
 
-MAX_BYTES = 14 * 1024 * 1024
+MAX_BYTES = 15 * 1024 * 1024
 MAX_PIXELS = 25_000_000
+Image.MAX_IMAGE_PIXELS = MAX_PIXELS
 MIN_EDGE = 500
 ALLOWED_FORMATS = {"PNG", "JPEG", "WEBP", "TIFF"}
 

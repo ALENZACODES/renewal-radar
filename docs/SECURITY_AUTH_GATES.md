@@ -72,3 +72,20 @@ on every branch.
 - Email OTP for borrower invites (stubbed TODO).
 - No OIDC yet — broker workspace token is the principal.
 - `RR_BANKLINK_KEY` optional in sandbox; should be required in production.
+
+## OCR intake + CSV export (this chunk)
+
+- Central upload helper `renewal.security.uploads`: stream-capped ~15 MB, PDF/PNG/JPEG magic sniff, PDF page limit, image pixel budget.
+- OCR temp dirs via `renewal.ocr.tempfiles.ocr_tempdir` + stale `rr-*` sweep.
+- Log redaction filter (`renewal.security.log_redact`) masks SIN-shaped and account-like digit runs; OCR dump patterns redacted. Do not log raw OCR text.
+- CI installs `tesseract-ocr` (+ eng/fra). `requires_tesseract` **fails** when `CI=true` and Tesseract is missing; skips locally.
+- Ratewatch `csv_safe` prefixes cells starting with `= + - @ \\t \\r` with `'` before CSV write.
+
+## Next PR — Ratewatch quarantine (not in this chunk)
+
+Remaining Ratewatch work deferred (no DB migrations in this PR):
+
+- Persist collector quarantine events with retention/TTL and broker-visible audit.
+- Harden live scrape/backfill failure quarantine (source URL review queue).
+- Shared/multi-instance case + banklink token stores (currently in-process).
+- Production fail-closed for `RR_BANKLINK_KEY` and borrower email OTP invites.
