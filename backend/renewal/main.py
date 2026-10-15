@@ -8,13 +8,14 @@ import os,sys,json,logging
 from pathlib import Path
 from contextlib import asynccontextmanager
 from datetime import date,datetime,timezone
-from fastapi import FastAPI,HTTPException,UploadFile,File,Body,Header,Query
+from fastapi import FastAPI,HTTPException,UploadFile,File,Body,Header,Query,Depends
 from fastapi.responses import JSONResponse,Response,FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .security.rate_limit import SlidingWindowLimiter
 from pydantic import ValidationError
 from .config import settings
+from .security.access import require_api_access
 from .domain.schemas import AnalyzeRequest,Mortgage,Offer,PenaltyRequest,CaseCreate,ShareRequest,NegotiationRequest
 from .domain.mortgage_math import compare_offers,stress_paths,simulate
 from .domain.rules import mqr,switch_decision,penalty_estimate,OSFI_MQR,OSFI_SWITCH,RENEWAL
@@ -49,10 +50,11 @@ async def lifespan(app:FastAPI):
         await app.state.live_rate_tracker.stop()
 
 app=FastAPI(title='Renewal Radar 2.0',version='2.0.0',
-    description='Canadian mortgage renewal analysis, source-backed rule engine, privacy-conscious agent and PDF reports',lifespan=lifespan)
+    description='Canadian mortgage renewal analysis, source-backed rule engine, privacy-conscious agent and PDF reports',lifespan=lifespan,
+    dependencies=[Depends(require_api_access)])
 from .ratewatch.api import router as ratewatch_router
 app.include_router(ratewatch_router)
-app.add_middleware(CORSMiddleware,allow_origins=list(settings.allowed_origins),allow_methods=['GET','POST','PUT','DELETE'],allow_headers=['Content-Type','X-Case-Token','X-Broker-Token','X-Rate-Ingest-Key','X-OCR-Review-Token'])
+app.add_middleware(CORSMiddleware,allow_origins=list(settings.allowed_origins),allow_methods=['GET','POST','PUT','DELETE'],allow_headers=['Content-Type','X-Case-Token','X-Broker-Token','X-Rate-Ingest-Key','X-OCR-Review-Token','X-Api-Key'])
 
 limiter = SlidingWindowLimiter()
 
