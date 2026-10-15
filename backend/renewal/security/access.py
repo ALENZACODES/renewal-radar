@@ -69,10 +69,15 @@ def is_production() -> bool:
 
 
 def demo_enabled() -> bool:
-    """Demo data-mutating and sample endpoints: never in production."""
+    """Demo *data-mutating* features (e.g. mint workspaces). Never in production."""
     if is_production():
         return False
     return os.environ.get('RR_ENABLE_DEMO_WORKSPACES') == '1'
+
+
+def demo_samples_allowed() -> bool:
+    """Read-only demo JSON/fixtures. Available in non-production; blocked in production."""
+    return not is_production()
 
 
 def is_public_path(path: str) -> bool:
