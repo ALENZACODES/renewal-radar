@@ -1,4 +1,5 @@
 /** Ephemeral browser-side workspace. Case access credentials saved only in sessionStorage. */
+import {clearBookState} from './book-editor.js';
 export const state={
  page:'overview', mortgage:null,offers:[],analysis:null,market:null,bankRates:null,document:null,penalty:null,
  negotiation:null,insight:null,agentRun:null,loaded:false,loading:false,caseRecord:null,shareRecord:null,
@@ -15,6 +16,7 @@ export const analyzeBody=()=>({mortgage:state.mortgage,offers:state.offers,horiz
  original_posted_rate:state.penaltyInputs.original_posted_rate===''?null:state.penaltyInputs.original_posted_rate??null,
  original_discount:state.penaltyInputs.original_discount===''?null:state.penaltyInputs.original_discount??null}} : {})});
 export function resetState(demo){
+  clearBookState(state);delete state.bookPendingFile;delete state.bookDateOrder;
   Object.assign(state,{mortgage:structuredClone(demo.mortgage),offers:structuredClone(demo.offers),analysis:null,
     document:null,penalty:null,penaltyInputs:null,penaltyTimeline:null,penaltyMonth:0,penaltyTimelineError:null,penaltyExample:false,
     negotiation:null,insight:null,loaded:true,loading:false,caseRecord:null,shareRecord:null,checklist:new Set(),

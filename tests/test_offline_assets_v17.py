@@ -9,7 +9,7 @@ def test_service_worker_is_served_with_root_scope_and_no_cache():
     assert response.status_code == 200
     assert response.headers['service-worker-allowed'] == '/'
     assert response.headers['cache-control'] == 'no-cache'
-    assert 'renewal-radar-shell-v19' in response.text
+    assert 'renewal-radar-shell-v20' in response.text
 
 
 def test_robots_rules_exclude_api_and_private_share_paths():

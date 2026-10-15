@@ -148,7 +148,7 @@ def test_filters_by_closing_window_and_lender():
 
 
 def test_matured_not_started_and_renewal_window():
-    rv = br.review_book([deal(deal_id="m", maturity_date="2026-09-01"), deal(deal_id="f", closing_date="2027-01-01", maturity_date="2032-01-01"),
+    rv = br.review_book([deal(deal_id="m", closing_date="2021-09-01", maturity_date="2026-09-01"), deal(deal_id="f", closing_date="2027-01-01", maturity_date="2032-01-01"),
                          deal(deal_id="w", closing_date="2021-12-15", maturity_date="2026-12-15")], as_of=date(2026, 10, 15))
     st = {r["deal_id"]: r["status"] for r in rv["results"]}
     assert st["m"] == "matured" and st["f"] == "not_started" and st["w"] == "renewal_window"
