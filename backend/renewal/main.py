@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .security.rate_limit import SlidingWindowLimiter
 from pydantic import ValidationError
 from .config import settings
-from .security.access import require_api_access, demo_enabled, is_production
+from .security.access import require_api_access, demo_enabled, demo_samples_allowed, is_production
 from .domain.schemas import AnalyzeRequest,Mortgage,Offer,PenaltyRequest,CaseCreate,ShareRequest,NegotiationRequest
 from .domain.mortgage_math import compare_offers,stress_paths,simulate
 from .domain.rules import mqr,switch_decision,penalty_estimate,OSFI_MQR,OSFI_SWITCH,RENEWAL
@@ -106,7 +106,7 @@ async def health():
 
 @app.get('/api/demo')
 async def demo():
-    if not demo_enabled():
+    if not demo_samples_allowed():
         raise HTTPException(404, 'Not Found')
     return {'mortgage':Mortgage().model_dump(),
        'offers':[Offer(name='Illustrative alternative',rate=4.49,rate_type='fixed',term_months=36,type='hypothetical',fees=950).model_dump(),
@@ -116,14 +116,14 @@ async def demo():
 
 @app.get('/api/demo/sample.pdf')
 async def demo_pdf():
-    if not demo_enabled():
+    if not demo_samples_allowed():
         raise HTTPException(404, 'Not Found')
     return FileResponse(ROOT/'fixtures'/'fictional-renewal-letter.pdf',media_type='application/pdf',headers={'Cache-Control':'no-store'})
 
 
 @app.get('/api/demo/sample-scan.png')
 async def demo_scan():
-    if not demo_enabled():
+    if not demo_samples_allowed():
         raise HTTPException(404, 'Not Found')
     return FileResponse(ROOT/'fixtures'/'rbc-renewal-scan.png', media_type='image/png', headers={'Cache-Control': 'no-store'})
 
