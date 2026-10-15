@@ -1,4 +1,4 @@
-﻿"""Bank-link consent binding, PKCE session state, and link ownership."""
+"""Bank-link consent binding, PKCE session state, and link ownership."""
 from __future__ import annotations
 
 import base64

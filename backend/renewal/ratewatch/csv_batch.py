@@ -1,4 +1,4 @@
-﻿"""Strict Ratewatch CSV batch validation (RateRow) and whole-batch quarantine rules.
+"""Strict Ratewatch CSV batch validation (RateRow) and whole-batch quarantine rules.
 
 Canonical headers (exact, utf-8-sig)::
 

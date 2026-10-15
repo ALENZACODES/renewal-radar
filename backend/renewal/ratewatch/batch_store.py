@@ -1,4 +1,4 @@
-﻿"""Durable Ratewatch CSV batch store: active pointer, last-good, quarantine.
+"""Durable Ratewatch CSV batch store: active pointer, last-good, quarantine.
 
 Layout under ``RATEWATCH_DATA/csv_batches`` (default ``data/ratewatch/csv_batches``)::
 

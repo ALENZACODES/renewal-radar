@@ -1,4 +1,4 @@
-﻿"""Scoped case access tokens (hash-at-rest, TTL, allowlisted scopes).
+"""Scoped case access tokens (hash-at-rest, TTL, allowlisted scopes).
 
 Broker workspace tokens authorize minting. Case tokens are capability credentials
 for borrower/session flows (e.g. banklink:connect). Email OTP binding is TODO.

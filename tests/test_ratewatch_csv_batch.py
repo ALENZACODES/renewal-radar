@@ -1,4 +1,4 @@
-﻿"""Ratewatch CSV batch validation, quarantine, and last-good pointer."""
+"""Ratewatch CSV batch validation, quarantine, and last-good pointer."""
 from __future__ import annotations
 
 import os
