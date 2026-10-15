@@ -147,14 +147,16 @@ def test_leads_api(monkeypatch, tmp_path):
                 'consent': {'version': text['version'], 'text_digest': text['digest'], 'agreed': True,
                             'agreed_at': datetime.now(timezone.utc).isoformat(),
                             'contact_methods': ['email'], 'brokerage': 'Lead broker'}}
-        r = c.post('/api/v5/leads', json=body)
+        h = {'X-Broker-Token': w['access_token']}
+        r = c.post(f"/api/v5/broker/workspaces/{w['workspace_id']}/leads", headers=h, json=body)
         assert r.status_code == 201, r.text
         created = r.json()
-        bad = c.post('/api/v5/leads', json={**body, 'consent': {**body['consent'], 'agreed': False}})
+        assert created.get('created_by') == w['workspace_id']
+        bad = c.post(f"/api/v5/broker/workspaces/{w['workspace_id']}/leads", headers=h,
+                     json={**body, 'consent': {**body['consent'], 'agreed': False}})
         assert bad.status_code == 422
-        missing = c.post('/api/v5/leads', json={**body, 'workspace_id': 'nope'})
+        missing = c.post('/api/v5/broker/workspaces/nope/leads', headers=h, json=body)
         assert missing.status_code == 404
-        h = {'X-Broker-Token': w['access_token']}
         listed = c.get(f"/api/v5/broker/workspaces/{w['workspace_id']}/leads", headers=h).json()['leads']
         assert listed[0]['contact']['email'].startswith('s•')
         assert c.get(f"/api/v5/broker/workspaces/{w['workspace_id']}/leads",
@@ -162,6 +164,7 @@ def test_leads_api(monkeypatch, tmp_path):
         rev = c.post(f"/api/v5/broker/workspaces/{w['workspace_id']}/leads/{created['id']}/reveal", headers=h)
         assert rev.json()['contact']['email'] == 'sam@example.ca'
         audit = c.get(f"/api/v4/broker/workspaces/{w['workspace_id']}/audit", headers=h).json()['events']
+        assert any(e['action'] == 'lead_created' for e in audit)
         assert any(e['action'] == 'lead_contact_revealed' for e in audit)
         assert c.request('DELETE', f"/api/v5/leads/{created['id']}",
                          json={'withdraw_token': created['withdraw_token']}).status_code == 204

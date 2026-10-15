@@ -20,6 +20,7 @@ from ..config import settings
 
 # Exact paths that need no credential (probes + static shell).
 PUBLIC_EXACT: frozenset[str] = frozenset({
+    '/api/health',
     '/api/health/live',
     '/api/health/ready',
     '/',
@@ -65,6 +66,13 @@ def _env_name() -> str:
 
 def is_production() -> bool:
     return _env_name() in {'production', 'prod'}
+
+
+def demo_enabled() -> bool:
+    """Demo data-mutating and sample endpoints: never in production."""
+    if is_production():
+        return False
+    return os.environ.get('RR_ENABLE_DEMO_WORKSPACES') == '1'
 
 
 def is_public_path(path: str) -> bool:
