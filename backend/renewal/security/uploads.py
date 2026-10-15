@@ -1,4 +1,4 @@
-﻿"""Central bounded upload intake: size, magic sniff, page/pixel limits."""
+"""Central bounded upload intake: size, magic sniff, page/pixel limits."""
 from __future__ import annotations
 
 import io

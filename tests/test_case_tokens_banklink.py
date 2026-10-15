@@ -1,4 +1,4 @@
-﻿"""Broker-first case tokens and banklink PKCE binding."""
+"""Broker-first case tokens and banklink PKCE binding."""
 from __future__ import annotations
 
 import base64

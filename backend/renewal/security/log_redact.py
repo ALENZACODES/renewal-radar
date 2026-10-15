@@ -1,4 +1,4 @@
-﻿"""Log redaction: mask SIN-shaped and account-like digit runs; never emit raw OCR."""
+"""Log redaction: mask SIN-shaped and account-like digit runs; never emit raw OCR."""
 from __future__ import annotations
 
 import logging

@@ -1,4 +1,4 @@
-﻿from .access import require_api_access, path_allows_anonymous, is_production
+from .access import require_api_access, path_allows_anonymous, is_production
 from .rate_limit import SlidingWindowLimiter, Rule, Decision, DEFAULT_RULES
 
 __all__ = [

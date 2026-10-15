@@ -1,4 +1,4 @@
-﻿"""OCR intake limits, log redaction, CSV formula escape, temp cleanup."""
+"""OCR intake limits, log redaction, CSV formula escape, temp cleanup."""
 from __future__ import annotations
 
 import io

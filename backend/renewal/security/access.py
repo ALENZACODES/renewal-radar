@@ -1,4 +1,4 @@
-﻿"""API access gate: public allowlist + production fail-closed API key.
+"""API access gate: public allowlist + production fail-closed API key.
 
 Existing resource tokens (X-Broker-Token, X-Case-Token, X-OCR-Review-Token,
 X-Rate-Ingest-Key, share-URL tokens) remain the fine-grained controls. This

@@ -1,4 +1,4 @@
-﻿"""SQLite demo case store: workspace-owned cases and hashed credentials.
+"""SQLite demo case store: workspace-owned cases and hashed credentials.
 
 IMPORTANT: no mortgage PDF binary, bank account identifiers or name is persisted.
 The store is demo/workspace functionality; production deployments must add an
