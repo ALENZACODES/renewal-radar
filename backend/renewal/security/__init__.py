@@ -10,3 +10,5 @@ __all__ = [
     'Decision',
     'DEFAULT_RULES',
 ]
+from .log_redact import install_log_redaction, redact_log_text
+

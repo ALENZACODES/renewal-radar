@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from fastapi import APIRouter, File, Header, HTTPException, Query, Request, UploadFile
+from ..security.uploads import ingest_document_upload
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
@@ -390,13 +391,15 @@ def build_router(
 
     @router.post("/api/v5/documents/statement")
     async def documents_statement(file: UploadFile = File(...)):
-        data = await file.read()
         try:
-            reading = read_statement(data)
+            ingested = await ingest_document_upload(file)
+            reading = read_statement(ingested.data)
         except OcrUnavailable as exc:
             raise HTTPException(422, str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
+        finally:
+            await file.close()
         return reading.as_dict()
 
     @router.post("/api/penalty/v3/workbench")

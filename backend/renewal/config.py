@@ -12,6 +12,6 @@ class Settings:
     tavily_api_key: str = os.getenv('TAVILY_API_KEY','')
     allowed_origins: tuple[str,...] = tuple(s.strip() for s in os.getenv('ALLOWED_ORIGINS','http://localhost:8000,http://127.0.0.1:8000').split(','))
     app_env: str = os.getenv('APP_ENV','development')
-    max_pdf_bytes: int = int(os.getenv('MAX_PDF_MB','8')) * 1024 * 1024
+    max_pdf_bytes: int = int(os.getenv('MAX_PDF_MB','15')) * 1024 * 1024
 
 settings = Settings()
