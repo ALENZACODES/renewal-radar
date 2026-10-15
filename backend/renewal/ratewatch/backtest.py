@@ -11,7 +11,7 @@ import collections, json, random, statistics, subprocess
 from datetime import date, timedelta
 from pathlib import Path
 from .paths import DATA, PROJECT_ROOT
-from .ird import Mortgage, POLICIES, penalty
+from .ird import Mortgage, POLICIES, add_months, penalty
 from . import history
 
 TERMS_Y = [0.5, 1, 2, 3, 4, 5, 6, 7, 10]
@@ -52,6 +52,138 @@ def td_oracle(n=2000, seed=2026):
             misses.append({"case": c, "td": t, "ours": {k: ours[k] for k in ("remaining_months", "compare_term", "ird", "three_month")}})
     return {"cases": n, "exact_to_the_cent": exact_total, "exact_rate": round(exact_total / n, 4),
             "ird_exact": exact_ird, "three_month_exact": exact_three, "within_1_dollar": within_1, "examples_of_misses": misses}
+
+
+def scotia_oracle(n=2000, seed=2027):
+    """Random mortgages through Scotiabank's own logic.js (tools/scotia_oracle.mjs) vs our engine."""
+    rng = random.Random(seed)
+    today = date.today()
+    cases = []
+    for _ in range(n):
+        term = rng.choice([12, 24, 36, 48, 60, 84, 120])
+        left = rng.randint(1, term)
+        rates = {str(t): round(rng.uniform(3.0, 8.5), 2) for t in (6, 12, 24, 36, 48, 60, 84, 120)}
+        bal = round(rng.uniform(50_000, 1_500_000), 2)
+        cases.append({"balance": bal, "original": round(bal * rng.uniform(1.0, 1.4), 2),
+                      "contract": round(rng.uniform(1.5, 8.0), 2), "discount": round(rng.uniform(0, 2.5), 2),
+                      "months_remaining": left, "term_months": term, "rates": rates})
+    proc = subprocess.run(["node", str(PROJECT_ROOT / "tools" / "scotia_oracle.mjs")], input=json.dumps(cases),
+                          capture_output=True, text=True, timeout=300)
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr[-2000:])
+    scotia = json.loads(proc.stdout)
+    exact = within_1 = 0
+    misses = []
+    for c, sres in zip(cases, scotia):
+        mat = add_months(today, c["months_remaining"])
+        m = Mortgage(c["balance"], c["contract"], c["term_months"], mat, discount=c["discount"], maturity=mat)
+        table = {int(k): v for k, v in c["rates"].items()}
+        ours = penalty(m, POLICIES["Scotiabank"], table, today)
+        ok = abs(ours["penalty"] - sres["charge"]) < 0.005
+        exact += ok
+        within_1 += abs(ours["penalty"] - sres["charge"]) <= 1.0
+        if not ok and len(misses) < 10:
+            misses.append({"case": c, "scotia": sres, "ours": ours["penalty"], "remaining": ours["remaining_months"]})
+    return {"cases": n, "exact_to_the_cent": exact, "exact_rate": round(exact / n, 4), "within_1_dollar": within_1,
+            "examples_of_misses": misses}
+
+
+def cibc_oracle(n=2000, seed=2028):
+    """Random mortgages through CIBC's own mortgageprepayment.min.js (tools/cibc_oracle.mjs) vs our engine."""
+    import os
+    from .ird import monthly_payment
+    rng = random.Random(seed)
+    today = date.today()
+    cases = []
+    for _ in range(n):
+        mat = today + timedelta(days=rng.randint(1, 60 * 31))
+        bal = round(rng.uniform(50_000, 1_500_000), 2)
+        contract = round(rng.uniform(1.5, 8.0), 2)
+        pay = round(monthly_payment(bal, contract, rng.choice([180, 240, 300, 360])), 2)
+        cases.append({"balance": bal, "payment": pay, "contract": contract, "discount": round(rng.uniform(0, 2.5), 2),
+                      "today": today.isoformat(), "maturity": mat.isoformat(),
+                      "rates": {str(t): round(rng.uniform(3.0, 8.5), 2) for t in (6, 12, 24, 36, 48, 60, 84, 120)}})
+    proc = subprocess.run(["node", str(PROJECT_ROOT / "tools" / "cibc_oracle.mjs")], input=json.dumps(cases),
+                          capture_output=True, text=True, timeout=600, env={**os.environ, "TZ": "UTC"})
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr[-2000:])
+    cibc = json.loads(proc.stdout)
+    exact = within_1 = 0
+    misses = []
+    for c, r in zip(cases, cibc):
+        mat = date.fromisoformat(c["maturity"])
+        m = Mortgage(c["balance"], c["contract"], 60, mat, discount=c["discount"], maturity=mat, payment=c["payment"])
+        ours = penalty(m, POLICIES["CIBC"], {int(k): v for k, v in c["rates"].items()}, today)
+        ok = abs(ours["penalty"] - r["charge"]) < 0.005
+        exact += ok
+        within_1 += abs(ours["penalty"] - r["charge"]) <= 1.0
+        if not ok and len(misses) < 10:
+            misses.append({"case": c, "cibc": r, "ours": {k: ours[k] for k in ("penalty", "method", "ird", "three_month")}})
+    return {"cases": n, "exact_to_the_cent": exact, "exact_rate": round(exact / n, 4), "within_1_dollar": within_1,
+            "examples_of_misses": misses}
+
+
+def bmo_oracle(n=2000, seed=2029):
+    """Random mortgages through BMO's own calculator code (tools/bmo_oracle.mjs) vs our engine."""
+    rng = random.Random(seed)
+    today = date.today()
+    cases = []
+    for _ in range(n):
+        cases.append({"balance": round(rng.uniform(50_000, 1_500_000), 2), "contract": round(rng.uniform(1.5, 8.0), 2),
+                      "discount": round(rng.uniform(0, 2.5), 2), "months": rng.randint(1, 60),
+                      "rates": {str(t): round(rng.uniform(3.0, 8.5), 2) for t in (6, 12, 24, 36, 48, 60, 72, 84, 120)}})
+    proc = subprocess.run(["node", str(PROJECT_ROOT / "tools" / "bmo_oracle.mjs")], input=json.dumps(cases),
+                          capture_output=True, text=True, timeout=300)
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr[-2000:])
+    bmo = json.loads(proc.stdout)
+    exact = within_1 = 0
+    misses = []
+    for c, r in zip(cases, bmo):
+        mat = add_months(today, c["months"])
+        m = Mortgage(c["balance"], c["contract"], 60, mat, discount=c["discount"], maturity=mat)
+        ours = penalty(m, POLICIES["BMO"], {int(k): v for k, v in c["rates"].items()}, today)
+        ok = abs(ours["penalty"] - r["charge"]) < 0.005
+        exact += ok
+        within_1 += abs(ours["penalty"] - r["charge"]) <= 1.0
+        if not ok and len(misses) < 10:
+            misses.append({"case": c, "bmo": r, "ours": {k: ours[k] for k in ("penalty", "compare_posted", "remaining_months")}})
+    return {"cases": n, "exact_to_the_cent": exact, "exact_rate": round(exact / n, 4), "within_1_dollar": within_1,
+            "examples_of_misses": misses}
+
+
+def nbc_oracle(n=2000, seed=2030):
+    """Random mortgages through National Bank's own calculator script (tools/nbc_oracle.mjs) vs our engine."""
+    rng = random.Random(seed)
+    today = date.today()
+    cases = []
+    for _ in range(n):
+        months = rng.randint(1, 60)
+        rates = {t: round(rng.uniform(3.0, 8.5), 2) for t in (6, 12, 24, 36, 48, 60, 84, 120)}
+        cases.append({"balance": round(rng.uniform(20_000, 1_500_000), 2), "contract": round(rng.uniform(1.5, 8.0), 2),
+                      "months": months, "rates": rates})
+    for c in cases:                       # the form takes the posted rate the bank's term rule selects
+        mat = add_months(today, c["months"])
+        c["posted"] = penalty(Mortgage(c["balance"], c["contract"], 60, mat, maturity=mat), POLICIES["National Bank"],
+                              c["rates"], today)["compare_posted"]
+    proc = subprocess.run(["node", str(PROJECT_ROOT / "tools" / "nbc_oracle.mjs")],
+                          input=json.dumps([{k: c[k] for k in ("balance", "contract", "posted", "months")} for c in cases]),
+                          capture_output=True, text=True, timeout=300)
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr[-2000:])
+    nbc = json.loads(proc.stdout)
+    exact = within_1 = 0
+    misses = []
+    for c, r in zip(cases, nbc):
+        mat = add_months(today, c["months"])
+        ours = penalty(Mortgage(c["balance"], c["contract"], 60, mat, maturity=mat), POLICIES["National Bank"], c["rates"], today)
+        ok = abs(ours["penalty"] - r["charge"]) < 0.005
+        exact += ok
+        within_1 += abs(ours["penalty"] - r["charge"]) <= 1.0
+        if not ok and len(misses) < 10:
+            misses.append({"case": c, "nbc": r, "ours": ours["penalty"]})
+    return {"cases": n, "exact_to_the_cent": exact, "exact_rate": round(exact / n, 4), "within_1_dollar": within_1,
+            "examples_of_misses": misses}
 
 
 def td_history_vs_boc():

@@ -16,6 +16,10 @@ coverage/
 data/ratewatch/rates.db
 data/ratewatch/osfi/
 data/ratewatch/td_oracle/
+data/ratewatch/scotia_oracle/
+data/ratewatch/cibc_oracle/
+data/ratewatch/bmo_oracle/
+data/ratewatch/nbc_oracle/
 data/ratewatch/letters/
 data/ratewatch/backfill_progress.json
 data/ratewatch/alerts.csv

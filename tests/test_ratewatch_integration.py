@@ -88,9 +88,101 @@ def test_td_oracle_200_random_cases_exact_to_the_cent():
     assert r["exact_to_the_cent"] == 200, r["examples_of_misses"][:2]
 
 
+SCOTIA_JS = backtest.DATA / "scotia_oracle" / "main.js"
+
+
+@pytest.mark.skipif(shutil.which("node") is None or not SCOTIA_JS.exists(),
+                    reason="needs Node.js and Scotiabank's calculator files (python tools/fetch_scotia_oracle.py)")
+def test_scotia_oracle_300_random_cases_exact_to_the_cent():
+    r = backtest.scotia_oracle(n=300, seed=11)
+    assert r["exact_to_the_cent"] == 300, r["examples_of_misses"][:2]
+
+
+def test_scotia_rules_from_its_calculator():
+    from datetime import date
+    from renewal.ratewatch.ird import Mortgage, add_months, penalty
+    today = date(2026, 10, 15)
+    table = {6: 5.95, 12: 5.49, 24: 5.24, 36: 6.05, 48: 6.09, 60: 6.19, 84: 6.4, 120: 6.8}
+    mat = add_months(today, 24)
+    r = penalty(Mortgage(400000, 4.89, 60, mat, discount=2.0, maturity=mat), POLICIES["Scotiabank"], table, today)
+    assert r["penalty"] == 13200.0 and r["compare_term"] == 24
+    # comparison rate 3+ points above the contract rate: Scotiabank's code charges nothing
+    r = penalty(Mortgage(400000, 2.0, 60, mat, discount=0.0, maturity=mat), POLICIES["Scotiabank"], table, today)
+    assert r["penalty"] == 0.0
+    # 10-year term with 5+ years elapsed: three months' interest only
+    mat = add_months(today, 50)
+    r = penalty(Mortgage(400000, 7.0, 120, mat, discount=0.0, maturity=mat), POLICIES["Scotiabank"], table, today)
+    assert r["penalty"] == 7000.0
+
+
+CIBC_JS = backtest.DATA / "cibc_oracle" / "mortgageprepayment.min.js"
+
+
+@pytest.mark.skipif(shutil.which("node") is None or not CIBC_JS.exists(),
+                    reason="needs Node.js and CIBC's calculator file (python tools/fetch_cibc_oracle.py)")
+def test_cibc_oracle_300_random_cases_exact_to_the_cent():
+    r = backtest.cibc_oracle(n=300, seed=13)
+    assert r["exact_to_the_cent"] == 300, r["examples_of_misses"][:2]
+
+
+def test_cibc_rules_from_its_calculator():
+    from datetime import date
+    from renewal.ratewatch.ird import Mortgage, penalty
+    today, mat = date(2026, 10, 15), date(2028, 10, 15)
+    table = {6: 6.0, 12: 6.1, 24: 5.5, 36: 6.05, 48: 6.09, 60: 6.19, 84: 6.4, 120: 6.8}
+    m = Mortgage(400000, 4.89, 60, mat, discount=1.5, maturity=mat, payment=2300)
+    r = penalty(m, POLICIES["CIBC"], table, today)     # same case run through CIBC's own code: 7,599.14 IRD
+    assert r["penalty"] == 7599.14 and r["method"] == "IRD" and r["compare_term"] == 24
+    near = date(2026, 12, 15)                           # under 3 months left: interest to maturity
+    r = penalty(Mortgage(400000, 4.89, 60, near, discount=1.5, maturity=near, payment=2300), POLICIES["CIBC"], table, today)
+    assert r["method"] == "maturity"
+
+
+BMO_JS = backtest.DATA / "bmo_oracle" / "app.js"
+NBC_JS = backtest.DATA / "nbc_oracle" / "fixed_total.js"
+
+
+@pytest.mark.skipif(shutil.which("node") is None or not BMO_JS.exists(),
+                    reason="needs Node.js and BMO's calculator bundle (python tools/fetch_bmo_oracle.py)")
+def test_bmo_oracle_300_random_cases_exact_to_the_cent():
+    r = backtest.bmo_oracle(n=300, seed=17)
+    assert r["exact_to_the_cent"] == 300, r["examples_of_misses"][:2]
+
+
+@pytest.mark.skipif(shutil.which("node") is None or not NBC_JS.exists(),
+                    reason="needs Node.js and National Bank's form script (python tools/fetch_nbc_oracle.py)")
+def test_nbc_oracle_300_random_cases_exact_to_the_cent():
+    r = backtest.nbc_oracle(n=300, seed=19)
+    assert r["exact_to_the_cent"] == 300, r["examples_of_misses"][:2]
+
+
+def test_bmo_rules_from_its_calculator():
+    from datetime import date
+    from renewal.ratewatch.ird import Mortgage, add_months, penalty
+    today = date(2026, 10, 15)
+    table = {6: 6.0, 12: 6.1, 24: 5.5, 36: 6.05, 48: 6.09, 60: 6.19, 72: 6.3, 84: 6.4, 120: 6.8}
+    mat = add_months(today, 30)                         # exactly between 2 and 3 years: BMO takes the higher posted rate
+    r = penalty(Mortgage(400000, 4.89, 60, mat, discount=2.0, maturity=mat), POLICIES["BMO"], table, today)
+    assert r["compare_posted"] == 6.05 and r["penalty"] == 8400.0
+    mat = add_months(today, 2)                          # 2 months left: BMO prorates the charge to 2/3
+    r = penalty(Mortgage(400000, 6.0, 60, mat, discount=0.0, maturity=mat), POLICIES["BMO"], table, today)
+    assert r["penalty"] == round(400000 * 6.0 / 4 / 100 / 3 * 2, 2)
+
+
+def test_nbc_rules_from_its_calculator():
+    from datetime import date
+    from renewal.ratewatch.ird import Mortgage, add_months, penalty
+    today = date(2026, 10, 15)
+    table = {6: 6.0, 12: 6.1, 24: 5.5, 36: 6.05, 48: 6.09, 60: 6.19, 84: 6.4, 120: 6.8}
+    mat = add_months(today, 24)
+    r = penalty(Mortgage(400000, 6.5, 60, mat, discount=2.0, maturity=mat), POLICIES["National Bank"], table, today)
+    # (6.5% - 5.5% posted, no discount add-back) * 400k / 12 * 24 + one month's interest capped at $500
+    assert r["penalty"] == round(400000 * 0.01 / 12 * 24 + 500, 2)
+
+
 def test_td_policy_is_marked_verified_and_others_are_not():
-    assert POLICIES["TD"].verified
-    assert not POLICIES["RBC"].verified and not POLICIES["BMO"].verified
+    assert all(POLICIES[b].verified for b in ("TD", "Scotiabank", "CIBC", "BMO", "National Bank"))
+    assert not POLICIES["RBC"].verified
 
 
 # ---- regressions found in review (2026-10-14) ----
