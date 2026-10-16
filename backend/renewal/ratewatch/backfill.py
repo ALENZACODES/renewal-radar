@@ -264,6 +264,34 @@ def cc_crawls():
     return out
 
 
+def warc_body(warc: bytes) -> str:
+    """HTTP body of one WARC response record, as text. Works on bytes so a gzip- or chunk-encoded body survives."""
+    parts = warc.split(b"\r\n\r\n", 2)
+    if len(parts) < 3:
+        return warc.decode("utf-8", "replace")
+    http, body = parts[1].lower(), parts[2]
+    if b"transfer-encoding: chunked" in http:
+        out, rest = b"", body
+        while rest:
+            line, _, rest = rest.partition(b"\r\n")
+            try:
+                n = int(line.split(b";")[0], 16)
+            except ValueError:
+                out += line + rest
+                break
+            if n == 0:
+                break
+            out, rest = out + rest[:n], rest[n + 2:]
+        body = out
+    if body[:2] == b"\x1f\x8b":
+        import gzip
+        try:
+            body = gzip.decompress(body)
+        except OSError:
+            pass
+    return body.decode("utf-8", "replace")
+
+
 def cc_pass(prog):
     """Common Crawl: a second, independent public archive. Fill months from it first (not rate-limited like Wayback)."""
     import gzip, io
@@ -287,7 +315,7 @@ def cc_pass(prog):
                             rec = json.loads(line)
                         except ValueError:
                             continue
-                        if rec.get("status") != "200" or (match == "prefix" and "FRCM" not in rec.get("url", "").upper()):
+                        if rec.get("status") != "200" or (kind == "cibc_js" and "FRCM" not in rec.get("url", "").upper()):
                             continue
                         caps.setdefault(rec["timestamp"][:6], []).append(
                             {k: rec[k] for k in ("timestamp", "filename", "offset", "length", "url")})
@@ -302,10 +330,10 @@ def cc_pass(prog):
                     try:
                         raw = requests.get("https://data.commoncrawl.org/" + rec["filename"], timeout=120,
                                            headers={"Range": f"bytes={s0}-{s0 + n - 1}"}).content
-                        warc = gzip.GzipFile(fileobj=io.BytesIO(raw)).read().decode("utf-8", "replace")
+                        warc = gzip.GzipFile(fileobj=io.BytesIO(raw)).read()
                     except Exception:
                         continue
-                    body = warc.split("\r\n\r\n", 2)[-1]  # WARC headers, HTTP headers, then the body
+                    body = warc_body(warc)                # WARC headers, HTTP headers, body (gzip/chunked undone)
                     rows = parse(kind, body)
                     day = datetime.strptime(rec["timestamp"][:8], "%Y%m%d").date()
                     ok, rate5, boc = validate_month(rows, day)
