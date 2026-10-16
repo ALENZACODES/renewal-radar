@@ -21,6 +21,7 @@ CU = ("T003", "Test CU", "credit_union", ("html", "https://cu.test/rates"), None
 def isolated(tmp_path, monkeypatch):
     monkeypatch.setattr(live, "CACHE", tmp_path / "cache.json")
     monkeypatch.setattr(live, "BOARD", tmp_path / "board.json")
+    monkeypatch.setattr(live, "REFRESH_LOCK", tmp_path / "refresh.lock")    # never share a lock with a real collector
     monkeypatch.setattr(history, "DB", tmp_path / "rates.db")
     monkeypatch.setattr(live, "read_rediscovered", lambda url: ([], None))
     monkeypatch.setattr(live, "read_archive", lambda kind, url: ([], "no archive copy"))
