@@ -33,23 +33,43 @@ def save(source, day, rows, how):
                       [(source, day, t, k, rt, r, how) for t, k, rt, r in rows])
 
 
-def table_on(source, day, rtype="posted", kind="fixed_closed", max_age_days=45):
-    """Lender's {term: rate} in force on `day` = latest snapshot on or before that day."""
+FILL_HOWS = ("bridged", "boc_typical")
+
+
+def table_on(source, day, rtype="posted", kind="fixed_closed", max_age_days=45, own_only=False):
+    """Lender's {term: rate} in force on `day` = latest snapshot on or before that day.
+    own_only=True ignores gap fills (bridged / Bank of Canada typical): use it for anything presented as current."""
+    skip = " AND how NOT IN ('bridged','boc_typical')" if own_only else ""
     with db() as c:
-        row = c.execute("SELECT MAX(day) FROM rates WHERE source=? AND day<=? AND rtype=? AND kind=?",
+        row = c.execute("SELECT MAX(day) FROM rates WHERE source=? AND day<=? AND rtype=? AND kind=?" + skip,  # nosec B608
                         (source, str(day), rtype, kind)).fetchone()
         if not row or not row[0]:
             return {}, None
         if (date.fromisoformat(str(day)) - date.fromisoformat(row[0])).days > max_age_days:
             return {}, row[0]
-        rs = c.execute("SELECT term, rate, how FROM rates WHERE source=? AND day=? AND rtype=? AND kind=?",
+        rs = c.execute("SELECT term, rate, how FROM rates WHERE source=? AND day=? AND rtype=? AND kind=?" + skip,  # nosec B608
                        (source, row[0], rtype, kind)).fetchall()
         # One capture per answer: never mix a live feed with an archive copy taken the same day.
         best = min({how for _, _, how in rs}, key=lambda h: HOW_PRIORITY.get(h, 9))
         return {t: r for t, r, how in rs if how == best}, row[0]
 
 
-HOW_PRIORITY = {"api": 0, "html": 1, "wayback": 2, "commoncrawl": 3, "arquivo": 3, "boc": 4}
+HOW_PRIORITY = {"api": 0, "html": 1, "wayback": 2, "commoncrawl": 3, "arquivo": 3, "boc": 4,
+                "bridged": 5, "boc_typical": 6}
+# Gap fills (backfill.fill_gaps): never the bank's own reading, always labelled.
+FILL_LABEL = {"bridged": "bridged between two identical bank-own readings while the Bank of Canada figure was unchanged",
+              "boc_typical": "Bank of Canada big-six typical posted rate (series V80691333/4/5), not this bank's own figure"}
+
+
+def provenance(source, day, rtype="posted", kind="fixed_closed", max_age_days=45):
+    """How the table returned by table_on() for this day was obtained ('api', 'arquivo', 'bridged', 'boc_typical', ...)."""
+    table, seen = table_on(source, day, rtype, kind, max_age_days)
+    if not table:
+        return None
+    with db() as c:
+        hows = [h for (h,) in c.execute("SELECT DISTINCT how FROM rates WHERE source=? AND day=? AND rtype=? AND kind=?",
+                                         (source, seen, rtype, kind))]
+    return min(hows, key=lambda h: HOW_PRIORITY.get(h, 9))
 
 
 def conflicts(source=None, since=None, tol=0.005):

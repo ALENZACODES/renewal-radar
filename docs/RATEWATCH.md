@@ -85,3 +85,38 @@ The Interest Act s.10 cap for individuals (terms over 5 years, more than 5 years
 
 Equitable Bank's own page (equitablebank.ca/mortgage-rates) is now backup 1 for EQ Bank on the live board, read by `scrape.equitable_rows`.
 It takes only the Standard posted table and skips reverse-mortgage and APR rows.
+
+## Five-year history: every month covered, every value labelled
+
+`python -m renewal.ratewatch.backfill --fill` rebuilds coverage. It makes no network calls and is safe while the backfill runs.
+The backfill also runs it at the end of every pass. Each bank-month gets exactly one of three labels:
+
+1. **Bank-own:** the bank's own page or feed, from the live scraper, Wayback, Common Crawl or **Arquivo.pt**. The 5-year rate must sit within 0.75 of the Bank of Canada figure for that week.
+2. **Bridged:** the bank's own 5-year posted rate is identical at the nearest readings on both sides of the gap, those readings are at most 6 months apart, and the Bank of Canada figure did not move at all between them. The earlier full bank-own table is carried across the gap.
+3. **Bank of Canada typical:** the Bank of Canada's weekly big-six typical posted 1, 3 and 5-year rates (series V80691333/4/5) for the last week of the month. These are labelled "not this bank's own figure".
+
+Why the Bank of Canada fallback is defensible:
+- TD's own published daily history (1999–2018) equals this figure in 896 of 1,034 weeks (87%), with an average gap of 0.02 points.
+- Across the 60 months where we hold both a bank-own reading and the Bank of Canada figure (RBC, Scotiabank, National Bank), the average gap is 0.08 points and 90% of months are within 0.20.
+
+Guarantees:
+- Fills are stored under the bank's id with `how = bridged | boc_typical`. Anything presented as a current rate uses `history.table_on(..., own_only=True)` and never sees them: the book review's current tables, CLI payouts, validation, accuracy evidence, and the bank-own dataset weeks.
+- Where a fill is used for a past date, the answer says so. The book review marks the deal as an estimate and asks for the commitment letter. Historical API tables carry the fill label.
+- Refilling first deletes every earlier fill, so a month that later gains a bank-own reading drops its fill.
+- In `rates_5yr.csv`, filled rows are a separate series (`bank_posted_gap_fill`) with the label in the source column.
+- Bank of Canada fills cover the 1, 3 and 5-year terms only. A past IRD that needs another term from a filled month returns "needs data", never a guess.
+
+Coverage on 2026-10-15 (61 months, Oct 2021–Oct 2026), as bank-own + bridged + Bank of Canada:
+
+| Bank | Bank-own | Bridged | Bank of Canada | Total |
+|---|---|---|---|---|
+| RBC | 12 | 5 | 44 | 61 |
+| TD | 1 | 0 | 60 | 61 |
+| Scotiabank | 30 | 3 | 28 | 61 |
+| BMO | 1 | 0 | 60 | 61 |
+| CIBC | 1 | 0 | 60 | 61 |
+| National Bank | 21 | 5 | 35 | 61 |
+
+`coverage_grade` is A (every month has a labelled source). `grade` stays the strict bank-own grade (D: TD, BMO and CIBC).
+
+Why TD, BMO and CIBC have so few bank-own months: their rate pages load the numbers after the page opens, and their data feeds are not held by any public archive inside the window. Archives checked: Wayback, Common Crawl, Arquivo.pt, archive.today (CAPTCHA, and only about 5 copies), Archive-It/Library and Archives Canada, Library of Congress, Iceland and Australia. Their bank-own share now grows one month at a time from the live scraper's daily readings.

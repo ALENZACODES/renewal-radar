@@ -125,7 +125,7 @@ def lender_rates(sids: set, as_of: date, fetch_live: bool = True) -> dict:
     today = date.today()
     anchor = None
     for sid in sorted(s for s in sids if s):
-        fresh, day = history.table_on(sid, as_of, max_age_days=1)
+        fresh, day = history.table_on(sid, as_of, max_age_days=1, own_only=True)
         if fresh:
             out[sid] = (fresh, f"recorded {day}")
             continue
@@ -139,7 +139,7 @@ def lender_rates(sids: set, as_of: date, fetch_live: bool = True) -> dict:
                     continue
             except Exception:                                  # network trouble: fall through to recorded data
                 pass
-        recent, day = history.table_on(sid, as_of, max_age_days=14)
+        recent, day = history.table_on(sid, as_of, max_age_days=14, own_only=True)
         out[sid] = (recent, f"recorded {day}") if recent else ({}, "no valid reading in the last 14 days")
     return out
 
@@ -260,7 +260,7 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
         out["method_status"] = "estimate"
         table = None
     else:
-        table, seen = (lender_tables or {}).get(sid) or (history.table_on(sid, as_of, max_age_days=14) if sid else ({}, None))
+        table, seen = (lender_tables or {}).get(sid) or (history.table_on(sid, as_of, max_age_days=14, own_only=True) if sid else ({}, None))
         if (m.discount is None or policy.three_month_basis == "posted_at_origination") and d.posted_rate is None and sid:
             orig, oday = history.table_on(sid, d.closing_date, max_age_days=45)
             term = d.term_months or 60
@@ -268,7 +268,13 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
                 if m.discount is None:
                     m.discount = round(orig[term] - d.contract_rate, 4)
                 m.posted_at_origination = {term: orig[term]}
-                out["issues"].append(f"original discount {m.discount}%; recorded posted rate {orig[term]}% from {d.lender} on {oday}.")
+                how = history.provenance(sid, d.closing_date, max_age_days=45)
+                src = f"from {d.lender} on {oday}" if how not in history.FILL_HOWS else f"({history.FILL_LABEL[how]}, {oday})"
+                out["issues"].append(f"original discount {m.discount}%; recorded posted rate {orig[term]}% {src}.")
+                if how in history.FILL_HOWS:
+                    out["method_status"] = "estimate"
+                    out["issues"].append("Original posted rate is a labelled gap fill, not the lender's own record: "
+                                         "confirm the discount from the commitment letter.")
         needs = []
         if not validate_rate_table(table):
             needs.append(f"{d.lender}'s current {'posted ' if policy.comparison != 'offered' else ''}rates")
