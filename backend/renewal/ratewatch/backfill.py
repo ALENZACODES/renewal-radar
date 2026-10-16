@@ -32,7 +32,8 @@ SOURCES = {
     "P021": [("html", "https://www.rbcroyalbank.com/mortgages/mortgage-rates.html", "exact")],
     "P023": [("td_json", "https://ix0.apps.td.com/api/get-rates/en", "exact")],
     "P025": [("scotia_json", "https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage", "exact")],
-    "P027": [("bmo_epm", "https://www.bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json", "exact"),
+    "P027": [("bmo_include", "https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp", "prefix"),
+             ("bmo_epm", "https://www.bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json", "exact"),
              ("json_generic", "https://www.bmo.com/public-data/api/v1.1/mortgages.json", "exact")],
     "P029": [("cibc_js", "https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5", "prefix")],
     "P031": [("html", "https://www.nbc.ca/personal/mortgages/rates.html", "exact")],
@@ -132,8 +133,28 @@ def _walk_json(obj, found):
     return found
 
 
+BMO_INCLUDE_RE = re.compile(r"'([^']+)'\s*:\s*\{[^{}]*?'value'\s*:\s*'([\d.]+)'[^{}]*?'type'\s*:\s*'([a-z]+)'[^{}]*?"
+                            r"'term_months'\s*:\s*'(\d+)'")
+
+
+def bmo_include_rows(text):
+    """BMO's rate include (bmo.com/bmocda/templates/json_mortgage_include.jsp): var MORTGAGE = {'fixed': {...}}.
+    Posted fixed closed terms (and the 6-month convertible) only; open terms kept as 'open'."""
+    a = text.find("'fixed'")
+    b = text.find("'variable'", a)
+    block = text[a:b if b > a else None] if a >= 0 else ""
+    rows = []
+    for name, value, typ, months in BMO_INCLUDE_RE.findall(block):
+        kind = {"closed": "fixed_closed", "convertible": "fixed_closed", "open": "open"}.get(typ)
+        if kind:
+            rows.append((int(months), kind, "posted", float(value)))
+    return sorted(set(rows))
+
+
 def parse(kind, text):
     try:
+        if kind == "bmo_include":
+            return bmo_include_rows(text)
         if kind == "html":
             return extract_rates(text)
         if kind == "cibc_js":
@@ -287,6 +308,7 @@ ARQUIVO_PACE = 8.0
 # Arquivo.pt (Portugal's national web archive) crawls these bank-own pages and feeds too, under its own limits.
 # Extra bank-own URLs it holds that Wayback does not, tried after the SOURCES above.
 ARQUIVO_EXTRA = {
+    "P025": [],
     "P021": [("html", "https://www.rbcroyalbank.com/mortgages/mortgage-rates.html", "prefix")],
     "P023": [("html", "https://www.td.com/ca/en/personal-banking/products/mortgages/mortgage-rates", "prefix")],
     "P027": [("bmo_flat", "https://www.bmo.com/main/personal/mortgages/json/rates", "prefix"),
@@ -524,6 +546,10 @@ def supervise(max_hours=10.0):
 
 
 if __name__ == "__main__":
+    only = next((a.split("=", 1)[1].split(",") for a in sys.argv if a.startswith("--banks=")), None)
+    if only:                                     # focused run, e.g. --banks=P027,P029 (other banks untouched)
+        for sid in [k for k in SOURCES if k not in only]:
+            SOURCES.pop(sid)
     if "--fill" in sys.argv:                     # no network; safe while the backfill runs
         fill_gaps()
     if "--report" in sys.argv or "--fill" in sys.argv:

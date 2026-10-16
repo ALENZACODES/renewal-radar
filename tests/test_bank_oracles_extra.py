@@ -77,3 +77,14 @@ def test_refill_drops_a_fill_once_bank_own_data_arrives(tmp_path, monkeypatch):
     history.save("P023", "2024-10-05", [(60, "fixed_closed", "posted", 6.59)], "arquivo")
     backfill.fill_gaps({"P023": {"202410": {"how": "arquivo/html", "ts": "20241005", "rate5": 6.59, "boc": 6.49}}})
     assert history.table_on("P023", date(2024, 10, 31))[0] == {60: 6.59}
+
+
+def test_bmo_rate_include_parser():
+    from renewal.ratewatch import backfill
+    js = ("var MORTGAGE = {'fixed' : {'6 month \x28convertible\x29' : {'frn_name':'x', 'value':'3.040', 'product_code':'a', "
+          "'type':'convertible', 'term_months':'6'},\n'6 month \x28open\x29' : {'frn_name':'x', 'value':'5.950', 'product_code':'b', "
+          "'type':'open', 'term_months':'6'},\n'5 year \x28closed\x29' : {'frn_name':'x', 'value':'4.790', 'product_code':'c', "
+          "'type':'closed', 'term_months':'60'}}, 'variable' : {'5 year' : {'value':'2.000', 'type':'closed', 'term_months':'60'}}};")
+    rows = backfill.parse("bmo_include", js)
+    assert (60, "fixed_closed", "posted", 4.79) in rows and (6, "fixed_closed", "posted", 3.04) in rows
+    assert (6, "open", "posted", 5.95) in rows and not any(r[3] == 2.0 for r in rows)    # variable block ignored
