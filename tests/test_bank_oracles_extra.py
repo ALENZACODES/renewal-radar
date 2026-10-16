@@ -98,3 +98,15 @@ def test_gzip_archived_bodies_are_unpacked():
         content = gzip.compress(b"<table><tr><td>5 year fixed</td><td>7.14%</td></tr></table>")
         text = "\x1f\x8bgarbage"
     assert "7.14%" in backfill.body_text(R())
+
+
+def test_warc_body_unpacks_gzip_and_chunked():
+    import gzip
+    from renewal.ratewatch import backfill
+    page = b"<td>5 year fixed</td><td>7.14%</td>"
+    z = gzip.compress(page)
+    rec = b"WARC/1.0\r\nWARC-Type: response\r\n\r\nHTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\n\r\n" + z
+    assert "7.14%" in backfill.warc_body(rec)
+    chunked = b"WARC/1.0\r\n\r\nHTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n" + \
+        f"{len(page):x}".encode() + b"\r\n" + page + b"\r\n0\r\n\r\n"
+    assert backfill.warc_body(chunked) == page.decode()
