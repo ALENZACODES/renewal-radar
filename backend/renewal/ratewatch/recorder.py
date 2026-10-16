@@ -187,7 +187,7 @@ def run(lenders=None, sleep=time.sleep):
                     log(f"{l[1]}: {why}")
             todo = [l for l in todo if not recorded_today(l[0])]
             if attempt == 0:                                    # never-published lenders: one try per run is enough
-                skipped = [l for l in todo if l[2] == "alternative" and not ever_recorded(l[0])]
+                skipped = [l for l in todo if not ever_recorded(l[0])]
                 todo = [l for l in todo if l not in skipped]
                 if skipped:
                     log(f"{len(skipped)} lenders have never published rates; tried once this run")

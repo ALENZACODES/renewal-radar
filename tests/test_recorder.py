@@ -22,6 +22,8 @@ def env(tmp_path, monkeypatch):
     monkeypatch.setattr(live, "market_anchor", lambda: {"goc_5y": 3.0, "boc_5y_posted": 6.09})
     import renewal.ratewatch.backfill as bf
     monkeypatch.setattr(bf, "fill_gaps", lambda *a, **k: {})
+    for lid in ("P021", "P023"):                             # both banks have published before (not never-published)
+        history.save(lid, "2026-01-05", ROWS, "html")
     return tmp_path
 
 

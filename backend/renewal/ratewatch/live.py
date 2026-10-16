@@ -57,7 +57,9 @@ LENDERS = [
     ("CU03", "Coast Capital", "credit_union", ("html", "https://www.coastcapitalsavings.com/rates"), None),
     ("CU04", "Servus", "credit_union", ("html", "https://servus.ca/rates"), None),
     ("CU05", "Alterna Savings", "credit_union", ("html", "https://www.alterna.ca/en/rates/mortgages"), None),
-    ("CU06", "DUCA", "credit_union", ("html", "https://www.duca.com/rates"), None),
+    ("CU06", "DUCA", "credit_union",
+     ("duca_pdf", "https://www.duca.com/assets/pdf/Media_CXP/Rates/Early Prepayment Charges and Interest Rate Differential (IRD).pdf"),
+     ("html", "https://www.duca.com/rates")),
     ("CU07", "FirstOntario", "credit_union", ("html", "https://www.firstontario.com/personal/rates/"), None),
     ("CU08", "Libro", "credit_union", ("html", "https://www.libro.ca/rates-fees/mortgage/"), None),
     ("CU09", "Affinity", "credit_union", ("html", "https://www.affinitycu.ca/rates/mortgage-rates"), None),
@@ -70,7 +72,7 @@ LENDERS = [
     ("CU16", "Mainstreet", "credit_union", ("html", "https://mainstreetcu.ca/rates"), None),
     ("CU17", "Innovation", "credit_union", ("html", "https://www.innovationcu.ca/personal/borrowing/mortgage-rates.html"), None),
     ("CU18", "Kawartha", "credit_union", ("html", "https://www.kawarthacu.com/rates"), None),
-    ("CU19", "Steinbach", "credit_union", ("html", "https://scu.mb.ca/rates"), None),
+    ("CU19", "Steinbach", "credit_union", ("html", "https://scu.mb.ca/rates/borrowing"), ("html", "https://scu.mb.ca/rates")),
     ("CU20", "Tandia", "credit_union", ("html", "https://www.tandia.com/rates"), None),
     # ---- B lenders, trust companies, MICs and private lenders. Most quote brokers privately and publish no rates;
     #      they run through the same chain and show "Unavailable" until a public lender source exists. ----
@@ -123,6 +125,8 @@ def read_live(kind: str, url: str) -> list:
         return scrape.bmo_posted_rows(_http(url).json())
     if kind == "cibc_api":
         return scrape.cibc()
+    if kind == "duca_pdf":
+        return scrape.duca_pdf_rows(_http(url).content)
     return parse_text(kind, _http(url, headers={"Referer": url}).text)
 
 
