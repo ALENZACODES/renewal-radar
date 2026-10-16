@@ -38,7 +38,7 @@ def _history_table(lender, day):
     from . import history
     from .api import SOURCES
     sid = SOURCES.get(lender.strip().lower())
-    return history.table_on(sid, day, max_age_days=10)[0] if sid else {}
+    return history.table_on(sid, day, max_age_days=10, own_only=True)[0] if sid else {}
 
 
 def _case_key(r):
