@@ -17,3 +17,14 @@ def test_equitable_is_backup_source_for_eq_bank():
     row = next(r for r in live.LENDERS if r[0] == "ALT02")
     assert row[4] == ("equitable", "https://www.equitablebank.ca/mortgage-rates")
     assert live.parse_text("equitable", PAGE) == scrape.equitable_rows(PAGE)
+
+
+def test_bmo_flat_rates_file_reads_posted_fixed_terms_only():
+    from renewal.ratewatch import backfill
+    text = '{"CMS": {}, "fixed-5-year-closed": "5.34", "fixed-5-year-closed-special": "3.54", "fixed-7-year-closed-apr": "3.6"}'
+    assert backfill.parse("bmo_flat", text) == [(60, "fixed_closed", "posted", 5.34)]
+
+
+def test_arquivo_is_an_extra_archive_pass():
+    from renewal.ratewatch import backfill, history
+    assert callable(backfill.arquivo_pass) and history.HOW_PRIORITY["arquivo"] == 3

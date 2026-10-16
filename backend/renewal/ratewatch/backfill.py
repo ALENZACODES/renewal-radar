@@ -23,7 +23,7 @@ PACE = 30.0                         # ~9 hours for the full 5-year pass; gentle 
 BLOCK_WAIT = 15 * 60
 MAX_GAP = 0.75                      # % points from the BoC big-six figure a bank's 5-yr posted may sit
 PROGRESS = DATA / "backfill_progress.json"
-PARSER_VERSION = "2026-10-15a"        # bump when parse() changes: earlier rejections are then retried
+PARSER_VERSION = "2026-10-16a"        # bump when parse() changes: earlier rejections are then retried
 COVERAGE = DATA / "history_coverage.json"
 CDX = "https://web.archive.org/cdx/search/cdx"
 
@@ -143,6 +143,13 @@ def parse(kind, text):
             return scrape.scotia_rows(js)
         if kind == "bmo_epm":
             return scrape.bmo_posted_rows(js)
+        if kind == "bmo_flat":                 # bmo.com/main/personal/mortgages/json/rates: {"fixed-5-year-closed": "5.34", ...}
+            rows = []
+            for k, v in js.items():
+                m = re.fullmatch(r"fixed-(\d+)-year-closed", k)
+                if m:
+                    rows.append((int(m.group(1)) * 12, "fixed_closed", "posted", float(v)))
+            return rows
         if kind == "td_json":
             rows = []
             for cat in js.get("categories", []):
@@ -275,6 +282,83 @@ def cc_pass(prog):
                 report(prog)
 
 
+ARQUIVO_CDX = "https://arquivo.pt/wayback/cdx"
+ARQUIVO_PACE = 8.0
+# Arquivo.pt (Portugal's national web archive) crawls these bank-own pages and feeds too, under its own limits.
+# Extra bank-own URLs it holds that Wayback does not, tried after the SOURCES above.
+ARQUIVO_EXTRA = {
+    "P021": [("html", "https://www.rbcroyalbank.com/mortgages/mortgage-rates.html", "prefix")],
+    "P023": [("html", "https://www.td.com/ca/en/personal-banking/products/mortgages/mortgage-rates", "prefix")],
+    "P027": [("bmo_flat", "https://www.bmo.com/main/personal/mortgages/json/rates", "prefix"),
+             ("html", "https://www.bmo.com/main/personal/mortgages/mortgage-rates/", "prefix")],
+    "P029": [("html", "https://www.cibc.com/en/personal-banking/mortgages/mortgage-rates.html", "prefix"),
+             ("html", "https://www.cibc.com/en/personal-banking/mortgages/find-mortgage-rates.html", "prefix")],
+}
+
+
+def arquivo_pass(prog):
+    """Arquivo.pt: an independent public archive with its own rate limit. Same bank-own sources, same validation."""
+    for sid in SOURCES:
+        done = prog.setdefault(sid, {})
+        for kind, url, match in SOURCES[sid] + ARQUIVO_EXTRA.get(sid, []):
+            key = f"pt:{sid}:{url}"
+            if not prog.get(key):
+                caps = {}
+                params = {"url": url.split("://", 1)[1] + ("*" if match == "prefix" else ""), "output": "json",
+                          "filter": "status:200"}
+                for attempt in range(3):
+                    try:
+                        r = requests.get(ARQUIVO_CDX, params=params, headers=UA, timeout=90)
+                        break
+                    except requests.RequestException:
+                        time.sleep(60 * (attempt + 1))
+                else:
+                    print(f"{sid} arquivo index unreachable for {url}; retry next run", flush=True)
+                    continue
+                for line in r.text.splitlines():
+                    try:
+                        rec = json.loads(line)
+                    except ValueError:
+                        continue
+                    if kind == "cibc_js" and "FRCM" not in rec.get("url", "").upper():
+                        continue
+                    caps.setdefault(rec["timestamp"][:6], []).append([rec["timestamp"], rec["url"]])
+                prog[key] = caps
+                PROGRESS.write_text(json.dumps(prog, indent=1))
+                time.sleep(ARQUIVO_PACE)
+            tried = prog.setdefault(f"pt-tried:{sid}:{PARSER_VERSION}", [])
+            for month, recs in sorted(prog[key].items()):
+                if month not in months() or isinstance(done.get(month), dict):
+                    continue
+                for ts, orig in sorted(recs, reverse=True)[:3]:
+                    if ts in tried:
+                        continue
+                    try:
+                        resp = requests.get(f"https://arquivo.pt/wayback/{ts}id_/{orig}", headers=UA, timeout=90)
+                    except requests.RequestException as e:
+                        print(f"{sid} {ts[:8]} arquivo error {type(e).__name__}; will retry", flush=True)
+                        time.sleep(ARQUIVO_PACE)
+                        continue
+                    time.sleep(ARQUIVO_PACE)
+                    if resp.status_code == 429 or resp.status_code >= 500:
+                        print(f"{sid} arquivo busy ({resp.status_code}); waiting 5 min", flush=True)
+                        time.sleep(300)
+                        continue
+                    rows = parse(kind, resp.text) if resp.ok else []
+                    day = datetime.strptime(ts[:8], "%Y%m%d").date()
+                    ok, rate5, boc = validate_month(rows, day)
+                    if resp.ok and rows and boc is None:
+                        continue
+                    tried.append(ts)
+                    print(f"{sid} {ts[:8]} pt/{kind:10} rows={len(rows):3} 5y={rate5} boc={boc} {'OK' if ok else 'reject'}", flush=True)
+                    if ok:
+                        history.save(sid, day.isoformat(), rows, "arquivo")
+                        done[month] = {"how": f"arquivo/{kind}", "ts": ts, "url": orig, "rate5": rate5, "boc": boc}
+                        break
+                PROGRESS.write_text(json.dumps(prog, indent=1))
+                report(prog)
+
+
 def _run():
     try:
         history.official(start=f"{date.today().year - YEARS}-01-01")
@@ -283,6 +367,8 @@ def _run():
     prog = json.loads(PROGRESS.read_text()) if PROGRESS.exists() else {}
     if "--no-cc" not in sys.argv:
         cc_pass(prog)
+    if "--no-pt" not in sys.argv:
+        arquivo_pass(prog)
     arc = Archive()
     for sid, sources in SOURCES.items():
         done = prog.setdefault(sid, {})                          # month -> {"how","ts","url","rate5","boc"} or "tried"

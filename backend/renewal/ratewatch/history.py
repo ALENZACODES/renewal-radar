@@ -49,7 +49,7 @@ def table_on(source, day, rtype="posted", kind="fixed_closed", max_age_days=45):
         return {t: r for t, r, how in rs if how == best}, row[0]
 
 
-HOW_PRIORITY = {"api": 0, "html": 1, "wayback": 2, "commoncrawl": 3, "boc": 4}
+HOW_PRIORITY = {"api": 0, "html": 1, "wayback": 2, "commoncrawl": 3, "arquivo": 3, "boc": 4}
 
 
 def conflicts(source=None, since=None, tol=0.005):
