@@ -5,7 +5,8 @@ param([switch]$Remove)
 $name = "Renewal Radar daily rates"
 if ($Remove) { Unregister-ScheduledTask -TaskName $name -Confirm:$false; "removed $name"; exit }
 $root = Split-Path -Parent $PSScriptRoot
-$action = New-ScheduledTaskAction -Execute "$root\tools\record_daily.cmd" -WorkingDirectory $root
+# pythonw: no console window, so nothing can be closed by accident; crashes are logged by record_daily.pyw
+$action = New-ScheduledTaskAction -Execute "$root\.venv\Scripts\pythonw.exe" -Argument "`"$root\tools\record_daily.pyw`"" -WorkingDirectory $root
 # Layer 4: three daily runs plus at logon; a missed run starts as soon as the PC is on and online.
 $triggers = @(
   (New-ScheduledTaskTrigger -Daily -At 8:15AM),

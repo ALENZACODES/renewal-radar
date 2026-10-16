@@ -118,3 +118,26 @@ def test_bmo_has_its_rate_include_as_backup_source():
     assert row[4] == ("bmo_include", "https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp")
     js = "var MORTGAGE = {'fixed' : {'5 year (closed)' : {'value':'6.090', 'type':'closed', 'term_months':'60'}}};"
     assert live.parse_text("bmo_include", js) == [(60, "fixed_closed", "posted", 6.09)]
+
+
+def test_deposit_rates_are_never_read_as_mortgage_rates():
+    from renewal.ratewatch.parse import extract_rates
+    html = ("<h3>Non-Redeemable GICs</h3><table><tr><td>1 Year</td><td>3.00%</td></tr><tr><td>5 Year</td><td>3.35%</td></tr></table>"
+            "<div>Long Term GIC - Annual Interest 1 Year 3.00% 2 Year 3.00%</div>")
+    assert extract_rates(html) == []
+    html += "<h3>Mortgage rates</h3><table><tr><td>5 Year Fixed</td><td>4.59%</td></tr></table>"
+    assert any(r[0] == 60 and r[3] == 4.59 for r in extract_rates(html))
+
+
+def test_duca_posted_rate_pdf_parser(monkeypatch):
+    from renewal.ratewatch import scrape
+    import pypdf
+
+    class Page:
+        def extract_text(self):
+            return ("DUCA Posted Mortgage Rates-Effective September 18, 2026\nTerm 1 Year Fixed 2 Year Fixed 3 Year Fixed "
+                    "4 Year Fixed 5 Year Fixed\nPosted Rate1 5.34% 5.24% 4.69% 4.89% 4.59%")
+    monkeypatch.setattr(pypdf, "PdfReader", lambda f: type("R", (), {"pages": [Page()]})())
+    assert scrape.duca_pdf_rows(b"%PDF") == [(12, "fixed_closed", "posted", 5.34), (24, "fixed_closed", "posted", 5.24),
+                                            (36, "fixed_closed", "posted", 4.69), (48, "fixed_closed", "posted", 4.89),
+                                            (60, "fixed_closed", "posted", 4.59)]
