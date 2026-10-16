@@ -33,6 +33,13 @@ def log(msg):
         fh.write(line + "\n")
 
 
+def ever_recorded(lid) -> bool:
+    """Has this lender ever published a reading we could record? Lenders that never have (most private lenders)
+    get one attempt per run instead of the full backoff rounds."""
+    with history.db() as c:
+        return c.execute("SELECT 1 FROM rates WHERE source=? AND how IN ('api','html') LIMIT 1", (lid,)).fetchone() is not None
+
+
 def recorded_today(lid, day=None) -> bool:
     day = (day or date.today()).isoformat()
     with history.db() as c:
@@ -161,6 +168,7 @@ def run(lenders=None, sleep=time.sleep):
     refresh_boc()
     todo = [l for l in lenders if not recorded_today(l[0])]
     log(f"{len(lenders) - len(todo)} already recorded today; {len(todo)} to collect")
+    skipped = []
     if todo:
         anchor = live.market_anchor()
         for attempt, wait in enumerate((0,) + BACKOFF):        # layers 1 + 2: live sources, retried with backoff
@@ -178,14 +186,21 @@ def run(lenders=None, sleep=time.sleep):
                 if not ok and wait == BACKOFF[-1]:
                     log(f"{l[1]}: {why}")
             todo = [l for l in todo if not recorded_today(l[0])]
+            if attempt == 0:                                    # never-published lenders: one try per run is enough
+                skipped = [l for l in todo if l[2] == "alternative" and not ever_recorded(l[0])]
+                todo = [l for l in todo if l not in skipped]
+                if skipped:
+                    log(f"{len(skipped)} lenders have never published rates; tried once this run")
+
         live.TIMEOUT = 20
         now = datetime.now(timezone.utc)
         with collecting(sleep):
-            for l in list(todo):                               # layer 3
+            for l in list(todo) + skipped:                     # layer 3
                 ok, why = self_repair(l, anchor, now)
                 log(f"{l[1]}: {why}")
-                if ok:
+                if ok and l in todo:
                     todo.remove(l)
+    todo += [l for l in skipped if not recorded_today(l[0])]
     missing = {l[0] for l in todo}
     for l in todo:
         log(f"{l[1]}: not recorded today; the board keeps its last good reading and the month stays covered by "
