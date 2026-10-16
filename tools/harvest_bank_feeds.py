@@ -70,7 +70,7 @@ def main():
                 time.sleep(PACE)
                 if resp is None or not resp.ok:
                     continue
-                rows = backfill.parse(kind, resp.text)
+                rows = backfill.parse(kind, backfill.body_text(resp))
                 day = date(int(ts[:4]), int(ts[4:6]), int(ts[6:8]))
                 ok, rate5, boc = backfill.validate_month(rows, day)
                 print(f"{sid} {ts[:8]} wb/{kind:11} rows={len(rows):3} 5y={rate5} boc={boc} {'OK' if ok else 'reject'}", flush=True)
