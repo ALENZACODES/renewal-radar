@@ -120,3 +120,27 @@ Coverage on 2026-10-15 (61 months, Oct 2021–Oct 2026), as bank-own + bridged +
 `coverage_grade` is A (every month has a labelled source). `grade` stays the strict bank-own grade (D: TD, BMO and CIBC).
 
 Why TD, BMO and CIBC have so few bank-own months: their rate pages load the numbers after the page opens, and their data feeds are not held by any public archive inside the window. Archives checked: Wayback, Common Crawl, Arquivo.pt, archive.today (CAPTCHA, and only about 5 copies), Archive-It/Library and Archives Canada, Library of Congress, Iceland and Australia. Their bank-own share now grows one month at a time from the live scraper's daily readings.
+
+## Daily recording from now on (`ratewatch/recorder.py`)
+
+Windows task **"Renewal Radar daily rates"** (installed by `tools/install_recorder_task.ps1`, removed with `-Remove`).
+It runs `tools/record_daily.cmd` at 08:15, 12:45 and 18:30 every day, plus 5 minutes after logon.
+Each run records every lender's own posted rates for the day. Five layers stop one failure from losing a day:
+
+1. **Retry with backoff.** A lender not recorded on the first try is retried after 30 s, 2 min and 5 min. The timeout grows to 40 s and then 60 s, so a slow site still counts.
+2. **Second source.** Each lender's backup feed (for example TD's calculator feed, BMO's rate include `json_mortgage_include.jsp`, Equitable's own page). Without a backup, its rates page is rediscovered on the lender's own site.
+3. **Self-repair.** If both fail, the lender's site is searched again for its rates page, so a moved URL fixes itself. Whatever it finds is validated before saving.
+4. **Redundant schedule.** Three runs a day plus logon. A missed run starts as soon as the PC is on and online. The task restarts up to 3 times on failure. Lenders already recorded that day are skipped, so extra runs cost nothing.
+5. **Watchdog and safe defaults.** Nothing is ever invented. A lender with no reading keeps its last good reading on the board, and the month stays covered by the labelled gap fill. After 3 days in a row without a reading, `data/ratewatch/ALERTS.txt` names the lender.
+
+Every run also refreshes the Bank of Canada series (stored figures are used if it is unreachable) and the monthly gap fills.
+Only validated readings are saved, from the lender's own live sources, never from archives.
+
+The recorder holds the live board's lock only while it fetches, never during retry waits, so the board and the API stay usable.
+
+Files:
+- Logs: `data/ratewatch/recorder_logs/YYYY-MM.log`.
+- Health per lender: `data/ratewatch/recorder_health.json`.
+- Run by hand at any time: `tools\record_daily.cmd`.
+
+Expected misses: most B lenders and private lenders publish no rates, so they always show "Unavailable". That is not a fault.

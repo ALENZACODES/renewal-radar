@@ -102,3 +102,25 @@ def test_board_lock_is_free_during_retry_waits(env, monkeypatch):
             fh.close()
     recorder.run(sleep=sleep)
     assert free == [True, True]
+
+
+def test_never_published_lender_gets_one_try_not_backoff_rounds(env, monkeypatch):
+    alt = ("ALT20", "Private MIC", "alternative", ("html", "https://example.test/mic"), None)
+    monkeypatch.setattr(live, "LENDERS", [L1, alt])
+    collect, calls = _collector({"ALT20": 99})
+    monkeypatch.setattr(recorder, "collect", collect)
+    monkeypatch.setattr(live, "read_rediscovered", lambda url: ([], None))
+    waits = []
+    out = recorder.run(sleep=waits.append)
+    assert calls["ALT20"] == 1 and waits == [] and out["missing"] == ["ALT20"]
+
+
+def test_never_published_lender_that_self_repairs_is_recorded(env, monkeypatch):
+    alt = ("ALT20", "Private MIC", "alternative", ("html", "https://example.test/mic"), None)
+    monkeypatch.setattr(live, "LENDERS", [alt])
+    collect, _ = _collector({"ALT20": 99})
+    monkeypatch.setattr(recorder, "collect", collect)
+    monkeypatch.setattr(live, "read_rediscovered", lambda url: (ROWS, "https://example.test/mic/rates"))
+    monkeypatch.setattr(live, "validate", lambda rows, t, a: (True, "ok"))
+    out = recorder.run(sleep=lambda s: None)
+    assert out["missing"] == [] and recorder.recorded_today("ALT20")
