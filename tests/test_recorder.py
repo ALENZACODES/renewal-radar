@@ -148,3 +148,43 @@ def test_readings_are_dated_by_the_local_calendar_day(env, monkeypatch):
     with history.db() as c:
         days = [d for (d,) in c.execute("SELECT DISTINCT day FROM rates WHERE source='CU99'")]
     assert days == [late.astimezone().date().isoformat()]
+
+
+def test_blocked_site_is_left_alone_for_the_rest_of_the_run(env, monkeypatch):
+    import requests
+    bmo = ("P027", "BMO", "bank", ("bmo_api", "https://www.bmo.com/a.json"), ("bmo_include", "https://www.bmo.com/b.jsp"))
+    history.save("P027", "2026-01-05", ROWS, "html")
+    monkeypatch.setattr(live, "LENDERS", [bmo])
+    hits = []
+    def read_live(kind, url):
+        hits.append(url)
+        raise requests.Timeout("edge not answering")
+    monkeypatch.setattr(live, "read_live", read_live)
+    monkeypatch.setattr(live, "read_rediscovered", lambda url: hits.append("crawl") or ([], None))
+    monkeypatch.setattr(recorder, "archive_copy", lambda l, a, today=None: (False, "no fresh archive copy"))
+    waits = []
+    out = recorder.run(sleep=waits.append)
+    assert hits == ["https://www.bmo.com/a.json"]               # one request, then bmo.com is left alone
+    assert waits == [] and out["missing"] == ["P027"]
+
+
+def test_fresh_archive_copy_of_lenders_own_feed_is_recorded_under_its_capture_date(env, monkeypatch):
+    import requests
+    bmo = ("P027", "BMO", "bank", ("bmo_api", "https://www.bmo.com/a.json"), ("bmo_include", "https://www.bmo.com/b.jsp"))
+    cap = (date.today() - timedelta(days=1)).strftime("%Y%m%d") + "063932"
+
+    class R:
+        def __init__(self, text):
+            self.text, self.content = text, text.encode()
+    def get(url, **kw):
+        if "cdx" in url:
+            return R(f"{cap} https://www.bmo.com/b.jsp" if "b.jsp" in kw["params"]["url"] else "")
+        return R("feed")
+    monkeypatch.setattr(requests, "get", get)
+    monkeypatch.setattr(live, "parse_text", lambda kind, text: ROWS)
+    monkeypatch.setattr(live, "validate", lambda rows, t, a: (True, "ok"))
+    ok, why = recorder.archive_copy(bmo, {})
+    day = f"{cap[:4]}-{cap[4:6]}-{cap[6:8]}"
+    assert ok and day in why
+    with history.db() as c:
+        assert c.execute("SELECT how FROM rates WHERE source='P027' AND day=?", (day,)).fetchone() == ("wayback",)
