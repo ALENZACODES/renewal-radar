@@ -151,3 +151,11 @@ On 2026-10-16, bmo.com and coastcapitalsavings.com began refusing this machine: 
 - **Cool-down.** Once a lender's site fails to answer, the recorder leaves it alone for the rest of the run: no retries, no self-repair crawl, about one request per run instead of 10 or more. A temporary block can then expire instead of being renewed.
 - **Layer 6, fresh archive copy.** Without contacting the lender, the recorder looks for a public-archive capture of the lender's own page or feed from the last 3 days. It records that under the capture date, labelled `wayback`. This is the lender's own published rates, collected by the archive.
 - **System-curl fallback.** If the Python client is dropped but the site is otherwise reachable, the same GET is retried with the operating system's curl over IPv4.
+
+### Manual readings (`how = manual`)
+
+When a lender's bot protection rejects automated clients but its public page opens normally in a browser, a person can read it once. On 2026-10-17 that happened for BMO and Coast Capital: python and curl were refused, while a normal browser on the same PC opened both sites. The page is read in a visible browser and recorded with `how = manual`. The page content is kept in `data/ratewatch/manual/` as evidence, and the reading passes the same Bank of Canada check.
+
+Manual readings count as the lender's own data. The recorder never automates a browser to get past a lender's bot protection.
+
+Coast Capital's mortgage rates are on `/rates/mortgages`; `/rates` lists only GIC, prime and foreign-exchange rates. Its posted table, the one it uses for term-break penalties, is identified by the heading above it (`scrape.coast_rows`).

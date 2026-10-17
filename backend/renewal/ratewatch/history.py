@@ -54,7 +54,7 @@ def table_on(source, day, rtype="posted", kind="fixed_closed", max_age_days=45, 
         return {t: r for t, r, how in rs if how == best}, row[0]
 
 
-HOW_PRIORITY = {"api": 0, "html": 1, "wayback": 2, "commoncrawl": 3, "arquivo": 3, "boc": 4,
+HOW_PRIORITY = {"api": 0, "html": 1, "manual": 1, "wayback": 2, "commoncrawl": 3, "arquivo": 3, "boc": 4,
                 "bridged": 5, "boc_typical": 6}
 # Gap fills (backfill.fill_gaps): never the bank's own reading, always labelled.
 FILL_LABEL = {"bridged": "bridged between two identical bank-own readings while the Bank of Canada figure was unchanged",
