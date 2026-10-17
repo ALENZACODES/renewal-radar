@@ -60,6 +60,21 @@ def refresh_boc():
     return False
 
 
+# Hosts that did not answer during this run. A lender's edge network that is blocking us is never hammered:
+# once a host fails it is left alone for the rest of the run, so a temporary block can expire.
+UNREACHABLE: set = set()
+
+
+def host(url):
+    from urllib.parse import urlparse
+    h = urlparse(url).hostname or ""
+    return h[4:] if h.startswith("www.") else h
+
+
+def _urls(lender):
+    return [lender[3][1]] + ([lender[4][1]] if lender[4] else [])
+
+
 def collect(lender, anchor, now):
     """Layer 2: the lender's live sources only (primary, then its backup feed or rediscovered page), validated.
     Archive copies are never a reading for today, so the slow archive tier of the board chain is not used here."""
@@ -71,9 +86,15 @@ def collect(lender, anchor, now):
         tries.append(("backup1", lambda: live.read_rediscovered(purl)[0], purl))
     reasons = []
     for tier, fn, url in tries:
+        if host(url) in UNREACHABLE:
+            reasons.append(f"{tier} skipped: {host(url)} not answering this run")
+            continue
         try:
             rows = fn()
         except Exception as e:                       # noqa: BLE001
+            import requests
+            if isinstance(e, (requests.ConnectionError, requests.Timeout)):
+                UNREACHABLE.add(host(url))
             reasons.append(f"{tier} {type(e).__name__}")
             continue
         if not rows:
@@ -89,9 +110,48 @@ def collect(lender, anchor, now):
     return False, "; ".join(reasons)
 
 
+ARCHIVE_FRESH_DAYS = 3
+
+
+def archive_copy(lender, anchor, today=None):
+    """Layer 6: when the lender's own site cannot be reached, look (without contacting the lender) for a copy of the
+    lender's own page or feed that a public archive captured in the last ARCHIVE_FRESH_DAYS days. It is the lender's
+    own published rates, saved under the archive's capture date and labelled how='wayback'."""
+    import requests
+    lid, name, ltype, (pkind, purl), backup = lender
+    today = today or date.today()
+    start = (today - timedelta(days=ARCHIVE_FRESH_DAYS)).strftime("%Y%m%d")
+    for kind, url in [(pkind, purl)] + ([backup] if backup else []):
+        if kind == "td_api":
+            continue                                  # a POST: archives never hold it
+        try:
+            r = requests.get("https://web.archive.org/cdx/search/cdx", timeout=60, headers={"User-Agent": "Mozilla/5.0"},
+                             params={"url": url.split("://", 1)[1].split("?")[0], "matchType": "prefix", "from": start,
+                                     "filter": "statuscode:200", "fl": "timestamp,original"})
+            caps = [line.split(" ", 1) for line in r.text.splitlines() if " " in line]
+        except Exception:                             # noqa: BLE001
+            continue
+        for ts, orig in sorted(caps, reverse=True)[:2]:
+            try:
+                from . import backfill
+                body = backfill.body_text(requests.get(f"https://web.archive.org/web/{ts}id_/{orig}", timeout=90,
+                                                       headers={"User-Agent": "Mozilla/5.0"}))
+            except Exception:                         # noqa: BLE001
+                continue
+            rows = live.parse_text(kind, body)
+            day = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}"
+            ok, why = live.validate(rows, ltype, anchor) if rows else (False, "no rates")
+            if ok and not recorded_today(lid, date.fromisoformat(day)):
+                history.save(lid, day, rows, "wayback")
+                return True, f"archive copy of {name}'s own rates captured {day}"
+    return False, "no fresh archive copy"
+
+
 def self_repair(lender, anchor, now):
     """Layer 3: search the lender's own site for its rates page again and validate what it finds."""
     lid, name, ltype, (pkind, purl), backup = lender
+    if host(purl) in UNREACHABLE:
+        return False, f"self-repair skipped: {host(purl)} not answering this run"
     try:
         rows, note = live.read_rediscovered(purl)
     except Exception as e:                           # noqa: BLE001
@@ -166,6 +226,7 @@ def run(lenders=None, sleep=time.sleep):
     lenders = lenders or live.LENDERS
     log(f"recording pass start: {len(lenders)} lenders")
     refresh_boc()
+    UNREACHABLE.clear()                                        # each run gives every site a fresh chance
     todo = [l for l in lenders if not recorded_today(l[0])]
     log(f"{len(lenders) - len(todo)} already recorded today; {len(todo)} to collect")
     skipped = []
@@ -186,11 +247,18 @@ def run(lenders=None, sleep=time.sleep):
                 if not ok and wait == BACKOFF[-1]:
                     log(f"{l[1]}: {why}")
             todo = [l for l in todo if not recorded_today(l[0])]
+            blocked = [l for l in todo if all(host(u) in UNREACHABLE for u in _urls(l))]
+            if blocked:                                         # their sites are not answering: do not hammer them
+                for l in blocked:
+                    log(f"{l[1]}: {', '.join(sorted({host(u) for u in _urls(l)}))} not answering; left alone this run")
+                todo = [l for l in todo if l not in blocked]
+                skipped += blocked
             if attempt == 0:                                    # never-published lenders: one try per run is enough
-                skipped = [l for l in todo if not ever_recorded(l[0])]
-                todo = [l for l in todo if l not in skipped]
-                if skipped:
-                    log(f"{len(skipped)} lenders have never published rates; tried once this run")
+                never = [l for l in todo if not ever_recorded(l[0])]
+                todo = [l for l in todo if l not in never]
+                skipped += never
+                if never:
+                    log(f"{len(never)} lenders have never published rates; tried once this run")
 
         live.TIMEOUT = 20
         now = datetime.now(timezone.utc)
@@ -200,6 +268,10 @@ def run(lenders=None, sleep=time.sleep):
                 log(f"{l[1]}: {why}")
                 if ok and l in todo:
                     todo.remove(l)
+        for l in [x for x in todo + skipped if not recorded_today(x[0]) and ever_recorded(x[0])]:   # layer 6
+            ok, why = archive_copy(l, anchor)
+            if ok:
+                log(f"{l[1]}: {why}")
     todo += [l for l in skipped if not recorded_today(l[0])]
     missing = {l[0] for l in todo}
     for l in todo:

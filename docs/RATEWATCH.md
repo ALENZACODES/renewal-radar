@@ -144,3 +144,10 @@ Files:
 - Run by hand at any time: `tools\record_daily.cmd`.
 
 Expected misses: most B lenders and private lenders publish no rates, so they always show "Unavailable". That is not a fault.
+
+### Blocked sites (added 2026-10-17)
+
+On 2026-10-16, bmo.com and coastcapitalsavings.com began refusing this machine: they accept the connection and never reply. Every other bank answered in under half a second. That is a block on their side, and it is never routed around.
+- **Cool-down.** Once a lender's site fails to answer, the recorder leaves it alone for the rest of the run: no retries, no self-repair crawl, about one request per run instead of 10 or more. A temporary block can then expire instead of being renewed.
+- **Layer 6, fresh archive copy.** Without contacting the lender, the recorder looks for a public-archive capture of the lender's own page or feed from the last 3 days. It records that under the capture date, labelled `wayback`. This is the lender's own published rates, collected by the archive.
+- **System-curl fallback.** If the Python client is dropped but the site is otherwise reachable, the same GET is retried with the operating system's curl over IPv4.
