@@ -83,7 +83,7 @@ def collect(lender, anchor, now):
         if not ok:
             reasons.append(f"{tier} rejected: {why}")
             continue
-        history.save(lid, now.date().isoformat(), rows, "api" if pkind.endswith("_api") and tier == "primary" else "html")
+        history.save(lid, now.astimezone().date().isoformat(), rows, "api" if pkind.endswith("_api") and tier == "primary" else "html")
         live._save_cache(lid, {"at": now.isoformat(timespec="seconds"), "tier": tier, "url": url, "rows": rows})
         return True, tier
     return False, "; ".join(reasons)
@@ -101,7 +101,7 @@ def self_repair(lender, anchor, now):
     ok, why = live.validate(rows, ltype, anchor)
     if not ok:
         return False, f"self-repair rejected: {why}"
-    history.save(lid, now.date().isoformat(), rows, "html")
+    history.save(lid, now.astimezone().date().isoformat(), rows, "html")
     live._save_cache(lid, {"at": now.isoformat(timespec="seconds"), "tier": "backup1", "url": purl, "rows": rows})
     return True, "self-repair: " + (note or "rediscovered rates page")
 

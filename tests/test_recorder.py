@@ -33,7 +33,7 @@ def _collector(fail_times):
     def collect(lender, anchor, now):
         calls[lender[0]] = calls.get(lender[0], 0) + 1
         if calls[lender[0]] > fail_times.get(lender[0], 0):
-            history.save(lender[0], now.date().isoformat(), ROWS, "html")
+            history.save(lender[0], now.astimezone().date().isoformat(), ROWS, "html")
             return True, "primary"
         return False, "primary ConnectionError"
     return collect, calls
@@ -126,3 +126,25 @@ def test_never_published_lender_that_self_repairs_is_recorded(env, monkeypatch):
     monkeypatch.setattr(live, "validate", lambda rows, t, a: (True, "ok"))
     out = recorder.run(sleep=lambda s: None)
     assert out["missing"] == [] and recorder.recorded_today("ALT20")
+
+
+def test_http_falls_back_to_system_curl_when_python_client_is_dropped(monkeypatch):
+    import requests
+    def dropped(*a, **k):
+        raise requests.ConnectionError("edge dropped python client")
+    monkeypatch.setattr(requests, "get", dropped)
+    monkeypatch.setattr(live, "_curl", lambda url, headers: live._CurlResponse(url, 200, b'{"ok": 1}'))
+    r = live._http("https://lender.test/rates.json")
+    assert r.ok and r.json() == {"ok": 1}
+
+
+def test_readings_are_dated_by_the_local_calendar_day(env, monkeypatch):
+    from datetime import datetime, timezone
+    late = datetime(2026, 10, 17, 3, 30, tzinfo=timezone.utc)      # 23:30 the previous evening in Toronto
+    lender = ("CU99", "Test CU", "credit_union", ("html", "https://example.test/cu"), None)
+    monkeypatch.setattr(live, "read_live", lambda kind, url: ROWS)
+    monkeypatch.setattr(live, "validate", lambda rows, t, a: (True, "ok"))
+    recorder.collect(lender, {}, late)
+    with history.db() as c:
+        days = [d for (d,) in c.execute("SELECT DISTINCT day FROM rates WHERE source='CU99'")]
+    assert days == [late.astimezone().date().isoformat()]
