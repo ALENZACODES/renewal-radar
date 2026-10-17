@@ -37,13 +37,13 @@ def ever_recorded(lid) -> bool:
     """Has this lender ever published a reading we could record? Lenders that never have (most private lenders)
     get one attempt per run instead of the full backoff rounds."""
     with history.db() as c:
-        return c.execute("SELECT 1 FROM rates WHERE source=? AND how IN ('api','html') LIMIT 1", (lid,)).fetchone() is not None
+        return c.execute("SELECT 1 FROM rates WHERE source=? AND how IN ('api','html','manual') LIMIT 1", (lid,)).fetchone() is not None
 
 
 def recorded_today(lid, day=None) -> bool:
     day = (day or date.today()).isoformat()
     with history.db() as c:
-        return c.execute("SELECT 1 FROM rates WHERE source=? AND day=? AND how IN ('api','html') LIMIT 1",
+        return c.execute("SELECT 1 FROM rates WHERE source=? AND day=? AND how IN ('api','html','manual') LIMIT 1",
                          (lid, day)).fetchone() is not None
 
 

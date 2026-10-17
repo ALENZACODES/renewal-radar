@@ -128,7 +128,7 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | 2024-06 | Bank of Canada fill | 6.84 | 6.84 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-06-26 |
 | 2024-07 | Bank of Canada fill | 6.79 | 6.79 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-07-31 |
 | 2024-08 | Bank of Canada fill | 6.59 | 6.59 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-08-28 |
-| 2024-09 | bank-own | 6.79 | 6.49 | [archive copy](https://web.archive.org/web/20240919153735/https://ix0.apps.td.com/api/get-rates/en) |
+| 2024-09 | bank-own | 6.79 | 6.49 | [archive copy](https://web.archive.org/web/20240919/https://ix0.apps.td.com/api/get-rates/en) |
 | 2024-10 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-10-30 |
 | 2024-11 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-11-27 |
 | 2024-12 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-12-25 |
@@ -150,7 +150,7 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | 2026-04 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-04-29 |
 | 2026-05 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-05-27 |
 | 2026-06 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-06-24 |
-| 2026-07 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260728164104/https://ix0.apps.td.com/api/get-rates/en) |
+| 2026-07 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260728/https://ix0.apps.td.com/api/get-rates/en) |
 | 2026-08 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-08-26 |
 | 2026-09 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-09-30 |
 | 2026-10 | bank-own | 6.09 | 6.19 | [archive copy](https://ix0.apps.td.com/api/get-rates/en (live reading stored 2026-10-14)) |
@@ -160,9 +160,9 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | Month | Status | 5-yr | BoC 5-yr | Evidence |
 |---|---|---|---|---|
 | 2021-10 | bank-own | 4.79 | 4.79 | [archive copy](https://arquivo.pt/wayback/20211027132905/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
-| 2021-11 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211105141228/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
-| 2021-12 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211229002455/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
-| 2022-01 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20220124215115/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2021-11 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211105/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2021-12 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211229/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2022-01 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20220124/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
 | 2022-02 | bank-own | 4.79 | 4.79 | [archive copy](https://arquivo.pt/wayback/20220226220028/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
 | 2022-03 | bank-own | 4.99 | 4.79 | [archive copy](https://arquivo.pt/wayback/20220331210822/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
 | 2022-04 | bank-own | 4.99 | 4.99 | [archive copy](https://arquivo.pt/wayback/20220430212744/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
@@ -194,18 +194,18 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | 2024-06 | Bank of Canada fill | 6.84 | 6.84 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-06-26 |
 | 2024-07 | Bank of Canada fill | 6.79 | 6.79 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-07-31 |
 | 2024-08 | bank-own | 6.59 | 6.59 | [archive copy](https://arquivo.pt/wayback/20240823093247/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
-| 2024-09 | bank-own | 6.49 | 6.59 | [archive copy](https://web.archive.org/web/20240910122158/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2024-09 | bank-own | 6.49 | 6.59 | [archive copy](https://web.archive.org/web/20240910/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
 | 2024-10 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-10-30 |
-| 2024-11 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20241118010448/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2024-11 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20241118/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
 | 2024-12 | bridged | 6.49 | 6.49 | Scotiabank own readings 2024-11 and 2025-03; Bank of Canada V80691335 flat at 6.49% between them |
 | 2025-01 | bridged | 6.49 | 6.49 | Scotiabank own readings 2024-11 and 2025-03; Bank of Canada V80691335 flat at 6.49% between them |
 | 2025-02 | bridged | 6.49 | 6.49 | Scotiabank own readings 2024-11 and 2025-03; Bank of Canada V80691335 flat at 6.49% between them |
-| 2025-03 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250313213139/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
-| 2025-04 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250428144134/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
-| 2025-05 | bank-own | 6.39 | 6.09 | [archive copy](https://web.archive.org/web/20250522134623/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
-| 2025-06 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250626154507/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2025-03 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250313/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2025-04 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250428/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2025-05 | bank-own | 6.39 | 6.09 | [archive copy](https://web.archive.org/web/20250522/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2025-06 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250626/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
 | 2025-07 | bridged | 6.09 | 6.09 | Scotiabank own readings 2025-06 and 2025-08; Bank of Canada V80691335 flat at 6.09% between them |
-| 2025-08 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250807060214/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2025-08 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250807/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
 | 2025-09 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2025-09-24 |
 | 2025-10 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2025-10-29 |
 | 2025-11 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2025-11-26 |
@@ -213,79 +213,79 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | 2026-01 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-01-28 |
 | 2026-02 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-02-25 |
 | 2026-03 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-03-25 |
-| 2026-04 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260412131222/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2026-04 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260412/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
 | 2026-05 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-05-27 |
 | 2026-06 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-06-24 |
 | 2026-07 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-07-29 |
 | 2026-08 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-08-26 |
-| 2026-09 | bank-own | 6.19 | 6.09 | [archive copy](https://web.archive.org/web/20260930170548/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
+| 2026-09 | bank-own | 6.19 | 6.09 | [archive copy](https://web.archive.org/web/20260930/https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage) |
 | 2026-10 | bank-own | 6.19 | 6.19 | [archive copy](https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage (live reading stored 2026-10-15)) |
 
 ## BMO
 
 | Month | Status | 5-yr | BoC 5-yr | Evidence |
 |---|---|---|---|---|
-| 2021-10 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211031131900/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?v=1634914292945) |
-| 2021-11 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211126073932/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2021-12 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211227223505/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-01 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20220131195545/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-02 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20220228225800/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-03 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20220331041859/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-04 | bank-own | 4.99 | 4.99 | [archive copy](https://web.archive.org/web/20220430055132/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-05 | bank-own | 5.39 | 5.39 | [archive copy](https://web.archive.org/web/20220529143054/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-06 | bank-own | 6.04 | 6.04 | [archive copy](https://web.archive.org/web/20220625103332/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-07 | bank-own | 6.14 | 6.14 | [archive copy](https://web.archive.org/web/20220731030909/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-08 | bank-own | 6.14 | 6.14 | [archive copy](https://web.archive.org/web/20220830205333/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?_=1514618633636) |
-| 2022-09 | bank-own | 6.14 | 6.14 | [archive copy](https://web.archive.org/web/20220926223723/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-10 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20221026030957/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-11 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20221130065037/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2022-12 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20221230064154/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2023-01 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230131172436/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2023-02 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230221200956/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2023-03 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230322102402/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2023-04 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230425205826/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?v=1677009350314) |
-| 2023-05 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230520200147/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2023-06 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230630061034/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2023-07 | bank-own | 6.64 | 6.49 | [archive copy](https://web.archive.org/web/20230712144750/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2023-08 | bank-own | 6.79 | 6.79 | [archive copy](https://web.archive.org/web/20230819093751/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?_=1518872725278) |
-| 2023-09 | bank-own | 6.89 | 6.84 | [archive copy](https://web.archive.org/web/20230913201043/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2023-10 | bank-own | 7.09 | 7.04 | [archive copy](https://web.archive.org/web/20231008035602/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2021-10 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211031/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2021-11 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211126/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2021-12 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20211227/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-01 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20220131/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-02 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20220228/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-03 | bank-own | 4.79 | 4.79 | [archive copy](https://web.archive.org/web/20220331/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-04 | bank-own | 4.99 | 4.99 | [archive copy](https://web.archive.org/web/20220430/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-05 | bank-own | 5.39 | 5.39 | [archive copy](https://web.archive.org/web/20220529/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-06 | bank-own | 6.04 | 6.04 | [archive copy](https://web.archive.org/web/20220625/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-07 | bank-own | 6.14 | 6.14 | [archive copy](https://web.archive.org/web/20220731/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-08 | bank-own | 6.14 | 6.14 | [archive copy](https://web.archive.org/web/20220830/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-09 | bank-own | 6.14 | 6.14 | [archive copy](https://web.archive.org/web/20220926/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-10 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20221026/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-11 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20221130/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2022-12 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20221230/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-01 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230131/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-02 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230221/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-03 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230322/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-04 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230425/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-05 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230520/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-06 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230630/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-07 | bank-own | 6.64 | 6.49 | [archive copy](https://web.archive.org/web/20230712/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-08 | bank-own | 6.79 | 6.79 | [archive copy](https://web.archive.org/web/20230819/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-09 | bank-own | 6.89 | 6.84 | [archive copy](https://web.archive.org/web/20230913/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2023-10 | bank-own | 7.09 | 7.04 | [archive copy](https://web.archive.org/web/20231008/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2023-11 | bridged | 7.09 | 7.04 | BMO own readings 2023-10 and 2023-12; Bank of Canada V80691335 flat at 7.04% between them |
 | 2023-12 | bank-own | 7.09 | 7.04 | [archive copy](https://arquivo.pt/wayback/20231201055508/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2024-01 | bank-own | 6.89 | 6.89 | [archive copy](https://web.archive.org/web/20240131030329/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2024-02 | bank-own | 6.89 | 6.89 | [archive copy](https://web.archive.org/web/20240201141052/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2024-03 | bank-own | 7.04 | 6.84 | [archive copy](https://web.archive.org/web/20240331213430/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?_=1519447893836) |
+| 2024-01 | bank-own | 6.89 | 6.89 | [archive copy](https://web.archive.org/web/20240131/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2024-02 | bank-own | 6.89 | 6.89 | [archive copy](https://web.archive.org/web/20240201/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2024-03 | bank-own | 7.04 | 6.84 | [archive copy](https://web.archive.org/web/20240331/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2024-04 | bridged | 7.04 | 6.84 | BMO own readings 2024-03 and 2024-05; Bank of Canada V80691335 flat at 6.84% between them |
-| 2024-05 | bank-own | 7.04 | 6.84 | [archive copy](https://web.archive.org/web/20240520212856/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?_=1519447895264) |
-| 2024-06 | bank-own | 7.04 | 6.84 | [archive copy](https://web.archive.org/web/20240604024354/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2024-07 | bank-own | 6.79 | 6.79 | [archive copy](https://web.archive.org/web/20240708082237/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2024-05 | bank-own | 7.04 | 6.84 | [archive copy](https://web.archive.org/web/20240520/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2024-06 | bank-own | 7.04 | 6.84 | [archive copy](https://web.archive.org/web/20240604/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2024-07 | bank-own | 6.79 | 6.79 | [archive copy](https://web.archive.org/web/20240708/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2024-08 | bank-own | 6.79 | 6.59 | [archive copy](https://arquivo.pt/wayback/20240829000511/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2024-09 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-09-25 |
-| 2024-10 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20241009130556/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2024-10 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20241009/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2024-11 | bridged | 6.49 | 6.49 | BMO own readings 2024-10 and 2024-12; Bank of Canada V80691335 flat at 6.49% between them |
-| 2024-12 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20241208205116/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2025-01 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250123180836/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2025-02 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250225151341/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2025-03 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250309190212/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2025-04 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250429100336/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2025-05 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250516131516/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2025-06 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250609094243/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2025-07 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250715153042/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2025-08 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250827105513/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?v=1677009350314) |
-| 2025-09 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250929091608/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2024-12 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20241208/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2025-01 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250123/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2025-02 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250225/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2025-03 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250309/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2025-04 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20250429/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2025-05 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250516/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2025-06 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250609/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2025-07 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250715/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2025-08 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250827/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2025-09 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20250929/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2025-10 | bridged | 6.09 | 6.09 | BMO own readings 2025-09 and 2025-11; Bank of Canada V80691335 flat at 6.09% between them |
-| 2025-11 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20251121055730/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?v=1677009343968) |
+| 2025-11 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20251121/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2025-12 | bridged | 6.09 | 6.09 | BMO own readings 2025-11 and 2026-01; Bank of Canada V80691335 flat at 6.09% between them |
-| 2026-01 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260116122708/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2026-02 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260226195647/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?v=1677009350314) |
-| 2026-03 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260304042300/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?_=1519447904149) |
+| 2026-01 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260116/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2026-02 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260226/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2026-03 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260304/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2026-04 | bridged | 6.09 | 6.09 | BMO own readings 2026-03 and 2026-05; Bank of Canada V80691335 flat at 6.09% between them |
-| 2026-05 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260501023533/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2026-05 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260501/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2026-06 | bridged | 6.09 | 6.09 | BMO own readings 2026-05 and 2026-07; Bank of Canada V80691335 flat at 6.09% between them |
-| 2026-07 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260720055828/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
+| 2026-07 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260720/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 | 2026-08 | bridged | 6.09 | 6.09 | BMO own readings 2026-07 and 2026-09; Bank of Canada V80691335 flat at 6.09% between them |
 | 2026-09 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260930/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
-| 2026-10 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20261005063932/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp?v=1677009343968) |
+| 2026-10 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20261005/https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp) |
 
 ## CIBC
 
@@ -297,37 +297,37 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | 2022-01 | Bank of Canada fill | 4.79 | 4.79 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-01-26 |
 | 2022-02 | Bank of Canada fill | 4.79 | 4.79 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-02-23 |
 | 2022-03 | Bank of Canada fill | 4.79 | 4.79 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-03-30 |
-| 2022-04 | bank-own | 4.99 | 4.79 | [archive copy](https://web.archive.org/web/20220418171700/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
+| 2022-04 | bank-own | 4.99 | 4.79 | [archive copy](https://web.archive.org/web/20220418/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2022-05 | Bank of Canada fill | 5.39 | 5.39 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-05-25 |
 | 2022-06 | Bank of Canada fill | 6.04 | 6.04 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-06-29 |
 | 2022-07 | Bank of Canada fill | 6.14 | 6.14 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-07-27 |
 | 2022-08 | Bank of Canada fill | 6.14 | 6.14 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-08-31 |
 | 2022-09 | Bank of Canada fill | 6.14 | 6.14 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-09-28 |
 | 2022-10 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-10-26 |
-| 2022-11 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20221101211817/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
+| 2022-11 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20221101/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2022-12 | bridged | 6.49 | 6.49 | CIBC own readings 2022-11 and 2023-03; Bank of Canada V80691335 flat at 6.49% between them |
 | 2023-01 | bridged | 6.49 | 6.49 | CIBC own readings 2022-11 and 2023-03; Bank of Canada V80691335 flat at 6.49% between them |
 | 2023-02 | bridged | 6.49 | 6.49 | CIBC own readings 2022-11 and 2023-03; Bank of Canada V80691335 flat at 6.49% between them |
-| 2023-03 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230303212846/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
-| 2023-04 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230426185723/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
+| 2023-03 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230303/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
+| 2023-04 | bank-own | 6.49 | 6.49 | [archive copy](https://web.archive.org/web/20230426/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2023-05 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2023-05-31 |
 | 2023-06 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2023-06-28 |
 | 2023-07 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2023-07-26 |
 | 2023-08 | Bank of Canada fill | 6.84 | 6.84 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2023-08-30 |
-| 2023-09 | bank-own | 6.79 | 6.84 | [archive copy](https://web.archive.org/web/20230905232911/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
+| 2023-09 | bank-own | 6.79 | 6.84 | [archive copy](https://web.archive.org/web/20230905/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2023-10 | Bank of Canada fill | 7.04 | 7.04 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2023-10-25 |
 | 2023-11 | Bank of Canada fill | 7.04 | 7.04 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2023-11-29 |
 | 2023-12 | Bank of Canada fill | 7.04 | 7.04 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2023-12-27 |
 | 2024-01 | Bank of Canada fill | 6.89 | 6.89 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-01-31 |
 | 2024-02 | Bank of Canada fill | 6.84 | 6.84 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-02-28 |
 | 2024-03 | Bank of Canada fill | 6.84 | 6.84 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-03-27 |
-| 2024-04 | bank-own | 6.84 | 6.84 | [archive copy](https://web.archive.org/web/20240416014307/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=5YRVARCLO%2c) |
-| 2024-05 | bank-own | 6.84 | 6.84 | [archive copy](https://web.archive.org/web/20240530030219/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=5YRVARCLO%2c) |
-| 2024-06 | bank-own | 6.84 | 6.84 | [archive copy](https://web.archive.org/web/20240605025908/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
-| 2024-07 | bank-own | 6.84 | 6.79 | [archive copy](https://web.archive.org/web/20240717030504/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
+| 2024-04 | bank-own | 6.84 | 6.84 | [archive copy](https://web.archive.org/web/20240416/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
+| 2024-05 | bank-own | 6.84 | 6.84 | [archive copy](https://web.archive.org/web/20240530/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
+| 2024-06 | bank-own | 6.84 | 6.84 | [archive copy](https://web.archive.org/web/20240605/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
+| 2024-07 | bank-own | 6.84 | 6.79 | [archive copy](https://web.archive.org/web/20240717/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2024-08 | Bank of Canada fill | 6.59 | 6.59 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-08-28 |
-| 2024-09 | bank-own | 6.84 | 6.59 | [archive copy](https://web.archive.org/web/20240910214011/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2C5YRVARCLO%2C) |
-| 2024-10 | bank-own | 6.84 | 6.49 | [archive copy](https://web.archive.org/web/20241009153121/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
+| 2024-09 | bank-own | 6.84 | 6.59 | [archive copy](https://web.archive.org/web/20240910/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
+| 2024-10 | bank-own | 6.84 | 6.49 | [archive copy](https://web.archive.org/web/20241009/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2024-11 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-11-27 |
 | 2024-12 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2024-12-25 |
 | 2025-01 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2025-01-29 |
@@ -336,21 +336,21 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | 2025-04 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2025-04-30 |
 | 2025-05 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2025-05-28 |
 | 2025-06 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2025-06-25 |
-| 2025-07 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20250711201300/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
-| 2025-08 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20250810012413/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
+| 2025-07 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20250711/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
+| 2025-08 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20250810/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2025-09 | bridged | 6.49 | 6.09 | CIBC own readings 2025-08 and 2025-11; Bank of Canada V80691335 flat at 6.09% between them |
 | 2025-10 | bridged | 6.49 | 6.09 | CIBC own readings 2025-08 and 2025-11; Bank of Canada V80691335 flat at 6.09% between them |
-| 2025-11 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20251125174210/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2C5YRVARCLO%2CMICRO%2C) |
-| 2025-12 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20251219171455/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2C5YRVARCLO%2CMICRO%2C) |
+| 2025-11 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20251125/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
+| 2025-12 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20251219/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2026-01 | bridged | 6.49 | 6.09 | CIBC own readings 2025-12 and 2026-04; Bank of Canada V80691335 flat at 6.09% between them |
 | 2026-02 | bridged | 6.49 | 6.09 | CIBC own readings 2025-12 and 2026-04; Bank of Canada V80691335 flat at 6.09% between them |
 | 2026-03 | bridged | 6.49 | 6.09 | CIBC own readings 2025-12 and 2026-04; Bank of Canada V80691335 flat at 6.09% between them |
-| 2026-04 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20260404152405/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2C5YRVARCLO%2CCCM%2C) |
-| 2026-05 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20260528173803/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2c) |
+| 2026-04 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20260404/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
+| 2026-05 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20260528/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2026-06 | bridged | 6.49 | 6.09 | CIBC own readings 2026-05 and 2026-09; Bank of Canada V80691335 flat at 6.09% between them |
 | 2026-07 | bridged | 6.49 | 6.09 | CIBC own readings 2026-05 and 2026-09; Bank of Canada V80691335 flat at 6.09% between them |
 | 2026-08 | bridged | 6.49 | 6.09 | CIBC own readings 2026-05 and 2026-09; Bank of Canada V80691335 flat at 6.09% between them |
-| 2026-09 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20260930172651/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=1&sourceProductCode=PRIME%2c) |
+| 2026-09 | bank-own | 6.49 | 6.09 | [archive copy](https://web.archive.org/web/20260930/https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy) |
 | 2026-10 | bank-own | 6.49 | 6.19 | [archive copy](https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy (live reading stored 2026-10-14)) |
 
 ## National Bank

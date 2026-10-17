@@ -141,3 +141,26 @@ def test_duca_posted_rate_pdf_parser(monkeypatch):
     assert scrape.duca_pdf_rows(b"%PDF") == [(12, "fixed_closed", "posted", 5.34), (24, "fixed_closed", "posted", 5.24),
                                             (36, "fixed_closed", "posted", 4.69), (48, "fixed_closed", "posted", 4.89),
                                             (60, "fixed_closed", "posted", 4.59)]
+
+
+COAST_PAGE = """<h3>Featured Mortgage Rates</h3><table><tr><td>5-Year Fixed</td><td>4.84% 5</td><td>4.86% 2</td></tr></table>
+<h3>Fixed Rate Mortgages</h3><table><tr><th>Mortgage Terms Rate effective 13-Oct-26</th><th>Up to 25</th><th>APR</th></tr>
+<tr><td>1-Year Fixed Rate - Open</td><td>6.39% 5</td><td>6.49% 2</td></tr>
+<tr><td>1-Year Fixed Rate</td><td>4.89% 5</td><td>4.99% 2</td></tr>
+<tr><td>5-Year Fixed Rate</td><td>4.84% 5</td><td>4.86% 2</td></tr>
+<tr><td>5-Year Fixed High Ratio</td><td>4.49% 3</td><td>4.51% 2</td></tr></table>
+<h3>Posted rates - Fixed Rate Mortgages</h3><table><tr><th>Mortgage Terms Rate effective 30-Jun-26</th><th>Rate</th><th>APR</th></tr>
+<tr><td>1-Year Fixed Rate - Closed</td><td>5.50% 1</td><td>5.60% 2</td></tr>
+<tr><td>5-Year Fixed Rate - Closed</td><td>6.10% 1</td><td>6.12% 2</td></tr>
+<tr><td>10-Year Fixed Rate - Closed</td><td>6.80% 1</td><td>6.81% 2</td></tr></table>
+<h3>Posted rates - Variable Rate Mortgages</h3><table><tr><td>5-Year Variable Rate - Closed</td><td>4.45% 2</td></tr></table>"""
+
+
+def test_coast_capital_tables_are_labelled_by_their_headings():
+    from renewal.ratewatch import live, scrape
+    rows = scrape.coast_rows(COAST_PAGE)
+    assert (60, "fixed_closed", "posted", 6.10) in rows and (120, "fixed_closed", "posted", 6.80) in rows
+    assert (60, "fixed_closed", "special", 4.84) in rows and (12, "fixed_closed", "special", 4.89) in rows
+    assert not any(r[3] in (6.39, 4.49, 4.45, 4.86, 6.12) for r in rows)     # open, high-ratio, variable, APR excluded
+    row = next(r for r in live.LENDERS if r[0] == "CU03")
+    assert row[3] == ("coast", "https://www.coastcapitalsavings.com/rates/mortgages")

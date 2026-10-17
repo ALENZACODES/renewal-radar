@@ -54,7 +54,7 @@ LENDERS = [
      ("html", "https://www.desjardins.com/fr/hypotheque/taux-hypothecaires.html")),
     ("CU01", "Meridian", "credit_union", ("html", "https://www.meridiancu.ca/personal/rates-and-fees/mortgage-and-borrowing-rates"), None),
     ("CU02", "Vancity", "credit_union", ("html", "https://www.vancity.com/rates/mortgages"), None),
-    ("CU03", "Coast Capital", "credit_union", ("html", "https://www.coastcapitalsavings.com/rates"), None),
+    ("CU03", "Coast Capital", "credit_union", ("coast", "https://www.coastcapitalsavings.com/rates/mortgages"), None),
     ("CU04", "Servus", "credit_union", ("html", "https://servus.ca/rates"), None),
     ("CU05", "Alterna Savings", "credit_union", ("html", "https://www.alterna.ca/en/rates/mortgages"), None),
     ("CU06", "DUCA", "credit_union",
@@ -188,6 +188,8 @@ def parse_text(kind: str, text: str) -> list:
         return scrape.equitable_rows(text)
     if kind == "bmo_include":
         return parse_feed("bmo_include", text)
+    if kind == "coast":
+        return scrape.coast_rows(text)
     return extract_rates(text)
 
 
