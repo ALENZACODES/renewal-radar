@@ -37,7 +37,7 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | 2022-05 | bank-own | 4.99 | 5.39 | [archive copy](https://web.archive.org/web/20220529150546/https://www.rbcroyalbank.com/mortgages/mortgage-rates.html) |
 | 2022-06 | bank-own | 5.19 | 5.39 | [archive copy](https://web.archive.org/web/20220613214338/https://www.rbcroyalbank.com/mortgages/mortgage-rates.html) |
 | 2022-07 | Bank of Canada fill | 6.14 | 6.14 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-07-27 |
-| 2022-08 | bank-own | 6.14 | 6.14 | [archive copy](https://web.archive.org/web/20220818233349/https://www.rbcroyalbank.com/mortgages/mortgage-rates.html) |
+| 2022-08 | bank-own | 6.14 | 6.14 | Common Crawl capture 20220818233349 of https://www.rbcroyalbank.com/mortgages/mortgage-rates.html |
 | 2022-09 | bank-own | 6.14 | 6.14 | [archive copy](https://web.archive.org/web/20220921224256/https://www.rbcroyalbank.com/mortgages/mortgage-rates.html) |
 | 2022-10 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-10-26 |
 | 2022-11 | bank-own | 6.29 | 6.49 | [archive copy](https://web.archive.org/web/20221128053736/https://www.rbcroyalbank.com/mortgages/mortgage-rates.html) |
@@ -77,7 +77,7 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | 2025-09 | bank-own | 6.09 | 6.09 | Common Crawl capture 20250918002213 of https://www.rbcroyalbank.com/mortgages/mortgage-rates.html |
 | 2025-10 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20251009105441/https://www.rbcroyalbank.com/mortgages/mortgage-rates.html) |
 | 2025-11 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20251112153341/https://www.rbcroyalbank.com/mortgages/mortgage-rates.html) |
-| 2025-12 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20251212071405/https://www.rbcroyalbank.com/mortgages/mortgage-rates.html) |
+| 2025-12 | bank-own | 6.09 | 6.09 | Common Crawl capture 20251212071405 of https://www.rbcroyalbank.com/mortgages/mortgage-rates.html |
 | 2026-01 | bank-own | 6.09 | 6.09 | Common Crawl capture 20260120095821 of https://www.rbcroyalbank.com/mortgages/mortgage-rates.html |
 | 2026-02 | bank-own | 6.09 | 6.09 | [archive copy](https://web.archive.org/web/20260227073748/https://www.rbcroyalbank.com/mortgages/mortgage-rates.html) |
 | 2026-03 | Bank of Canada fill | 6.09 | 6.09 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2026-03-25 |
@@ -373,7 +373,7 @@ Why the Bank of Canada fill is a fair stand-in: TD's own published daily history
 | 2022-11 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-11-30 |
 | 2022-12 | Bank of Canada fill | 6.49 | 6.49 | Bank of Canada Valet series V80691333 (1y), V80691334 (3y), V80691335 (5y), week of 2022-12-28 |
 | 2023-01 | bank-own | 6.53 | 6.49 | [archive copy](https://arquivo.pt/wayback/20230124223355/https://www.nbc.ca/personal/mortgages/rates.html) |
-| 2023-02 | bank-own | 6.53 | 6.49 | [archive copy](https://web.archive.org/web/20230223090245/https://www.nbc.ca/personal/mortgages/rates.html) |
+| 2023-02 | bank-own | 6.53 | 6.49 | Common Crawl capture 20230207042754 of https://www.nbc.ca/personal/mortgages/rates.html |
 | 2023-03 | bank-own | 6.53 | 6.49 | [archive copy](https://web.archive.org/web/20230331161923/https://www.nbc.ca/personal/mortgages/rates.html) |
 | 2023-04 | bank-own | 6.53 | 6.49 | [archive copy](https://arquivo.pt/wayback/20230418190646/https://www.nbc.ca/personal/mortgages/rates.html) |
 | 2023-05 | bank-own | 6.53 | 6.49 | [archive copy](https://web.archive.org/web/20230524205047/https://www.nbc.ca/personal/mortgages/rates.html) |
