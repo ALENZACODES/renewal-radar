@@ -1,7 +1,7 @@
 /** Live current rates: big banks and credit unions. Data from GET /api/ratewatch/live (primary + 3 backups per lender). */
 import {esc, pageHead, button, dt} from './ui.js';
 
-const TIER_CLASS = {primary: 'green-text', backup1: 'green-text', cache: '', archive: '', boc_typical: 'danger-text', unavailable: 'danger-text'};
+const TIER_CLASS = {primary: 'green-text', backup1: 'green-text', cache: '', archive: '', boc_typical: 'danger-text', unavailable: 'danger-text', not_public: ''};
 const pct = v => (v == null ? '—' : `${Number(v).toFixed(2)}%`);
 
 export function ageText(asOf, now = new Date()) {

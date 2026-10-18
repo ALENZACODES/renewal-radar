@@ -15,7 +15,8 @@ def _no_live_network(monkeypatch, request):
     """Tests never reach lender sites: the live collector is offline unless a test patches it explicitly.
     The collector's own tests (test_ratewatch_live, review files) install their own fakes, so they are left alone."""
     from renewal.ratewatch import live
-    if request.node.fspath.basename in ("test_ratewatch_live.py", "test_ratewatch_review2.py", "test_ratewatch_review3.py"):
+    if request.node.fspath.basename in ("test_ratewatch_live.py", "test_ratewatch_review2.py", "test_ratewatch_review3.py",
+                                        "test_small_lenders.py"):
         yield
         return
 

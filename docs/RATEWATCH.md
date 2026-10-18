@@ -175,3 +175,32 @@ What RBC's calculator does, reconstructed from those answers:
 
 Result: all 34 cases are within $0.30 (worst $0.29 on $6,694, under 0.005%). 12 are exact to the cent, including every three-month and whole-month case.
 RBC itself calls its calculator an estimate; the payout statement is final.
+
+## Smaller lenders' own rate pages (added 2026-10-18; `ratewatch/small_lenders.py`)
+
+Found by searching the lenders' own sites. Every source below is the lender's own page, data feed or PDF, read without a login.
+
+| Lender | Source | Kind |
+|---|---|---|
+| Servus | servus.ca/rates (mortgage tab `div.catSection[data-catid=3]`, below the GIC tab) | posted + special |
+| Community Trust | communitytrust.com/mortgage-rates/ (sideways term/rate table) | posted |
+| Questbank | communitytrust.com/questbank/mortgage-rates/ (same template) | posted |
+| Effort Trust | efforttrust.com/trust-banking-mortgage-rates.php | posted |
+| KEB Hana Bank | hanabank.ca/pb/pu/pbpu008s01 (inline `pbpuJsonObj` JSON, "Posted Rate") | posted |
+| CMLS | cmls.ca residential rates (inline `var MortgageRates`, option-code map) | offered |
+| RFA Bank | rfa.ca/prime ("Standard Rates", insured column) | offered |
+| WealthONE | broker rate-sheet PDF (two columns paired by position) | offered (base) |
+| Bridgewater | bwbbrokerinfo.ca/mortgage-rates (best credit tier, 1-3 yr) | offered |
+| Bloom Finance | api.bloomfin.ca/api/rates (reverse mortgage) | offered |
+| Antrim | lending guidelines (private 1st, lowest LTV, 1-yr open) | offered |
+| Atrium MIC | residential products (1st, 1-yr) | offered |
+| Hillmount | broker FAQ ("prime plus 2.50%") + current prime | offered |
+
+Lenders that publish no machine-readable rates are listed in `small_lenders.NOT_PUBLIC` with the reason. They show "Not published" on the board and are never fetched:
+- **Blocked by bot protection:** Home Trust, MCAN, HomeEquity Bank.
+- **Broker-only:** Haventree, Fisgard, CMI, Brightpath, Neighbourhood.
+- **Not published, or a range/example only:** Merix, Firm Capital, Alpine, Fairstone.
+
+Cameron Stephens and Trez Capital were removed: both are now commercial-only lenders.
+
+B and private lenders that quote only 1-3 year terms are validated against their longest term instead of a 5-year rate. Banks and credit unions still need a 5-year rate.
