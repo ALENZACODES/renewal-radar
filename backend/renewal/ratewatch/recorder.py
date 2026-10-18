@@ -223,7 +223,8 @@ def _safe_collect(l, anchor, now):
 
 
 def run(lenders=None, sleep=time.sleep):
-    lenders = lenders or live.LENDERS
+    from .small_lenders import NOT_PUBLIC
+    lenders = [l for l in (lenders or live.LENDERS) if l[0] not in NOT_PUBLIC]   # nothing public to record
     log(f"recording pass start: {len(lenders)} lenders")
     refresh_boc()
     UNREACHABLE.clear()                                        # each run gives every site a fresh chance

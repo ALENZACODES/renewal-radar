@@ -25,7 +25,7 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
-from . import history, scrape
+from . import history, scrape, small_lenders
 from .linkcheck import UA
 from .parse import extract_rates
 from .paths import DATA
@@ -36,7 +36,8 @@ CACHE_DAYS = 14
 STALE_AFTER = timedelta(hours=6)
 TIMEOUT = 20
 TIER_LABEL = {"primary": "Live", "backup1": "Live (backup source)", "cache": "Last good reading",
-              "archive": "Archive copy", "boc_typical": "Bank of Canada big-six typical", "unavailable": "Unavailable"}
+              "archive": "Archive copy", "boc_typical": "Bank of Canada big-six typical", "unavailable": "Unavailable",
+              "not_public": "Not published"}
 
 # id, name, type, primary (kind, url), backup1 (kind, url) or None -> rediscovery
 LENDERS = [
@@ -55,7 +56,7 @@ LENDERS = [
     ("CU01", "Meridian", "credit_union", ("html", "https://www.meridiancu.ca/personal/rates-and-fees/mortgage-and-borrowing-rates"), None),
     ("CU02", "Vancity", "credit_union", ("html", "https://www.vancity.com/rates/mortgages"), None),
     ("CU03", "Coast Capital", "credit_union", ("coast", "https://www.coastcapitalsavings.com/rates/mortgages"), None),
-    ("CU04", "Servus", "credit_union", ("html", "https://servus.ca/rates"), None),
+    ("CU04", "Servus", "credit_union", ("servus", "https://servus.ca/rates"), None),
     ("CU05", "Alterna Savings", "credit_union", ("html", "https://www.alterna.ca/en/rates/mortgages"), None),
     ("CU06", "DUCA", "credit_union",
      ("duca_pdf", "https://www.duca.com/assets/pdf/Media_CXP/Rates/Early Prepayment Charges and Interest Rate Differential (IRD).pdf"),
@@ -80,33 +81,32 @@ LENDERS = [
     ("ALT02", "Equitable Bank (EQ Bank)", "alternative", ("html", "https://www.eqbank.ca/residential/mortgage-rates"),
      ("equitable", "https://www.equitablebank.ca/mortgage-rates")),
     ("ALT03", "Haventree Bank", "alternative", ("html", "https://www.haventreebank.com"), None),
-    ("ALT04", "Community Trust", "alternative", ("html", "https://www.communitytrust.ca"), None),
-    ("ALT05", "Bridgewater Bank", "alternative", ("html", "https://bridgewaterbank.ca"), None),
-    ("ALT06", "Wealth One Bank of Canada", "alternative", ("html", "https://www.wealthonebankofcanada.com"), None),
-    ("ALT07", "RFA Bank of Canada", "alternative", ("html", "https://www.rfa.ca"), None),
+    ("ALT04", "Community Trust", "alternative", ("term_row", "https://communitytrust.com/mortgage-rates/"), None),
+    ("ALT05", "Bridgewater Bank", "alternative", ("bridgewater", "https://bwbbrokerinfo.ca/mortgage-rates/"), None),
+    ("ALT06", "Wealth One Bank of Canada", "alternative",
+     ("wealthone_pdf", "https://www.wealthonebankofcanada.com/Documents/WealthONE_Mortgage_Broker_Rate_Sheet.pdf"), None),
+    ("ALT07", "RFA Bank of Canada", "alternative", ("rfa", "https://www.rfa.ca/prime"), None),
     ("ALT08", "Peoples Group", "alternative", ("html", "https://www.peoplesgroup.com/personal/resources/mortgage-rates"), None),
-    ("ALT09", "CMLS Financial", "alternative", ("html", "https://www.cmls.ca"), None),
+    ("ALT09", "CMLS Financial", "alternative", ("cmls", "https://www.cmls.ca/what-we-do/cmls-residential/mortgage-rates"), None),
     ("ALT10", "MCAN Financial", "alternative", ("html", "https://www.mcanfinancial.com"), None),
     ("ALT11", "Optimum Mortgage (National Bank)", "alternative", ("html", "https://www.nbc.ca/en/optimummortgage/brokers/rates.html"), None),
     ("ALT12", "Merix Financial", "alternative", ("html", "https://www.merixfinancial.com"), None),
-    ("ALT13", "Cameron Stephens", "alternative", ("html", "https://cameronstephens.com"), None),
-    ("ALT14", "Effort Trust", "alternative", ("html", "https://www.efforttrust.ca"), None),
-    ("ALT15", "Questbank (Questrade)", "alternative", ("html", "https://www.questrade.com"), None),
-    ("ALT16", "KEB Hana Bank Canada", "alternative", ("html", "https://www.kebhana.com"), None),
+    ("ALT14", "Effort Trust", "alternative", ("html", "https://efforttrust.com/trust-banking-mortgage-rates.php"), None),
+    ("ALT15", "Questbank (Questrade)", "alternative", ("term_row", "https://communitytrust.com/questbank/mortgage-rates/"), None),
+    ("ALT16", "KEB Hana Bank Canada", "alternative", ("hana", "https://www.hanabank.ca/pb/pu/pbpu008s01"), None),
     ("ALT17", "HomeEquity Bank (CHIP)", "alternative", ("html", "https://www.chip.ca"), None),
     ("ALT18", "B2B Bank", "alternative", ("html", "https://b2bbank.com/advisor-broker-rates/mortgage-rates"), None),
     ("ALT19", "Fisgard Capital", "alternative", ("html", "https://www.fisgard.com"), None),
-    ("ALT20", "Antrim Investments", "alternative", ("html", "https://www.antriminvestments.com"), None),
+    ("ALT20", "Antrim Investments", "alternative", ("antrim", "https://antriminvestments.com/lending-guidelines/"), None),
     ("ALT21", "CMI Financial Group", "alternative", ("html", "https://thecmigroup.ca"), None),
     ("ALT22", "Brightpath Capital", "alternative", ("html", "https://www.brightpathcapital.ca"), None),
-    ("ALT23", "Hillmount Capital", "alternative", ("html", "https://www.hillmount.com"), None),
-    ("ALT24", "Atrium Mortgage Investment Corp", "alternative", ("html", "https://www.atriummic.com"), None),
+    ("ALT23", "Hillmount Capital", "alternative", ("hillmount", "https://hillmount.ca/broker-resources/broker-faq/"), None),
+    ("ALT24", "Atrium Mortgage Investment Corp", "alternative", ("atrium", "https://www.atriummic.com/residential-products"), None),
     ("ALT25", "Firm Capital", "alternative", ("html", "https://www.firmcapital.com"), None),
-    ("ALT26", "Trez Capital", "alternative", ("html", "https://trezcapital.com"), None),
     ("ALT27", "Alpine Credits", "alternative", ("html", "https://www.alpinecredits.ca"), None),
     ("ALT28", "Fairstone (home equity)", "alternative", ("html", "https://www.fairstone.ca"), None),
     ("ALT29", "Neighbourhood Holdings", "alternative", ("html", "https://www.neighbourhoodholdings.com"), None),
-    ("ALT30", "Bloom Finance (reverse)", "alternative", ("html", "https://www.bloomfinance.ca"), None),
+    ("ALT30", "Bloom Finance (reverse)", "alternative", ("bloom", "https://api.bloomfin.ca/api/rates"), None),
 ]
 
 
@@ -166,11 +166,15 @@ def read_live(kind: str, url: str) -> list:
         return scrape.cibc()
     if kind == "duca_pdf":
         return scrape.duca_pdf_rows(_http(url).content)
+    if kind in small_lenders.PDF_PARSERS:
+        return small_lenders.PDF_PARSERS[kind](_http(url).content)
     return parse_text(kind, _http(url, headers={"Referer": url}).text)
 
 
 def parse_text(kind: str, text: str) -> list:
     """Parse a live response or an archived copy of the same source."""
+    if kind in small_lenders.PARSERS:
+        return small_lenders.PARSERS[kind](text)
     from .backfill import parse as parse_feed
     if kind in ("html",):
         return extract_rates(text)
@@ -254,6 +258,10 @@ def summarize(rows: list) -> dict:
     for t, k, rt, r in rows:
         if k == "fixed_closed" and rt in ("posted", "special"):
             by_term.setdefault(t, {}).setdefault(rt, r)
+    if not by_term:                                  # some private lenders offer open terms only
+        for t, k, rt, r in rows:
+            if k == "open" and rt in ("posted", "special"):
+                by_term.setdefault(t, {}).setdefault(rt, r)
     return by_term
 
 
@@ -264,6 +272,8 @@ def validate(rows: list, lender_type: str, anchor: dict) -> tuple[bool, str]:
     """Fails closed: every rate shown must be plausible, not just the 5-year one."""
     terms = summarize(rows)
     five = terms.get(60, {})
+    if not five and lender_type == "alternative" and terms:
+        five = terms[max(terms)]                    # B/private lenders often quote 1-3 year terms only: use the longest
     if not five:
         return False, "no 5-year fixed rate found"
     for t, v in terms.items():
@@ -321,6 +331,9 @@ def resolve(lender, anchor, now=None) -> dict:
     lid, name, ltype, (pkind, purl), backup = lender
     now = now or datetime.now(timezone.utc)
     tried = []
+    if lid in small_lenders.NOT_PUBLIC:                         # known: no public machine-readable rates; never fetched
+        tried.append({"tier": "primary", "ok": False, "reason": small_lenders.NOT_PUBLIC[lid]})
+        return _row(lender, "not_public", None, purl, [], tried, anchor)
 
     def attempt(tier, fn, url_for_row):
         try:
@@ -383,7 +396,7 @@ def _row(lender, tier, as_of, url, rows, tried, anchor):
             "source_url": url, "rates": {str(t): v for t, v in sorted(terms.items())},
             "five_year": {"posted": five.get("posted"), "special": five.get("special"),
                           "advertised": min(five.values()) if five else None},
-            "lender_specific": tier not in ("boc_typical", "unavailable"), "tried": tried}
+            "lender_specific": tier not in ("boc_typical", "unavailable", "not_public"), "tried": tried}
 
 
 # ---------------- board ----------------
