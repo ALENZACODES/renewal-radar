@@ -181,4 +181,4 @@ def test_statement_api():
         assert body['fields']['balance']['value'] == '412345.67'
         assert body['lender']['code'] == 'rbc'
         bad = c.post('/api/v5/documents/statement', files={'file': ('x.gif', b'GIF89a', 'image/gif')})
-        assert bad.status_code == 422
+        assert bad.status_code == 415

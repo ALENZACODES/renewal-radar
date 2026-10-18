@@ -8,14 +8,18 @@ import os,sys,json,logging
 from pathlib import Path
 from contextlib import asynccontextmanager
 from datetime import date,datetime,timezone
-from fastapi import FastAPI,HTTPException,UploadFile,File,Body,Header,Query
+from fastapi import FastAPI,HTTPException,UploadFile,File,Body,Header,Query,Depends
 from fastapi.responses import JSONResponse,Response,FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .security.rate_limit import SlidingWindowLimiter
 from pydantic import ValidationError
 from .config import settings
-from .domain.schemas import AnalyzeRequest,Mortgage,Offer,PenaltyRequest,CaseCreate,ShareRequest,NegotiationRequest
+from .security.access import require_api_access, demo_enabled, demo_samples_allowed, is_production
+from .security.log_redact import install_log_redaction
+from .banklink.crypto import require_production_banklink_key
+from .security.uploads import ingest_document_upload, read_upload_capped, MAX_UPLOAD_BYTES
+from .domain.schemas import AnalyzeRequest,Mortgage,Offer,PenaltyRequest,CaseCreate,CaseTokenMint,ShareRequest,NegotiationRequest
 from .domain.mortgage_math import compare_offers,stress_paths,simulate
 from .domain.rules import mqr,switch_decision,penalty_estimate,OSFI_MQR,OSFI_SWITCH,RENEWAL
 from .services.extract import extract_pdf
@@ -40,6 +44,8 @@ logger=logging.getLogger('renewal_radar')
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
+    install_log_redaction()
+    require_production_banklink_key()  # fail closed: no weak/missing RR_BANKLINK_KEY in production
     store.initialize()
     app.state.live_rate_tracker = LiveRateTracker()
     app.state.live_rate_tracker.start()
@@ -49,10 +55,13 @@ async def lifespan(app:FastAPI):
         await app.state.live_rate_tracker.stop()
 
 app=FastAPI(title='Renewal Radar 2.0',version='2.0.0',
-    description='Canadian mortgage renewal analysis, source-backed rule engine, privacy-conscious agent and PDF reports',lifespan=lifespan)
+    description='Canadian mortgage renewal analysis, source-backed rule engine, privacy-conscious agent and PDF reports',lifespan=lifespan,
+    dependencies=[Depends(require_api_access)])
 from .ratewatch.api import router as ratewatch_router
 app.include_router(ratewatch_router)
-app.add_middleware(CORSMiddleware,allow_origins=list(settings.allowed_origins),allow_methods=['GET','POST','PUT','DELETE'],allow_headers=['Content-Type','X-Case-Token','X-Broker-Token','X-Rate-Ingest-Key','X-OCR-Review-Token'])
+from .broker.book_api import router as broker_book_router
+app.include_router(broker_book_router)
+app.add_middleware(CORSMiddleware,allow_origins=list(settings.allowed_origins),allow_methods=['GET','POST','PUT','DELETE'],allow_headers=['Content-Type','X-Case-Token','X-Broker-Token','X-Rate-Ingest-Key','X-OCR-Review-Token','X-Api-Key'])
 
 limiter = SlidingWindowLimiter()
 
@@ -99,12 +108,13 @@ async def add_security_headers(request,call_next):
 
 @app.get('/api/health')
 async def health():
-    return {'status':'ok','product':'Renewal Radar','version':'2.0.0',
-            'ai_configured':bool(settings.nebius_api_key),'tavily_configured':bool(settings.tavily_api_key),
-            'timestamp':datetime.now(timezone.utc).isoformat()}
+    # Public liveness-shaped probe only. Detailed checks live on /api/health/ready (gated).
+    return {'status': 'ok'}
 
 @app.get('/api/demo')
 async def demo():
+    if not demo_samples_allowed():
+        raise HTTPException(404, 'Not Found')
     return {'mortgage':Mortgage().model_dump(),
        'offers':[Offer(name='Illustrative alternative',rate=4.49,rate_type='fixed',term_months=36,type='hypothetical',fees=950).model_dump(),
                  Offer(name='Illustrative variable',rate=4.25,rate_type='variable',term_months=36,type='hypothetical',fees=1100).model_dump()],
@@ -113,23 +123,26 @@ async def demo():
 
 @app.get('/api/demo/sample.pdf')
 async def demo_pdf():
+    if not demo_samples_allowed():
+        raise HTTPException(404, 'Not Found')
     return FileResponse(ROOT/'fixtures'/'fictional-renewal-letter.pdf',media_type='application/pdf',headers={'Cache-Control':'no-store'})
 
 
 @app.get('/api/demo/sample-scan.png')
 async def demo_scan():
+    if not demo_samples_allowed():
+        raise HTTPException(404, 'Not Found')
     return FileResponse(ROOT/'fixtures'/'rbc-renewal-scan.png', media_type='image/png', headers={'Cache-Control': 'no-store'})
 
 @app.post('/api/documents/extract')
 async def pdf_extract(file: UploadFile=File(...)):
-    if file.content_type not in ('application/pdf','application/octet-stream') and not file.filename.lower().endswith('.pdf'):
-        raise HTTPException(415,'Only PDF documents are accepted.')
-    content=await file.read(settings.max_pdf_bytes+1)
-    await file.close()
-    if len(content)>settings.max_pdf_bytes:
-        raise HTTPException(413,f'PDF must be smaller than {settings.max_pdf_bytes//1048576} MB.')
     try:
-        extracted=extract_pdf(content,file.filename)
+        ingested = await ingest_document_upload(
+            file, max_bytes=min(settings.max_pdf_bytes, MAX_UPLOAD_BYTES), allowed={'pdf'})
+    finally:
+        await file.close()
+    try:
+        extracted=extract_pdf(ingested.data, ingested.filename)
         extracted=await enrich_extraction(extracted)
         return extracted.model_dump()
     except ValueError as exc:raise HTTPException(422,str(exc))
@@ -139,12 +152,8 @@ async def pdf_extract(file: UploadFile=File(...)):
 async def document_read_v17(file: UploadFile = File(...), language: str = Query(default='eng', pattern=r'^(eng|fra|eng\+fra)$')):
     from starlette.concurrency import run_in_threadpool
     try:
-        if file.content_type not in ('application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'image/tiff', 'application/octet-stream'):
-            raise HTTPException(415, 'Supply a PDF or supported document image')
-        content = await file.read(8 * 1024 * 1024 + 1)
-        if len(content) > 8 * 1024 * 1024:
-            raise HTTPException(413, 'Document exceeds the 8 MB limit')
-        return await run_in_threadpool(read_mortgage_document, content, file.filename or 'document', language)
+        ingested = await ingest_document_upload(file, max_bytes=MAX_UPLOAD_BYTES, allowed={'pdf', 'png', 'jpeg'})
+        return await run_in_threadpool(read_mortgage_document, ingested.data, ingested.filename, language)
     except OCREngineError as exc:
         raise HTTPException(503, str(exc)) from exc
     except (ValueError, CameraError) as exc:
@@ -259,13 +268,60 @@ async def calendar(maturity_date:str):
     return Response(data,media_type='text/calendar',headers={'Content-Disposition':'attachment; filename="renewal-radar-reminders.ics"','Cache-Control':'no-store'})
 
 @app.post('/api/cases',status_code=201)
-async def cases_create(body:CaseCreate):
-    return store.create_case(body.title,{'mortgage':body.mortgage.model_dump(),'offers':[o.model_dump() for o in body.offers]})
+async def cases_create(body:CaseCreate,x_broker_token:str|None=Header(default=None)):
+    """Broker-owned case create. Returns case id only — no long-lived access token.
+
+    Mint scoped tokens via POST /api/cases/{id}/tokens (broker principal required).
+    """
+    from .broker.workspace import AccessDenied as _AD
+    try:
+        broker_workspace._assert_access(body.workspace_id, x_broker_token or '')
+    except _AD:
+        raise HTTPException(404, 'Workspace not found')
+    return store.create_case(
+        body.title,
+        {'mortgage': body.mortgage.model_dump(), 'offers': [o.model_dump() for o in body.offers]},
+        workspace_id=body.workspace_id,
+        mint_legacy_token=False,
+    )
 
 def access_or_404(uid,token):
     obj=store.read_case(uid,token)
     if not obj:raise HTTPException(404,'Case not found or access token invalid')
     return obj
+
+@app.post('/api/cases/{uid}/tokens',status_code=201)
+async def cases_mint_token(
+    uid: str,
+    body: CaseTokenMint,
+    x_broker_token: str | None = Header(default=None),
+):
+    """Mint a hashed, scoped, TTL case token. Broker of the owning workspace only.
+
+    API-key-only callers cannot mint. Email OTP binding for borrower invites is TODO.
+    """
+    from .broker.workspace import AccessDenied as _AD
+    from .cases.tokens import case_tokens
+    meta = store.get_case_meta(uid)
+    if not meta or not meta.get('workspace_id'):
+        raise HTTPException(404, 'Case not found')
+    try:
+        broker_workspace._assert_access(meta['workspace_id'], x_broker_token or '')
+    except _AD:
+        raise HTTPException(404, 'Case not found')
+    try:
+        minted = case_tokens.mint(
+            case_id=uid,
+            workspace_id=meta['workspace_id'],
+            scopes=body.scopes,
+            ttl_seconds=body.ttl_seconds,
+        )
+    except PermissionError as exc:
+        raise HTTPException(429, str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    # TODO: email OTP verification before handing token to borrower if invite flow is enabled
+    return minted
 
 @app.get('/api/cases/{uid}')
 async def cases_get(uid:str,x_case_token:str|None=Header(default=None)):
@@ -407,6 +463,8 @@ def _market_rate(lender, day):
 
 broker_dashboard = BrokerDashboard(broker_workspace, market_rate=_market_rate)
 banklink_service = _sandbox_service()
+from .banklink.gateway import BankLinkGateway
+banklink_gateway = BankLinkGateway(banklink_service)
 _lead_engine = None
 LEADS_DB = ROOT / 'data' / 'leads.sqlite3'
 
@@ -431,6 +489,7 @@ app.include_router(build_router(
     broker_workspace=broker_workspace,
     broker_dashboard=broker_dashboard,
     banklink_service=banklink_service,
+    banklink_gateway=banklink_gateway,
     get_lead_engine=get_lead_engine,
     frontend_check=_frontend_check,
     case_store_check=_case_store_check,
@@ -502,7 +561,9 @@ async def rate_historical_discount(lender: str, origination_at: str,
 @app.post('/api/v4/broker/workspaces', status_code=201)
 async def create_broker_workspace(body: WorkspaceCreate):
     # Demo-only: restrict registration in production by identity provider.
-    if os.environ.get('RR_ENABLE_DEMO_WORKSPACES') != '1':
+    # Temporary until OIDC/workspace SSO: demo workspaces only when explicitly enabled
+    # and never in production (see security.access.demo_enabled).
+    if not demo_enabled():
         raise HTTPException(403, 'Demo workspace creation is disabled')
     return broker_workspace.create_workspace(body.name)
 
@@ -789,7 +850,7 @@ async def camera_inspect(file: UploadFile = File(...)):
     if file.content_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/tiff',
                                  'application/octet-stream'):
         raise HTTPException(415, 'Unsupported image MIME type.')
-    payload = await file.read(14 * 1024 * 1024 + 1)
+    payload = await read_upload_capped(file, max_bytes=MAX_UPLOAD_BYTES)
     await file.close()
     try:
         scan = prepare_scan(payload)
@@ -1155,12 +1216,8 @@ async def document_semantic_audit(body: DocumentSemanticAuditRequest):
 @app.post('/api/v16/ocr/semantic-audit/pdf')
 async def document_semantic_pdf(file: UploadFile = File(...)):
     try:
-        if file.content_type not in ('application/pdf', 'application/octet-stream'):
-            raise HTTPException(415, 'Only PDF documents are accepted')
-        content = await file.read(8 * 1024 * 1024 + 1)
-        if len(content) > 8 * 1024 * 1024:
-            raise HTTPException(413, 'PDF exceeds the 8 MB limit')
-        return audit_semantic_pdf(content, file.filename or 'document.pdf')
+        ingested = await ingest_document_upload(file, allowed={'pdf'})
+        return audit_semantic_pdf(ingested.data, ingested.filename)
     except DocumentSemanticAuditError as exc:
         raise HTTPException(422, str(exc)) from exc
     finally:
@@ -1247,7 +1304,7 @@ async def camera_ocr(file: UploadFile = File(...),
     if file.content_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/tiff',
                                  'application/octet-stream'):
         raise HTTPException(415, 'Unsupported image MIME type.')
-    payload = await file.read(14 * 1024 * 1024 + 1)
+    payload = await read_upload_capped(file, max_bytes=MAX_UPLOAD_BYTES)
     await file.close()
     try:
         scan = prepare_scan(payload)
@@ -1272,7 +1329,7 @@ async def camera_pdf(files: list[UploadFile] = File(...)):
             if file.content_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/tiff',
                                          'application/octet-stream'):
                 raise HTTPException(415, 'Unsupported image MIME type.')
-            prepared.append(prepare_scan(await file.read(14 * 1024 * 1024 + 1)))
+            prepared.append(prepare_scan(await read_upload_capped(file, max_bytes=MAX_UPLOAD_BYTES)))
             await file.close()
         pdf_bytes = scans_to_pdf(prepared)
         return Response(pdf_bytes, media_type='application/pdf',

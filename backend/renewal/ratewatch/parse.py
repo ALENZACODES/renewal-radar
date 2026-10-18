@@ -161,12 +161,31 @@ def _from_json_blobs(soup):
     return rows
 
 
+DEPOSIT_RE = re.compile(r"\b(GICs?|term deposits?|savings|chequing|RRSPs?|TFSAs?|RESPs?|RRIFs?|FHSA|"
+                        r"CPG|d[ée]p[oô]ts? [àa] terme|[ée]pargne|REER|CELI)\b", re.I)
+MORTGAGE_RE = re.compile(r"mortgage|hypoth[eè]", re.I)
+
+
+def _is_deposit_table(table) -> bool:
+    """A table of deposit rates (GICs, savings, registered plans) on a lender's general rates page. Its numbers
+    look like mortgage terms ('1 Year 3.00%') and must never be read as mortgage rates."""
+    context = table.get_text(" ", strip=True)[:4000]
+    head = table.find_previous(["h1", "h2", "h3", "h4", "h5", "caption"])
+    if table.caption:
+        context = table.caption.get_text(" ", strip=True) + " " + context
+    if head is not None:
+        context = head.get_text(" ", strip=True) + " " + context
+    return bool(DEPOSIT_RE.search(context)) and not MORTGAGE_RE.search(context)
+
+
 def extract_rates(html, source_id=None):
     if source_id in OVERRIDES:
         return OVERRIDES[source_id](html)
     soup = BeautifulSoup(html, "lxml")
     rows = []
     for table in soup.find_all("table"):
+        if _is_deposit_table(table):
+            continue
         cols = _column_types(table)
         if "posted" in cols and "special" in cols:            # both kinds in one table: read column by column
             rows += _rows_by_column(table, cols)
@@ -181,6 +200,8 @@ def extract_rates(html, source_id=None):
     if not rows:
         for el in soup.select("li, .rate, [class*=rate], [class*=Rate], div"):
             t = el.get_text(" ", strip=True)
+            if DEPOSIT_RE.search(t) and not MORTGAGE_RE.search(t):
+                continue                                  # GIC / savings text is never a mortgage rate
             if 8 < len(t) < 300 and PCT_RE.search(t):
                 rows += _rows_from_segment(t)
     if not rows:

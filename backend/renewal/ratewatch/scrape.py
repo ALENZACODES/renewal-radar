@@ -348,3 +348,67 @@ if __name__ == "__main__":
             print(sid, how, len(rows))
         for r in sorted(rows):
             print("   ", r)
+
+
+def equitable_rows(html: str) -> list:
+    """Equitable Bank's own rate page (equitablebank.ca/mortgage-rates): a table with terms across the top.
+    'Standard Mortgage Rate' is the posted rate; other product rows (EQB Evolution) are offered rates.
+    The page also lists reverse-mortgage rates and APRs; those sit in other tables and are ignored."""
+    from bs4 import BeautifulSoup
+    out = []
+    for table in BeautifulSoup(html, "html.parser").find_all("table"):
+        rows = [[c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])] for tr in table.find_all("tr")]
+        head = next((r for r in rows if sum(bool(re.search(r"(Year|Month)", c)) for c in r) >= 4), None)
+        if head is None or not any("Mortgage" in r[0] for r in rows if r):
+            continue
+        for r in rows:
+            if r is head or not r or "APR" in r[0] or "Reverse" in r[0]:
+                continue
+            rtype = "posted" if r[0].lower().startswith("standard") else "special"
+            for label, cell in zip(head[1:], r[1:]):
+                m = re.match(r"(\d+)\s*(Year|Month)\s*(Fixed|Adjustable)?", label)
+                v = re.match(r"\s*(\d{1,2}\.\d{1,3})\s*%", cell)
+                if not m or not v:
+                    continue
+                months = int(m.group(1)) * (12 if m.group(2) == "Year" else 1)
+                kind = "variable" if m.group(3) == "Adjustable" else "fixed_closed"
+                out.append((months, kind, rtype, float(v.group(1))))
+    return out
+
+
+def coast_rows(html: str) -> list:
+    """Coast Capital (coastcapitalsavings.com/rates/mortgages): each table is labelled only by the H3 above it.
+    'Posted rates - Fixed Rate Mortgages' = posted (used in term-break calculations); 'Fixed Rate Mortgages' = offered.
+    The first rate column is the up-to-25-year amortization rate; APR columns and open/high-ratio rows are excluded."""
+    from bs4 import BeautifulSoup
+    out = []
+    for table in BeautifulSoup(html, "html.parser").find_all("table"):
+        head = table.find_previous(["h2", "h3", "h4"])
+        title = head.get_text(" ", strip=True).lower() if head else ""
+        if "fixed rate mortgages" not in title:
+            continue
+        rtype = "posted" if title.startswith("posted") else "special"
+        for tr in table.find_all("tr"):
+            cells = [c.get_text(" ", strip=True) for c in tr.find_all("td")]
+            if len(cells) < 2:
+                continue
+            m = re.match(r"(\d+)-Year Fixed Rate", cells[0])
+            v = re.match(r"(\d{1,2}\.\d{1,3})\s*%", cells[1])
+            if m and v and not re.search(r"open|high", cells[0], re.I):
+                out.append((int(m.group(1)) * 12, "fixed_closed", rtype, float(v.group(1))))
+    return out
+
+
+def duca_pdf_rows(pdf: bytes) -> list:
+    """DUCA's own posted-rate notice (PDF 'Early Prepayment Charges and Interest Rate Differential (IRD)'):
+    'DUCA Posted Mortgage Rates-Effective <date>' / 'Term 1 Year Fixed ... 5 Year Fixed' / 'Posted Rate 5.34% ...'.
+    These are the rates DUCA's IRD clause uses (posted rate for a term equal to the remaining term)."""
+    import io
+    from pypdf import PdfReader
+    text = "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(pdf)).pages)
+    terms = [int(t) * 12 for t in re.findall(r"(\d+)\s*Year\s*Fixed", text, re.I)]
+    m = re.search(r"Posted\s*Rate\s*\d?\s*((?:\s*\d{1,2}\.\d{1,3}\s*%)+)", text, re.I)   # "Posted Rate1" footnote
+    if not terms or not m:
+        return []
+    rates = [float(x) for x in re.findall(r"(\d{1,2}\.\d{1,3})\s*%", m.group(1))]
+    return [(t, "fixed_closed", "posted", r) for t, r in zip(terms, rates)]

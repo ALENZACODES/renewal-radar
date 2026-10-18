@@ -6,7 +6,7 @@ from typing import Protocol
 
 import pymupdf as fitz
 
-MAX_BYTES = 12 * 1024 * 1024
+MAX_BYTES = 15 * 1024 * 1024
 MAX_PAGES = 20
 MIN_TEXT_LAYER_CHARS = 40
 OCR_DPI = 300

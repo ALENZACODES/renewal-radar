@@ -25,7 +25,7 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
-from . import history, scrape
+from . import history, scrape, small_lenders
 from .linkcheck import UA
 from .parse import extract_rates
 from .paths import DATA
@@ -36,7 +36,8 @@ CACHE_DAYS = 14
 STALE_AFTER = timedelta(hours=6)
 TIMEOUT = 20
 TIER_LABEL = {"primary": "Live", "backup1": "Live (backup source)", "cache": "Last good reading",
-              "archive": "Archive copy", "boc_typical": "Bank of Canada big-six typical", "unavailable": "Unavailable"}
+              "archive": "Archive copy", "boc_typical": "Bank of Canada big-six typical", "unavailable": "Unavailable",
+              "not_public": "Not published"}
 
 # id, name, type, primary (kind, url), backup1 (kind, url) or None -> rediscovery
 LENDERS = [
@@ -44,7 +45,8 @@ LENDERS = [
     ("P023", "TD", "bank", ("td_api", "https://www.td.com/ca/en/personal-banking/products/mortgages/mortgage-rates"),
      ("td_json", "https://ix0.apps.td.com/api/get-rates/en")),
     ("P025", "Scotiabank", "bank", ("scotia_api", "https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage"), None),
-    ("P027", "BMO", "bank", ("bmo_api", "https://www.bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json"), None),
+    ("P027", "BMO", "bank", ("bmo_api", "https://www.bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json"),
+     ("bmo_include", "https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp")),
     ("P029", "CIBC", "bank", ("cibc_api", "https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2c5YRVARCLO%2cFOM%2cVROM%2c"),
      ("cibc_js", "https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2c")),
     ("P031", "National Bank", "bank", ("html", "https://www.nbc.ca/personal/mortgages/rates.html"),
@@ -53,10 +55,12 @@ LENDERS = [
      ("html", "https://www.desjardins.com/fr/hypotheque/taux-hypothecaires.html")),
     ("CU01", "Meridian", "credit_union", ("html", "https://www.meridiancu.ca/personal/rates-and-fees/mortgage-and-borrowing-rates"), None),
     ("CU02", "Vancity", "credit_union", ("html", "https://www.vancity.com/rates/mortgages"), None),
-    ("CU03", "Coast Capital", "credit_union", ("html", "https://www.coastcapitalsavings.com/rates"), None),
-    ("CU04", "Servus", "credit_union", ("html", "https://servus.ca/rates"), None),
+    ("CU03", "Coast Capital", "credit_union", ("coast", "https://www.coastcapitalsavings.com/rates/mortgages"), None),
+    ("CU04", "Servus", "credit_union", ("servus", "https://servus.ca/rates"), None),
     ("CU05", "Alterna Savings", "credit_union", ("html", "https://www.alterna.ca/en/rates/mortgages"), None),
-    ("CU06", "DUCA", "credit_union", ("html", "https://www.duca.com/rates"), None),
+    ("CU06", "DUCA", "credit_union",
+     ("duca_pdf", "https://www.duca.com/assets/pdf/Media_CXP/Rates/Early Prepayment Charges and Interest Rate Differential (IRD).pdf"),
+     ("html", "https://www.duca.com/rates")),
     ("CU07", "FirstOntario", "credit_union", ("html", "https://www.firstontario.com/personal/rates/"), None),
     ("CU08", "Libro", "credit_union", ("html", "https://www.libro.ca/rates-fees/mortgage/"), None),
     ("CU09", "Affinity", "credit_union", ("html", "https://www.affinitycu.ca/rates/mortgage-rates"), None),
@@ -69,14 +73,85 @@ LENDERS = [
     ("CU16", "Mainstreet", "credit_union", ("html", "https://mainstreetcu.ca/rates"), None),
     ("CU17", "Innovation", "credit_union", ("html", "https://www.innovationcu.ca/personal/borrowing/mortgage-rates.html"), None),
     ("CU18", "Kawartha", "credit_union", ("html", "https://www.kawarthacu.com/rates"), None),
-    ("CU19", "Steinbach", "credit_union", ("html", "https://scu.mb.ca/rates"), None),
+    ("CU19", "Steinbach", "credit_union", ("html", "https://scu.mb.ca/rates/borrowing"), ("html", "https://scu.mb.ca/rates")),
     ("CU20", "Tandia", "credit_union", ("html", "https://www.tandia.com/rates"), None),
+    # ---- B lenders, trust companies, MICs and private lenders. Most quote brokers privately and publish no rates;
+    #      they run through the same chain and show "Unavailable" until a public lender source exists. ----
+    ("ALT01", "Home Trust", "alternative", ("html", "https://www.hometrust.ca"), None),
+    ("ALT02", "Equitable Bank (EQ Bank)", "alternative", ("html", "https://www.eqbank.ca/residential/mortgage-rates"),
+     ("equitable", "https://www.equitablebank.ca/mortgage-rates")),
+    ("ALT03", "Haventree Bank", "alternative", ("html", "https://www.haventreebank.com"), None),
+    ("ALT04", "Community Trust", "alternative", ("term_row", "https://communitytrust.com/mortgage-rates/"), None),
+    ("ALT05", "Bridgewater Bank", "alternative", ("bridgewater", "https://bwbbrokerinfo.ca/mortgage-rates/"), None),
+    ("ALT06", "Wealth One Bank of Canada", "alternative",
+     ("wealthone_pdf", "https://www.wealthonebankofcanada.com/Documents/WealthONE_Mortgage_Broker_Rate_Sheet.pdf"), None),
+    ("ALT07", "RFA Bank of Canada", "alternative", ("rfa", "https://www.rfa.ca/prime"), None),
+    ("ALT08", "Peoples Group", "alternative", ("html", "https://www.peoplesgroup.com/personal/resources/mortgage-rates"), None),
+    ("ALT09", "CMLS Financial", "alternative", ("cmls", "https://www.cmls.ca/what-we-do/cmls-residential/mortgage-rates"), None),
+    ("ALT10", "MCAN Financial", "alternative", ("html", "https://www.mcanfinancial.com"), None),
+    ("ALT11", "Optimum Mortgage (National Bank)", "alternative", ("html", "https://www.nbc.ca/en/optimummortgage/brokers/rates.html"), None),
+    ("ALT12", "Merix Financial", "alternative", ("html", "https://www.merixfinancial.com"), None),
+    ("ALT14", "Effort Trust", "alternative", ("html", "https://efforttrust.com/trust-banking-mortgage-rates.php"), None),
+    ("ALT15", "Questbank (Questrade)", "alternative", ("term_row", "https://communitytrust.com/questbank/mortgage-rates/"), None),
+    ("ALT16", "KEB Hana Bank Canada", "alternative", ("hana", "https://www.hanabank.ca/pb/pu/pbpu008s01"), None),
+    ("ALT17", "HomeEquity Bank (CHIP)", "alternative", ("html", "https://www.chip.ca"), None),
+    ("ALT18", "B2B Bank", "alternative", ("html", "https://b2bbank.com/advisor-broker-rates/mortgage-rates"), None),
+    ("ALT19", "Fisgard Capital", "alternative", ("html", "https://www.fisgard.com"), None),
+    ("ALT20", "Antrim Investments", "alternative", ("antrim", "https://antriminvestments.com/lending-guidelines/"), None),
+    ("ALT21", "CMI Financial Group", "alternative", ("html", "https://thecmigroup.ca"), None),
+    ("ALT22", "Brightpath Capital", "alternative", ("html", "https://www.brightpathcapital.ca"), None),
+    ("ALT23", "Hillmount Capital", "alternative", ("hillmount", "https://hillmount.ca/broker-resources/broker-faq/"), None),
+    ("ALT24", "Atrium Mortgage Investment Corp", "alternative", ("atrium", "https://www.atriummic.com/residential-products"), None),
+    ("ALT25", "Firm Capital", "alternative", ("html", "https://www.firmcapital.com"), None),
+    ("ALT27", "Alpine Credits", "alternative", ("html", "https://www.alpinecredits.ca"), None),
+    ("ALT28", "Fairstone (home equity)", "alternative", ("html", "https://www.fairstone.ca"), None),
+    ("ALT29", "Neighbourhood Holdings", "alternative", ("html", "https://www.neighbourhoodholdings.com"), None),
+    ("ALT30", "Bloom Finance (reverse)", "alternative", ("bloom", "https://api.bloomfin.ca/api/rates"), None),
 ]
 
 
 # ---------------- readers ----------------
+class _CurlResponse:
+    """Minimal stand-in for requests.Response from the system curl fallback."""
+    def __init__(self, url, status, content):
+        self.url, self.status_code, self.content = url, status, content
+        self.ok = 200 <= status < 400
+        self.text = content.decode("utf-8", "replace")
+
+    def json(self):
+        return json.loads(self.text)
+
+    def raise_for_status(self):
+        if not self.ok:
+            raise requests.HTTPError(f"{self.status_code} for {self.url}")
+
+
+def _curl(url, headers):
+    """Same public GET through the operating system's curl over IPv4. Some lenders' edge networks drop Python's
+    TLS client or this machine's IPv6 route while a standard client still gets through."""
+    import shutil, subprocess
+    exe = shutil.which("curl") or shutil.which("curl.exe")
+    if not exe:
+        raise requests.ConnectionError("no system curl for fallback")
+    args = [exe, "-4", "-s", "-L", "--compressed", "-m", str(TIMEOUT), "-o", "-", "-w", "\n%{http_code}"]
+    for k, v in headers.items():
+        args += ["-H", f"{k}: {v}"]
+    out = subprocess.run(args + [url], capture_output=True, timeout=TIMEOUT + 15).stdout
+    body, _, code = out.rpartition(b"\n")
+    status = int(code or 0)
+    if status == 0:
+        raise requests.ConnectionError(f"curl fallback could not reach {url}")
+    return _CurlResponse(url, status, body)
+
+
 def _http(url, **kw):
-    return requests.get(url, headers={**UA, **kw.pop("headers", {})}, timeout=TIMEOUT, **kw)
+    headers = {**UA, **kw.pop("headers", {})}
+    try:
+        return requests.get(url, headers=headers, timeout=TIMEOUT, **kw)
+    except (requests.ConnectionError, requests.Timeout):
+        if kw:                                     # only plain GETs have a fallback
+            raise
+        return _curl(url, headers)
 
 
 def read_live(kind: str, url: str) -> list:
@@ -89,11 +164,17 @@ def read_live(kind: str, url: str) -> list:
         return scrape.bmo_posted_rows(_http(url).json())
     if kind == "cibc_api":
         return scrape.cibc()
+    if kind == "duca_pdf":
+        return scrape.duca_pdf_rows(_http(url).content)
+    if kind in small_lenders.PDF_PARSERS:
+        return small_lenders.PDF_PARSERS[kind](_http(url).content)
     return parse_text(kind, _http(url, headers={"Referer": url}).text)
 
 
 def parse_text(kind: str, text: str) -> list:
     """Parse a live response or an archived copy of the same source."""
+    if kind in small_lenders.PARSERS:
+        return small_lenders.PARSERS[kind](text)
     from .backfill import parse as parse_feed
     if kind in ("html",):
         return extract_rates(text)
@@ -107,6 +188,12 @@ def parse_text(kind: str, text: str) -> list:
         return scrape.cibc_rows(text)
     if kind == "td_json":
         return parse_feed("td_json", text)
+    if kind == "equitable":
+        return scrape.equitable_rows(text)
+    if kind == "bmo_include":
+        return parse_feed("bmo_include", text)
+    if kind == "coast":
+        return scrape.coast_rows(text)
     return extract_rates(text)
 
 
@@ -134,11 +221,21 @@ def read_archive(kind: str, url: str) -> tuple[list, str | None]:
     return (rows, f"common crawl {ts[:8]}") if rows else ([], reason + "; no recent Common Crawl copy")
 
 
+# Sub-brands that share a parent bank's website: a rediscovered page must stay inside the brand's own section,
+# otherwise the parent's retail rates would be reported as the brand's.
+SCOPE = {"https://www.nbc.ca/en/optimummortgage/brokers/rates.html": "/en/optimummortgage/"}
+
+
 def read_rediscovered(url: str) -> tuple[list, str | None]:
+    from urllib.parse import urlparse
     try:
-        return scrape.rediscovered(url)
+        rows, found = scrape.rediscovered(url)
     except Exception:
         return [], None
+    scope = SCOPE.get(url)
+    if scope and found and not urlparse(found).path.startswith(scope):
+        return [], None                       # outside the brand's section: never use another brand's rates
+    return rows, found
 
 
 # ---------------- validation ----------------
@@ -161,6 +258,10 @@ def summarize(rows: list) -> dict:
     for t, k, rt, r in rows:
         if k == "fixed_closed" and rt in ("posted", "special"):
             by_term.setdefault(t, {}).setdefault(rt, r)
+    if not by_term:                                  # some private lenders offer open terms only
+        for t, k, rt, r in rows:
+            if k == "open" and rt in ("posted", "special"):
+                by_term.setdefault(t, {}).setdefault(rt, r)
     return by_term
 
 
@@ -171,6 +272,8 @@ def validate(rows: list, lender_type: str, anchor: dict) -> tuple[bool, str]:
     """Fails closed: every rate shown must be plausible, not just the 5-year one."""
     terms = summarize(rows)
     five = terms.get(60, {})
+    if not five and lender_type == "alternative" and terms:
+        five = terms[max(terms)]                    # B/private lenders often quote 1-3 year terms only: use the longest
     if not five:
         return False, "no 5-year fixed rate found"
     for t, v in terms.items():
@@ -190,11 +293,16 @@ def validate(rows: list, lender_type: str, anchor: dict) -> tuple[bool, str]:
         if boc is not None and abs(five["posted"] - boc) > 0.75:
             return False, f"5-year posted {five['posted']} is far from the big-six typical {boc}"
         return True, "ok"
+    upper = 11.0 if lender_type == "alternative" else 6.5
     for t, v in terms.items():                  # other terms: same plausible band around the 5-year bond
         for rt, r in v.items():
-            if not goc - 0.5 <= r <= goc + 6.5:
+            if not goc - 0.5 <= r <= goc + upper:
                 return False, f"{t}-month {rt} rate {r} implausible against a 5-year bond at {goc}"
     advertised = min(five.values())
+    if lender_type == "alternative":           # B/private pricing runs higher than prime lenders
+        if not (goc + 0.3 <= advertised <= goc + 9.0):
+            return False, f"5-year rate {advertised} outside the plausible B/private band for a 5-year bond at {goc}"
+        return True, "ok"
     if not (goc + 0.3 <= advertised <= goc + 4.5):
         return False, f"5-year rate {advertised} outside the plausible band for a 5-year bond at {goc}"
     return True, "ok"
@@ -223,6 +331,9 @@ def resolve(lender, anchor, now=None) -> dict:
     lid, name, ltype, (pkind, purl), backup = lender
     now = now or datetime.now(timezone.utc)
     tried = []
+    if lid in small_lenders.NOT_PUBLIC:                         # known: no public machine-readable rates; never fetched
+        tried.append({"tier": "primary", "ok": False, "reason": small_lenders.NOT_PUBLIC[lid]})
+        return _row(lender, "not_public", None, purl, [], tried, anchor)
 
     def attempt(tier, fn, url_for_row):
         try:
@@ -249,7 +360,7 @@ def resolve(lender, anchor, now=None) -> dict:
         rows, url, note = got
         as_of = now.isoformat(timespec="seconds")
         _save_cache(lid, {"at": as_of, "tier": tier, "url": url, "rows": rows})
-        history.save(lid, now.date().isoformat(), rows, "api" if pkind.endswith("_api") and tier == "primary" else "html")
+        history.save(lid, now.astimezone().date().isoformat(), rows, "api" if pkind.endswith("_api") and tier == "primary" else "html")
         return _row(lender, tier, as_of, url, rows, tried, anchor)
     entry = _load(CACHE).get(lid)
     if entry and datetime.fromisoformat(entry["at"]) >= now - timedelta(days=CACHE_DAYS):
@@ -285,7 +396,7 @@ def _row(lender, tier, as_of, url, rows, tried, anchor):
             "source_url": url, "rates": {str(t): v for t, v in sorted(terms.items())},
             "five_year": {"posted": five.get("posted"), "special": five.get("special"),
                           "advertised": min(five.values()) if five else None},
-            "lender_specific": tier not in ("boc_typical", "unavailable"), "tried": tried}
+            "lender_specific": tier not in ("boc_typical", "unavailable", "not_public"), "tried": tried}
 
 
 # ---------------- board ----------------
@@ -350,7 +461,8 @@ def _refresh(lenders=None) -> dict:
     board = {"refreshed_at": now.isoformat(timespec="seconds"), "anchor": anchor,
              "summary": {t: sum(1 for r in rows if r["tier"] == t) for t in TIER_LABEL},
              "banks": [r for r in rows if r["type"] == "bank"],
-             "credit_unions": [r for r in rows if r["type"] == "credit_union"]}
+             "credit_unions": [r for r in rows if r["type"] == "credit_union"],
+             "alternative_lenders": [r for r in rows if r["type"] == "alternative"]}
     BOARD.write_text(json.dumps(board, indent=1))
     return board
 

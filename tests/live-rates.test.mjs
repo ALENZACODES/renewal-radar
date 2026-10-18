@@ -54,3 +54,13 @@ test('page is registered, cached offline and wired to the API', () => {
   assert.match(sw, /\/js\/lender-exact\.js/);
   assert.match(app, /live-rates-refresh/);
 });
+
+
+test('private and B lenders get their own section with a no-public-rates note', () => {
+  const alt = {...board, alternative_lenders: [row({id: 'ALT08', name: 'Peoples Group', type: 'alternative',
+    five_year: {posted: 5.99, special: null, advertised: 5.99}})]};
+  const html = liveRatesView({liveRates: alt});
+  assert.match(html, /Private and B lenders/);
+  assert.match(html, /Peoples Group/);
+  assert.match(html, /publish no public rates/);
+});

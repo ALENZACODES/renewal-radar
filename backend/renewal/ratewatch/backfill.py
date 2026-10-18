@@ -23,7 +23,7 @@ PACE = 30.0                         # ~9 hours for the full 5-year pass; gentle 
 BLOCK_WAIT = 15 * 60
 MAX_GAP = 0.75                      # % points from the BoC big-six figure a bank's 5-yr posted may sit
 PROGRESS = DATA / "backfill_progress.json"
-PARSER_VERSION = "2026-10-15a"        # bump when parse() changes: earlier rejections are then retried
+PARSER_VERSION = "2026-10-16a"        # bump when parse() changes: earlier rejections are then retried
 COVERAGE = DATA / "history_coverage.json"
 CDX = "https://web.archive.org/cdx/search/cdx"
 
@@ -32,7 +32,8 @@ SOURCES = {
     "P021": [("html", "https://www.rbcroyalbank.com/mortgages/mortgage-rates.html", "exact")],
     "P023": [("td_json", "https://ix0.apps.td.com/api/get-rates/en", "exact")],
     "P025": [("scotia_json", "https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage", "exact")],
-    "P027": [("bmo_epm", "https://www.bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json", "exact"),
+    "P027": [("bmo_include", "https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp", "prefix"),
+             ("bmo_epm", "https://www.bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json", "exact"),
              ("json_generic", "https://www.bmo.com/public-data/api/v1.1/mortgages.json", "exact")],
     "P029": [("cibc_js", "https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5", "prefix")],
     "P031": [("html", "https://www.nbc.ca/personal/mortgages/rates.html", "exact")],
@@ -53,22 +54,31 @@ class Archive:
     def __init__(self):
         self.last = 0.0
 
+    MAX_TRIES = 6                       # then give up on this request; the caller leaves it for the next run
+
     def get(self, url, params=None, timeout=120):
-        while True:
+        """Returns a response, or None after MAX_TRIES failures. Every failure is logged (never a silent loop)."""
+        for attempt in range(1, self.MAX_TRIES + 1):
             wait = PACE - (time.time() - self.last)
             if wait > 0:
                 time.sleep(wait)
             self.last = time.time()
             try:
                 r = requests.get(url, params=params, headers=UA, timeout=timeout)
-            except requests.RequestException:
-                time.sleep(60)
+            except requests.RequestException as e:
+                pause = min(60 * 2 ** (attempt - 1), BLOCK_WAIT)
+                print(f"{datetime.now():%H:%M} archive connection {type(e).__name__} (try {attempt}/{self.MAX_TRIES}); "
+                      f"waiting {pause // 60} min", flush=True)
+                time.sleep(pause)
                 continue
             if r.status_code in (429, 503):
-                print(f"{datetime.now():%H:%M} archive busy ({r.status_code}); waiting {BLOCK_WAIT // 60} min", flush=True)
+                print(f"{datetime.now():%H:%M} archive busy ({r.status_code}, try {attempt}/{self.MAX_TRIES}); "
+                      f"waiting {BLOCK_WAIT // 60} min", flush=True)
                 time.sleep(BLOCK_WAIT)
                 continue
             return r
+        print(f"{datetime.now():%H:%M} giving up on {url[:90]} for this run", flush=True)
+        return None
 
 
 def captures(arc, url, match):
@@ -81,6 +91,8 @@ def captures(arc, url, match):
         params["collapse"] = "timestamp:8"
     r = arc.get(CDX, params=params)
     out = {}
+    if r is None:
+        return out                                          # empty -> not cached, retried next run
     try:
         rows = r.json()[1:]
     except ValueError:
@@ -121,8 +133,44 @@ def _walk_json(obj, found):
     return found
 
 
+BMO_INCLUDE_RE = re.compile(r"'([^']+)'\s*:\s*\{[^{}]*?'value'\s*:\s*'([\d.]+)'[^{}]*?'type'\s*:\s*'([a-z]+)'[^{}]*?"
+                            r"'term_months'\s*:\s*'(\d+)'")
+
+
+def bmo_include_rows(text):
+    """BMO's rate include (bmo.com/bmocda/templates/json_mortgage_include.jsp): var MORTGAGE = {'fixed': {...}}.
+    Posted fixed closed terms (and the 6-month convertible) only; open terms kept as 'open'."""
+    a = text.find("'fixed'")
+    b = text.find("'variable'", a)
+    block = text[a:b if b > a else None] if a >= 0 else ""
+    rows = []
+    for name, value, typ, months in BMO_INCLUDE_RE.findall(block):
+        kind = {"closed": "fixed_closed", "convertible": "fixed_closed", "open": "open"}.get(typ)
+        if kind:
+            rows.append((int(months), kind, "posted", float(value)))
+    return sorted(set(rows))
+
+
+def body_text(resp):
+    """Archived body as text. Some archive copies hold the bank's gzip-compressed bytes (stored without the
+    Content-Encoding header), so they look empty unless unpacked."""
+    raw = getattr(resp, "content", None)
+    if not isinstance(raw, bytes):
+        return resp.text
+    if raw[:2] == b"\x1f\x8b":
+        import gzip
+        try:
+            raw = gzip.decompress(raw)
+        except OSError:
+            pass
+        return raw.decode("utf-8", "replace")
+    return resp.text
+
+
 def parse(kind, text):
     try:
+        if kind == "bmo_include":
+            return bmo_include_rows(text)
         if kind == "html":
             return extract_rates(text)
         if kind == "cibc_js":
@@ -132,6 +180,13 @@ def parse(kind, text):
             return scrape.scotia_rows(js)
         if kind == "bmo_epm":
             return scrape.bmo_posted_rows(js)
+        if kind == "bmo_flat":                 # bmo.com/main/personal/mortgages/json/rates: {"fixed-5-year-closed": "5.34", ...}
+            rows = []
+            for k, v in js.items():
+                m = re.fullmatch(r"fixed-(\d+)-year-closed", k)
+                if m:
+                    rows.append((int(m.group(1)) * 12, "fixed_closed", "posted", float(v)))
+            return rows
         if kind == "td_json":
             rows = []
             for cat in js.get("categories", []):
@@ -209,6 +264,34 @@ def cc_crawls():
     return out
 
 
+def warc_body(warc: bytes) -> str:
+    """HTTP body of one WARC response record, as text. Works on bytes so a gzip- or chunk-encoded body survives."""
+    parts = warc.split(b"\r\n\r\n", 2)
+    if len(parts) < 3:
+        return warc.decode("utf-8", "replace")
+    http, body = parts[1].lower(), parts[2]
+    if b"transfer-encoding: chunked" in http:
+        out, rest = b"", body
+        while rest:
+            line, _, rest = rest.partition(b"\r\n")
+            try:
+                n = int(line.split(b";")[0], 16)
+            except ValueError:
+                out += line + rest
+                break
+            if n == 0:
+                break
+            out, rest = out + rest[:n], rest[n + 2:]
+        body = out
+    if body[:2] == b"\x1f\x8b":
+        import gzip
+        try:
+            body = gzip.decompress(body)
+        except OSError:
+            pass
+    return body.decode("utf-8", "replace")
+
+
 def cc_pass(prog):
     """Common Crawl: a second, independent public archive. Fill months from it first (not rate-limited like Wayback)."""
     import gzip, io
@@ -232,7 +315,7 @@ def cc_pass(prog):
                             rec = json.loads(line)
                         except ValueError:
                             continue
-                        if rec.get("status") != "200" or (match == "prefix" and "FRCM" not in rec.get("url", "").upper()):
+                        if rec.get("status") != "200" or (kind == "cibc_js" and "FRCM" not in rec.get("url", "").upper()):
                             continue
                         caps.setdefault(rec["timestamp"][:6], []).append(
                             {k: rec[k] for k in ("timestamp", "filename", "offset", "length", "url")})
@@ -247,10 +330,10 @@ def cc_pass(prog):
                     try:
                         raw = requests.get("https://data.commoncrawl.org/" + rec["filename"], timeout=120,
                                            headers={"Range": f"bytes={s0}-{s0 + n - 1}"}).content
-                        warc = gzip.GzipFile(fileobj=io.BytesIO(raw)).read().decode("utf-8", "replace")
+                        warc = gzip.GzipFile(fileobj=io.BytesIO(raw)).read()
                     except Exception:
                         continue
-                    body = warc.split("\r\n\r\n", 2)[-1]  # WARC headers, HTTP headers, then the body
+                    body = warc_body(warc)                # WARC headers, HTTP headers, body (gzip/chunked undone)
                     rows = parse(kind, body)
                     day = datetime.strptime(rec["timestamp"][:8], "%Y%m%d").date()
                     ok, rate5, boc = validate_month(rows, day)
@@ -264,6 +347,84 @@ def cc_pass(prog):
                 report(prog)
 
 
+ARQUIVO_CDX = "https://arquivo.pt/wayback/cdx"
+ARQUIVO_PACE = 8.0
+# Arquivo.pt (Portugal's national web archive) crawls these bank-own pages and feeds too, under its own limits.
+# Extra bank-own URLs it holds that Wayback does not, tried after the SOURCES above.
+ARQUIVO_EXTRA = {
+    "P025": [],
+    "P021": [("html", "https://www.rbcroyalbank.com/mortgages/mortgage-rates.html", "prefix")],
+    "P023": [("html", "https://www.td.com/ca/en/personal-banking/products/mortgages/mortgage-rates", "prefix")],
+    "P027": [("bmo_flat", "https://www.bmo.com/main/personal/mortgages/json/rates", "prefix"),
+             ("html", "https://www.bmo.com/main/personal/mortgages/mortgage-rates/", "prefix")],
+    "P029": [("html", "https://www.cibc.com/en/personal-banking/mortgages/mortgage-rates.html", "prefix"),
+             ("html", "https://www.cibc.com/en/personal-banking/mortgages/find-mortgage-rates.html", "prefix")],
+}
+
+
+def arquivo_pass(prog):
+    """Arquivo.pt: an independent public archive with its own rate limit. Same bank-own sources, same validation."""
+    for sid in SOURCES:
+        done = prog.setdefault(sid, {})
+        for kind, url, match in SOURCES[sid] + ARQUIVO_EXTRA.get(sid, []):
+            key = f"pt:{sid}:{url}"
+            if not prog.get(key):
+                caps = {}
+                params = {"url": url.split("://", 1)[1] + ("*" if match == "prefix" else ""), "output": "json",
+                          "filter": "status:200"}
+                for attempt in range(3):
+                    try:
+                        r = requests.get(ARQUIVO_CDX, params=params, headers=UA, timeout=90)
+                        break
+                    except requests.RequestException:
+                        time.sleep(60 * (attempt + 1))
+                else:
+                    print(f"{sid} arquivo index unreachable for {url}; retry next run", flush=True)
+                    continue
+                for line in r.text.splitlines():
+                    try:
+                        rec = json.loads(line)
+                    except ValueError:
+                        continue
+                    if kind == "cibc_js" and "FRCM" not in rec.get("url", "").upper():
+                        continue
+                    caps.setdefault(rec["timestamp"][:6], []).append([rec["timestamp"], rec["url"]])
+                prog[key] = caps
+                PROGRESS.write_text(json.dumps(prog, indent=1))
+                time.sleep(ARQUIVO_PACE)
+            tried = prog.setdefault(f"pt-tried:{sid}:{PARSER_VERSION}", [])
+            for month, recs in sorted(prog[key].items()):
+                if month not in months() or isinstance(done.get(month), dict):
+                    continue
+                for ts, orig in sorted(recs, reverse=True)[:3]:
+                    if ts in tried:
+                        continue
+                    try:
+                        resp = requests.get(f"https://arquivo.pt/wayback/{ts}id_/{orig}", headers=UA, timeout=90)
+                    except requests.RequestException as e:
+                        print(f"{sid} {ts[:8]} arquivo error {type(e).__name__}; will retry", flush=True)
+                        time.sleep(ARQUIVO_PACE)
+                        continue
+                    time.sleep(ARQUIVO_PACE)
+                    if resp.status_code == 429 or resp.status_code >= 500:
+                        print(f"{sid} arquivo busy ({resp.status_code}); waiting 5 min", flush=True)
+                        time.sleep(300)
+                        continue
+                    rows = parse(kind, body_text(resp)) if resp.ok else []
+                    day = datetime.strptime(ts[:8], "%Y%m%d").date()
+                    ok, rate5, boc = validate_month(rows, day)
+                    if resp.ok and rows and boc is None:
+                        continue
+                    tried.append(ts)
+                    print(f"{sid} {ts[:8]} pt/{kind:10} rows={len(rows):3} 5y={rate5} boc={boc} {'OK' if ok else 'reject'}", flush=True)
+                    if ok:
+                        history.save(sid, day.isoformat(), rows, "arquivo")
+                        done[month] = {"how": f"arquivo/{kind}", "ts": ts, "url": orig, "rate5": rate5, "boc": boc}
+                        break
+                PROGRESS.write_text(json.dumps(prog, indent=1))
+                report(prog)
+
+
 def _run():
     try:
         history.official(start=f"{date.today().year - YEARS}-01-01")
@@ -272,6 +433,8 @@ def _run():
     prog = json.loads(PROGRESS.read_text()) if PROGRESS.exists() else {}
     if "--no-cc" not in sys.argv:
         cc_pass(prog)
+    if "--no-pt" not in sys.argv:
+        arquivo_pass(prog)
     arc = Archive()
     for sid, sources in SOURCES.items():
         done = prog.setdefault(sid, {})                          # month -> {"how","ts","url","rate5","boc"} or "tried"
@@ -294,7 +457,7 @@ def _run():
                         continue
                     if r is None or r.status_code >= 500:
                         continue                                   # transient: leave untried so a restart retries it
-                    rows = parse(kind, r.text) if r.ok else []
+                    rows = parse(kind, body_text(r)) if r.ok else []
                     day = datetime.strptime(ts[:8], "%Y%m%d").date()
                     ok, rate5, boc = validate_month(rows, day)
                     if r.ok and rows and boc is None:
@@ -307,7 +470,81 @@ def _run():
                         break
                 PROGRESS.write_text(json.dumps(prog, indent=1))
                 report(prog)
+    fill_gaps(prog)
     report(prog)
+
+
+FILLS = DATA / "history_fills.json"
+BRIDGE_MAX_MONTHS = 6
+
+
+def _boc_weekly(term=60):
+    with history.db() as c:
+        return sorted(c.execute("SELECT day, rate FROM rates WHERE source='BIG6_TYPICAL' AND term=? AND rtype='posted'", (term,)))
+
+
+def own_months(sid, prog):
+    """Months with a bank-own reading: the progress log plus any validated bank-own 5-year posted rate in the
+    database (e.g. a month collected by another worker). Never counts gap fills."""
+    ms = months()
+    own = {m: v for m, v in prog.get(sid, {}).items() if isinstance(v, dict) and m in ms}
+    with history.db() as c:
+        rows = c.execute("SELECT day, rate, how FROM rates WHERE source=? AND term=60 AND kind='fixed_closed' "
+                         "AND rtype='posted' AND how NOT IN ('bridged','boc_typical') ORDER BY day", (sid,)).fetchall()
+    for day, rate, how in rows:
+        m = day[:7].replace("-", "")
+        if m in ms and m not in own:
+            ok, rate5, boc = validate_month([(60, "fixed_closed", "posted", rate)], date.fromisoformat(day))
+            if ok:
+                own[m] = {"how": f"db/{how}", "ts": day.replace("-", ""), "rate5": rate5, "boc": boc}
+    return own
+
+
+def fill_gaps(prog=None):
+    """Cover every gap month with a labelled, auditable fill. Order of preference:
+    1. bridged - the bank's own 5-year posted rate is identical at the nearest readings on both sides (at most
+       BRIDGE_MAX_MONTHS apart) and the Bank of Canada big-six figure did not move at all between those two days:
+       the earlier full bank-own table is carried across the gap.
+    2. boc_typical - the Bank of Canada big-six typical posted 1, 3 and 5-year rates for the last week of the month.
+    Bank-own months are never touched. Every fill is listed in history_fills.json with its evidence."""
+    prog = prog if prog is not None else (json.loads(PROGRESS.read_text()) if PROGRESS.exists() else {})
+    ms = months()
+    with history.db() as c:                      # rebuild from scratch: a month that gained a bank-own reading loses its fill
+        c.execute("DELETE FROM rates WHERE how IN ('bridged','boc_typical') AND source IN (%s)" % ",".join("?" * len(SOURCES)),  # nosec B608
+                  tuple(SOURCES))
+    boc5 = _boc_weekly(60)
+    boc = {t: dict(_boc_weekly(t)) for t in (12, 36, 60)}
+    fills = {}
+    for sid in SOURCES:
+        own = own_months(sid, prog)
+        out = fills.setdefault(sid, {})
+        for i, m in enumerate(ms):
+            if m in own:
+                continue
+            before = next((ms[j] for j in range(i - 1, -1, -1) if ms[j] in own), None)
+            after = next((ms[j] for j in range(i + 1, len(ms)) if ms[j] in own), None)
+            if before and after and ms.index(after) - ms.index(before) <= BRIDGE_MAX_MONTHS                     and abs(own[before]["rate5"] - own[after]["rate5"]) < 0.005:
+                d0 = datetime.strptime(own[before]["ts"][:8], "%Y%m%d").date().isoformat()
+                d1 = datetime.strptime(own[after]["ts"][:8], "%Y%m%d").date().isoformat()
+                span = [r for d, r in boc5 if d0 <= d <= d1]
+                if span and max(span) - min(span) < 0.005:
+                    table, _ = history.table_on(sid, d0, max_age_days=0, own_only=True)
+                    if table:
+                        day = f"{m[:4]}-{m[4:]}-15"
+                        history.save(sid, day, [(t, "fixed_closed", "posted", r) for t, r in table.items()], "bridged")
+                        out[m] = {"how": "bridged", "day": day, "from": [before, after], "rate5": own[before]["rate5"],
+                                  "boc_range": [min(span), max(span)]}
+                        continue
+            last = [d for d, _ in boc5 if d[:7].replace("-", "") == m]
+            if not last:
+                out[m] = {"how": "gap", "why": "no Bank of Canada observation for this month"}
+                continue
+            day = max(last)
+            rows = [(t, "fixed_closed", "posted", boc[t][day]) for t in (12, 36, 60) if day in boc[t]]
+            history.save(sid, day, rows, "boc_typical")
+            out[m] = {"how": "boc_typical", "day": day, "terms": [r[0] for r in rows], "rate5": boc[60].get(day)}
+    FILLS.write_text(json.dumps(fills, indent=1))
+    return fills
 
 
 def report(prog=None):
@@ -315,11 +552,19 @@ def report(prog=None):
     ms = months()
     out = {"window": f"{ms[0]}-{ms[-1]}", "months": len(ms), "banks": {}}
     for sid in SOURCES:
-        got = {m: v for m, v in prog.get(sid, {}).items() if isinstance(v, dict)}
-        got = {m: v for m, v in got.items() if m in ms}
+        got = own_months(sid, prog)
         out["banks"][sid] = {"covered": len(got), "share": round(len(got) / len(ms), 3),
                              "gaps": [m for m in ms if m not in got],
                              "by_source": {k: sum(1 for v in got.values() if v["how"] == k) for k in {v["how"] for v in got.values()}}}
+    fills = json.loads(FILLS.read_text()) if FILLS.exists() else {}
+    for sid, b in out["banks"].items():
+        f = {m: v["how"] for m, v in fills.get(sid, {}).items() if m in b["gaps"]}
+        b["bridged"] = sum(1 for h in f.values() if h == "bridged")
+        b["boc_typical"] = sum(1 for h in f.values() if h == "boc_typical")
+        b["covered_with_fills"] = b["covered"] + b["bridged"] + b["boc_typical"]
+    out["all_months_covered"] = all(b["covered_with_fills"] == len(ms) for b in out["banks"].values())
+    out["coverage_grade"] = "A" if out["all_months_covered"] else "incomplete"   # every month has a labelled source
+    # "grade" stays the strict bank-own grade (weakest bank's share of months from its own data)
     shares = [b["share"] for b in out["banks"].values()]
     out["min_share"] = min(shares) if shares else 0
     out["grade"] = "A" if out["min_share"] >= 0.95 else "B" if out["min_share"] >= 0.85 else "C" if out["min_share"] >= 0.7 else "D"
@@ -345,10 +590,17 @@ def supervise(max_hours=10.0):
 
 
 if __name__ == "__main__":
-    if "--report" in sys.argv:
+    only = next((a.split("=", 1)[1].split(",") for a in sys.argv if a.startswith("--banks=")), None)
+    if only:                                     # focused run, e.g. --banks=P027,P029 (other banks untouched)
+        for sid in [k for k in SOURCES if k not in only]:
+            SOURCES.pop(sid)
+    if "--fill" in sys.argv:                     # no network; safe while the backfill runs
+        fill_gaps()
+    if "--report" in sys.argv or "--fill" in sys.argv:
         r = report()
         print(json.dumps({k: v for k, v in r.items() if k != "banks"}, indent=1))
         for sid, b in r["banks"].items():
-            print(sid, b["covered"], "/", r["months"], b["by_source"])
+            print(sid, f"own {b['covered']:2d} + bridged {b['bridged']:2d} + BoC {b['boc_typical']:2d} = "
+                       f"{b['covered_with_fills']} / {r['months']}", b["by_source"])
     else:
         supervise()

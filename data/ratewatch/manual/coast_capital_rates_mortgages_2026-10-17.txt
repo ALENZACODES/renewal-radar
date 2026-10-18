@@ -1,0 +1,18 @@
+Read in a browser on 2026-10-17 from https://www.coastcapitalsavings.com/rates/mortgages (Coast Capital's own page).
+
+Posted rates - Fixed Rate Mortgages ("Posted fixed mortgage rates are used in Mortgage term break calculations")
+Rate effective 30-Jun-26, up to 25 year amortization:
+1-Year Fixed Rate - Closed 5.50%
+2-Year Fixed Rate - Closed 5.00%
+3-Year Fixed Rate - Closed 6.05%
+4-Year Fixed Rate - Closed 6.00%
+5-Year Fixed Rate - Closed 6.10%
+6-Year Fixed Rate - Closed 6.29%
+7-Year Fixed Rate - Closed 6.40%
+8-Year Fixed Rate - Closed 6.50%
+9-Year Fixed Rate - Closed 6.70%
+10-Year Fixed Rate - Closed 6.80%
+
+Fixed Rate Mortgages (offered), rate effective 13-Oct-26, up to 25 year amortization:
+1-Year 4.89%  2-Year 4.49%  3-Year 4.54%  4-Year 4.69%  5-Year 4.84%  6-Year 4.89%  7-Year 4.99%  8-Year 4.89%  9-Year 5.09%  10-Year 5.24%
+5-Year Fixed High Ratio 4.49%

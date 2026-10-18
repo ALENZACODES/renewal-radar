@@ -5,6 +5,8 @@ import {fileURLToPath} from 'node:url';
 import {runInNewContext} from 'node:vm';
 
 const workerSource = readFileSync(new URL('../frontend/service-worker.js', import.meta.url), 'utf8');
+const activeCache = workerSource.match(/const shellCacheName = '([^']+)'/)[1];
+const oldCaches = ['renewal-radar-shell-v16', 'renewal-radar-shell-v17', 'renewal-radar-shell-v18', 'renewal-radar-shell-v19'];
 
 function environment({network = async () => new Response('fresh'), stored = null} = {}) {
   const handlers = new Map();
@@ -19,7 +21,7 @@ function environment({network = async () => new Response('fresh'), stored = null
     fetch: async request => {calls.network++; return network(request);},
     caches: {
       open: async () => cache,
-      keys: async () => ['other-app-cache', 'renewal-radar-shell-v16', 'renewal-radar-shell-v17', 'renewal-radar-shell-v18'],
+      keys: async () => [...new Set(['other-app-cache', ...oldCaches, activeCache])],
       delete: async name => {calls.deleted.push(name);},
     },
     self: {
@@ -74,7 +76,7 @@ test('the offline shell covers local JavaScript imports transitively', async () 
 test('activation preserves unrelated caches and removes only old Renewal Radar shells', async () => {
   const env = environment();
   await env.lifecycle('activate');
-  assert.deepEqual(env.calls.deleted, ['renewal-radar-shell-v16', 'renewal-radar-shell-v17']);
+  assert.deepEqual(env.calls.deleted, oldCaches.filter(name => name !== activeCache));
   assert.equal(env.calls.claim, 1);
 });
 

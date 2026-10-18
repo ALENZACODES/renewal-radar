@@ -5,6 +5,7 @@ import {trajectoryView, costView, publicRateView} from './chart-view.js';
 import {penaltyStudioView} from './penalty-studio.js';
 import {lenderExactView} from './lender-exact.js';
 import {liveRatesView} from './live-rates.js';
+import {brokerBookView} from './broker-book.js';
 import {esc,money,percent,dt,field,options,yesNoUnknown,flag,pageHead,button,svgChart,stat} from './ui.js';
 const osfi='https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/osfi-exempts-uninsured-mortgage-straight-switches-prescribed-mqr-implements-portfolio-lti-limits';
 const fcac='https://www.canada.ca/en/financial-consumer-agency/services/mortgages/renew-mortgage.html';
@@ -123,5 +124,6 @@ function sharedView(){const s=state.sharedView;
  return `${pageHead('READ-ONLY SHARED REPORT',s.title||'Shared mortgage renewal plan','Shared for a limited period. No documents or account information are accessible.',button('Open my own workspace','restart-demo','dark'))}<section class="card padded"><h3>Shared mortgage assumptions</h3><div class="grid four mt">${stat('Principal',money(s.mortgage.balance))}${stat('Renewal offer',percent(s.mortgage.offered_rate))}${stat('Amortization',s.mortgage.amortization_months+' months')}${stat('Maturity',dt(s.mortgage.maturity_date))}</div><div class="mt notice">This share shows case assumptions and alternative comparison inputs. It is not a bank offer or mortgage approval. Opening this link does not grant editing privileges.</div></section>`;
 }
 function liveView(){return liveRatesView(state);}
-const VIEW={overview,live:liveView,document:documentView,scenarios:scenariosView,switch:switchView,market:marketView,penalty:penaltyView,negotiate:negotiateView,plan:planView,report:reportView,shared:sharedView};
+function bookView(){return brokerBookView(state);}
+const VIEW={overview,live:liveView,book:bookView,document:documentView,scenarios:scenariosView,switch:switchView,market:marketView,penalty:penaltyView,negotiate:negotiateView,plan:planView,report:reportView,shared:sharedView};
 export function getView(){if(!state.loaded)return '<div class="empty"><div class="loading">Preparing your renewal workspace…</div></div>';return (VIEW[state.page]||overview)()}
