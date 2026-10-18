@@ -62,7 +62,10 @@ POLICIES = {p.lender: p for p in [
            source="National Bank's published prepayment-charges calculator script; reproduced to the cent by "
                   "backtest.nbc_oracle. NBC compares with its posted rate for the remaining term (no discount add-back) "
                   "and adds one month's interest capped at $500"),
-    Policy("Tangerine", **BIG6), Policy("Simplii", **BIG6), Policy("Desjardins", **BIG6),
+    Policy("Tangerine", comparison="offered", months_convention="tangerine", verified=True,
+           source="Tangerine's published calculator code; reproduced to the cent by backtest.tangerine_oracle"), Policy("Simplii", comparison="posted_minus_discount", months_convention="simplii", min_term=6, verified=True,
+           source="Simplii's published calculator code; reproduced to the cent by backtest.simplii_oracle"), Policy("Desjardins", comparison="posted_minus_discount", months_convention="desjardins",
+           verified=True, source="Desjardins' published calculator code; reproduced to the cent by backtest.desjardins_oracle"),
     Policy("Laurentian", **BIG6), Policy("Manulife Bank", **BIG6), Policy("ATB", **BIG6),
     Policy("First National", **MONO), Policy("MCAP", **MONO), Policy("RMG", **MONO), Policy("CMLS", **MONO),
     Policy("Merix", **MONO), Policy("Lendwise", **MONO), Policy("Marathon", **MONO), Policy("Strive", **MONO),
@@ -342,6 +345,125 @@ def _rbc(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
     }
 
 
+def _tangerine(m: Mortgage, policy: Policy, current: dict, payout: date, end: date, frequency: int = 12):
+    """Tangerine's own calculator (mortgagePrePayment-calculator clientlib): whole years + months remaining;
+    3 months = balance/4 x ((1+r/200)^(2/f) - 1) x f; IRD = (years + months/12) x (contract - Tangerine's current rate
+    for the bucket) x balance (buckets 0-17, 18-29, 30-41, 42-53, 54-71, 72-101, 102+ months -> 1,2,3,4,5,7,10 yr).
+    10-year terms with <= 60 months left and 7-year terms with <= 24 left pay three months' interest; for 7- and
+    10-year buckets the IRD applies only from 2 and 5 whole years remaining."""
+    k = max(int(months_between(payout, end) + 1e-9), 0)
+    years, mon = divmod(k, 12)
+    bal, cur = m.balance, m.contract_rate
+    three = bal / 4 * ((1 + cur / 100 / 2) ** (2 / frequency) - 1) * frequency
+    orig = m.term_months // 12
+    bucket = next(t for lim, t in ((17, 1), (29, 2), (41, 3), (53, 4), (71, 5), (101, 7)) if k <= lim) if k <= 101 else 10
+    term = bucket * 12
+    if term not in current:
+        raise ValueError(f"Tangerine rule needs its {bucket}-year rate, which is missing from the rate table")
+    rate = current[term]
+    ird = (years + mon / 12) * (cur - rate) / 100 * bal
+    if (orig == 10 and k <= 60) or (orig == 7 and k <= 24) or (bucket == 7 and years < 2) or (bucket == 10 and years < 5):
+        pen, method = three, "3-month"
+    else:
+        pen, method = (ird, "IRD") if ird > three else (three, "3-month")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": float(k),
+        "compare_term": term, "compare_posted": round(rate, 4), "discount": 0.0,
+        "compare_rate": round(rate, 4), "rate_diff": round(max(cur - rate, 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(max(ird, 0.0)), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified,
+        "notes": ["Tangerine compares with its current rate for the remaining term (no posted-minus-discount)"],
+    }
+
+
+def _simplii(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """Simplii Financial's own calculator (calculator.js + pcf_rules.js), monthly payments, full payout, as a fresh
+    page load computes it:
+    - months = ceil(days) x 12 / 365; IRD = interest payable at (contract + discount) minus at posted, payment by payment
+      over ceil(days / (365/12)) payments, rounded to the cent each step (as CIBC)
+    - posted term: under 18 months is moved up to 18 (2-year rate) unless the charge is interest to maturity;
+      bands <9, <18, <30, <42, <54, <73, <103 months; +0.15% on terms under 18 months
+    - 3 months = ((1 + (contract+discount)/200)^(1/2) - 1) x balance; interest to maturity at the contract rate"""
+    days = max((end - payout).days, 0)
+    months = days * 12 / 365
+    disc, bal, cur = m.resolved_discount(), m.balance, m.contract_rate
+    rate = cur + disc
+    three = ((1 + rate / 200) ** (2 / 4) - 1) * bal
+    year_days = 366 if (payout.year % 4 == 0 and payout.year % 100 != 0) or payout.year % 400 == 0 else 365
+    to_maturity = days * (cur / (100 * year_days)) * bal
+    forced = not (months < 3 and to_maturity < three)      # first pass of the page's own rule (previous IRD = 0)
+    term_m = 18 if forced and months < 18 else months
+    term = next((t for lim, t in ((9, 6), (18, 12), (30, 24), (42, 36), (54, 48), (73, 60), (103, 84)) if term_m < lim), 120)
+    if term not in current:
+        raise ValueError(f"Simplii rule needs the {term}-month posted rate, which is missing from the rate table")
+    posted = current[term] + (0.15 if term_m < 18 else 0.0)
+    pay = m.payment if m.payment is not None else monthly_payment(bal, cur, m.amort_months)
+    n = math.ceil(days / (365 / 12))
+    factor = lambda r: (1 + r / (2 * 100)) ** (2 / 12) - 1      # noqa: E731
+
+    def payable(r):
+        b, f, interest = bal, factor(r), 0.0
+        for _ in range(n):
+            ip = b * f
+            interest = _js_round(100 * (interest + ip)) / 100
+            b = b + ip - pay
+            if b < 0:
+                break
+        return interest
+
+    ird = max(payable(rate) - payable(posted), 0.0)
+    if months < 3:
+        method = "maturity" if to_maturity < max(ird, three) else ("IRD" if ird > three else "3-month")
+    else:
+        method = "3-month" if three > ird else "IRD"
+    pen = {"maturity": to_maturity, "IRD": ird, "3-month": three}[method]
+    notes = []
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": round(months, 2),
+        "compare_term": term, "compare_posted": round(posted, 4), "discount": round(disc, 4),
+        "compare_rate": round(posted - disc, 4), "rate_diff": round(max(cur - (posted - disc), 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(ird), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
+def _desjardins_term(months: int) -> int:
+    for limit, term in ((18, 12), (30, 24), (42, 36), (54, 48), (66, 60), (78, 72), (102, 84)):
+        if months < limit:
+            return term
+    return 120
+
+
+def _desjardins(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """Desjardins' own calculator (calculateur-indemnites-calculs.js): gap = contract - (posted for the nearest term -
+    discount), floored at 0; IRD = gap x balance / 365 x days remaining; 3 months = balance x rate / 12 x 3
+    (daily interest under 30 days). Whole months = days / (365/12), floored, picks the term."""
+    days = max((end - payout).days, 0)
+    months = int(days / (365 / 12))
+    term = _desjardins_term(months)
+    if term not in current:
+        raise ValueError(f"Desjardins rule needs the {term}-month posted rate, which is missing from the rate table")
+    disc, bal, cur, posted = m.resolved_discount(), m.balance, m.contract_rate, current[term]
+    gap = cur - (posted - disc)
+    ird = 0.0 if gap < 0 else ((gap / 100.0) * bal / 365) * days
+    three = ((bal * (cur / 100)) / 365) * days if days < 30 else ((bal * (cur / 100)) / 12) * 3
+    pen, method = (ird, "IRD") if ird > three else (three, "3-month")
+    notes = []
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": round(days / (365 / 12), 2),
+        "compare_term": term, "compare_posted": round(posted, 4), "discount": round(disc, 4),
+        "compare_rate": round(posted - disc, 4), "rate_diff": round(max(gap, 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(ird), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
 def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_offered: dict | None = None):
     """current: lender's posted table {term_months: rate} on payout date.
     current_offered: lender's discounted/offered table (for comparison='offered')."""
@@ -365,6 +487,12 @@ def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_of
         return _bmo(m, policy, current, payout, end)
     if policy.months_convention == "rbc":
         return _rbc(m, policy, current, payout, end)
+    if policy.months_convention == "desjardins":
+        return _desjardins(m, policy, current, payout, end)
+    if policy.months_convention == "tangerine":
+        return _tangerine(m, policy, current, payout, end)
+    if policy.months_convention == "simplii":
+        return _simplii(m, policy, current, payout, end)
     if policy.privilege_first and policy.privilege_pct:
         free = max(policy.privilege_pct / 100 * bal - m.privilege_used_this_year, 0)
         bal -= free
