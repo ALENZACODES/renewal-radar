@@ -159,3 +159,19 @@ When a lender's bot protection rejects automated clients but its public page ope
 Manual readings count as the lender's own data. The recorder never automates a browser to get past a lender's bot protection.
 
 Coast Capital's mortgage rates are on `/rates/mortgages`; `/rates` lists only GIC, prime and foreign-exchange rates. Its posted table, the one it uses for term-break penalties, is identified by the heading above it (`scrape.coast_rows`).
+
+
+## RBC (added 2026-10-18)
+
+RBC's calculator runs on RBC's server (`prepayment-charge-calculator.cgi`), so it cannot be executed locally the way the other five banks' code is.
+Instead, `tools/rbc_oracle.py` submits cases to it politely (one case every 15 seconds). The 34 answers recorded on 2026-10-18 are kept in `tests/fixtures/rbc_calculator_2026-10-18.json`, and `backtest.rbc_cases()` checks the engine against them offline.
+
+What RBC's calculator does, reconstructed from those answers:
+- **Remaining term:** actual days × 12 / 365, rounded **up** to a tenth of a month. RBC labels each tenth as 3 days, so "48 months 3 days" means 48.1 months. All 34 labels match.
+- **Comparison term:** the posted term nearest the remaining term, with ties going up (18 months uses the 2-year rate, 30 months the 3-year).
+- **Three months' interest:** balance × monthly rate (semi-annual compounding) × 3 × 30.42 / (365/12). The payment and the date of the last payment have no effect.
+- **IRD:** the present value of (contract − comparison) interest on the declining balance. Regular payments run at the contract rate, each month is discounted at the comparison monthly rate, and the leftover tenth-of-a-month is charged on the final balance.
+- **Charge:** the greater of the two. The Interest Act cap still applies for terms over 5 years.
+
+Result: all 34 cases are within $0.30 (worst $0.29 on $6,694, under 0.005%). 12 are exact to the cent, including every three-month and whole-month case.
+RBC itself calls its calculator an estimate; the payout statement is final.

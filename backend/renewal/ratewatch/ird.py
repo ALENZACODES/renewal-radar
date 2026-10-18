@@ -44,7 +44,9 @@ SCOTIA_BANDS = ((0, 8.999, 6), (9, 17.999, 12), (18, 29.999, 24), (30, 41.999, 3
                 (54, 71.999, 60), (72, 101.999, 84), (102, 120, 120))
 MONO = dict(comparison="offered", term_match="nearest")
 POLICIES = {p.lender: p for p in [
-    Policy("RBC", **BIG6, source="posted-discount; 3mo window ~7 months per CMT 2026-04"),
+    Policy("RBC", comparison="posted_minus_discount", months_convention="rbc", min_term=6, verified=True,
+           source="RBC's method reproduced from RBC's own online calculator (tools/rbc_oracle.py, backtest.rbc_cases): "
+                  "34 recorded cases, all within $0.30, exact to the cent for 3-month and whole-month cases"),
     Policy("TD", comparison="posted_minus_discount", term_match="bands", bands=TD_BANDS, min_term=6,
            months_convention="td", verified=True,
            source="TD's published calculator code; reproduced to the cent by backtest.py against td-prepayment.min.js"),
@@ -288,6 +290,58 @@ def _nbc(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
     }
 
 
+RBC_POSTED_TERMS = (6, 12, 24, 36, 48, 60, 84, 120)
+
+
+def rbc_remaining(payout: date, end: date):
+    """RBC's remaining term: actual days x 12 / 365, rounded UP to a tenth of a month.
+    Returns (whole months, tenths). RBC labels each tenth as 3 days ('48 months 3 days' = 48.1 months)."""
+    days = max((end - payout).days, 0)
+    tenths = -(-days * 120 // 365)                    # ceil(days * 12 / 365 * 10) in integer arithmetic
+    return tenths // 10, tenths % 10
+
+
+def _rbc(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """RBC's method, fitted to RBC's own Mortgage Prepayment Charge Calculator (tools/rbc_oracle.py):
+    - 3 months' interest = balance x monthly rate (semi-annual compounding) x 3 x 30.42 / (365/12)
+    - IRD = present value of (contract - comparison) monthly interest on the declining balance (regular payments at
+      the contract rate), discounted monthly at the comparison rate, plus days/30 of a month for leftover days
+    - comparison rate = RBC's posted rate for the nearest term (ties go up) minus the original discount."""
+    months, tenths = rbc_remaining(payout, end)
+    rem = months + tenths / 10
+    days = tenths * 3                                  # RBC's stub: each tenth of a month counts as 3 of 30 days
+    term = min(RBC_POSTED_TERMS, key=lambda t: (abs(t - rem), -t))
+    if term not in current:
+        raise ValueError(f"RBC rule needs the {term}-month posted rate, which is missing from the rate table")
+    disc = m.resolved_discount()
+    posted, bal0 = current[term], m.balance
+    ic = (1 + m.contract_rate / 200) ** (1 / 6) - 1
+    ik = (1 + (posted - disc) / 200) ** (1 / 6) - 1
+    pay = m.payment if m.payment is not None else monthly_payment(bal0, m.contract_rate, m.amort_months)
+    three = bal0 * ic * 3 * 30.42 / (365 / 12)
+    bal, ird = bal0, 0.0
+    for k in range(1, months + 1):
+        ird += bal * (ic - ik) / (1 + ik) ** k
+        bal = bal * (1 + ic) - pay
+        if bal <= 0:
+            break
+    if days and bal > 0:
+        ird += bal * (ic - ik) * (days / 30) / (1 + ik) ** (months + 1)
+    ird = max(ird, 0.0)
+    pen, method = (ird, "IRD") if ird > three else (three, "3-month")
+    notes = []
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": round(rem, 2),
+        "compare_term": term, "compare_posted": round(posted, 4), "discount": round(disc, 4),
+        "compare_rate": round(posted - disc, 4), "rate_diff": round(max(m.contract_rate - (posted - disc), 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(ird), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
 def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_offered: dict | None = None):
     """current: lender's posted table {term_months: rate} on payout date.
     current_offered: lender's discounted/offered table (for comparison='offered')."""
@@ -309,6 +363,8 @@ def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_of
         return _nbc(m, policy, current, payout, end)
     if policy.months_convention == "bmo":
         return _bmo(m, policy, current, payout, end)
+    if policy.months_convention == "rbc":
+        return _rbc(m, policy, current, payout, end)
     if policy.privilege_first and policy.privilege_pct:
         free = max(policy.privilege_pct / 100 * bal - m.privilege_used_this_year, 0)
         bal -= free

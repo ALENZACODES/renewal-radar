@@ -164,3 +164,19 @@ def test_coast_capital_tables_are_labelled_by_their_headings():
     assert not any(r[3] in (6.39, 4.49, 4.45, 4.86, 6.12) for r in rows)     # open, high-ratio, variable, APR excluded
     row = next(r for r in live.LENDERS if r[0] == "CU03")
     assert row[3] == ("coast", "https://www.coastcapitalsavings.com/rates/mortgages")
+
+
+def test_rbc_engine_matches_rbcs_own_calculator():
+    from renewal.ratewatch import backtest
+    r = backtest.rbc_cases()
+    assert r["cases"] == 34 and r["within_30_cents"] == 34 and r["exact_to_the_cent"] >= 12, r["examples_of_misses"]
+
+
+def test_rbc_remaining_term_rounds_up_to_a_tenth_of_a_month():
+    from datetime import date
+    from renewal.ratewatch.ird import rbc_remaining
+    t = date(2026, 10, 18)
+    assert rbc_remaining(t, date(2030, 10, 18)) == (48, 1)      # RBC: "48 months 3 days"
+    assert rbc_remaining(t, date(2027, 5, 18)) == (7, 0)        # "7 months 0 days"
+    assert rbc_remaining(t, date(2027, 5, 1)) == (6, 5)         # "6 months 15 days"
+    assert rbc_remaining(t, date(2030, 10, 10)) == (47, 8)      # "47 months 24 days"

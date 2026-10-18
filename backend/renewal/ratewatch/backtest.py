@@ -186,6 +186,29 @@ def nbc_oracle(n=2000, seed=2030):
             "examples_of_misses": misses}
 
 
+def rbc_cases(path=None):
+    """Our RBC engine vs answers recorded from RBC's own online Mortgage Prepayment Charge Calculator
+    (tools/rbc_oracle.py, server-side, so its answers are saved as a fixture rather than re-run)."""
+    from datetime import datetime
+    path = path or PROJECT_ROOT / "tests" / "fixtures" / "rbc_calculator_2026-10-18.json"
+    cases = json.loads(Path(path).read_text())
+    exact = within_30c = 0
+    worst, misses = 0.0, []
+    for c in cases:
+        today = date.fromisoformat(c["today"])
+        mat = datetime.strptime(c["maturity"], "%d/%m/%Y").date()
+        m = Mortgage(c["balance"], c["rate"], 60, mat, discount=c["discount"], maturity=mat, payment=c["payment"])
+        ours = penalty(m, POLICIES["RBC"], {int(k): v for k, v in c["posted"].items()}, today)["penalty"]
+        err = round(ours - c["rbc_charge"], 2)
+        exact += abs(err) < 0.005
+        within_30c += abs(err) <= 0.30
+        worst = max(worst, abs(err))
+        if abs(err) >= 0.005 and len(misses) < 10:
+            misses.append({"maturity": c["maturity"], "rbc": c["rbc_charge"], "ours": ours, "error": err})
+    return {"cases": len(cases), "exact_to_the_cent": exact, "within_30_cents": within_30c, "worst_error": worst,
+            "examples_of_misses": misses}
+
+
 def td_history_vs_boc():
     """TD's own daily posted 5-year (1999-2018) vs BoC weekly big-6 typical."""
     f = DATA / "td_oracle" / "previous_rates.txt"
