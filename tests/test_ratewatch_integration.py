@@ -344,7 +344,7 @@ def test_laurentian_review_uses_reference_rates_and_needs_the_signing_rate(tmp_p
                  zip(comparison.LAURENTIAN_KEYS, (7.84, 5.64, 5.94, 6.09, 6.19, 6.29, 6.69, 6.69, 7.14, 7.14, 7.14))], "html")
     deal = dict(deal_id="x", lender="Laurentian Bank", rate_type="fixed", balance=400000, contract_rate=5.49, term_months=60,
                 closing_date=date(2023, 11, 1), maturity_date=date(2028, 11, 1), amort_months=300)
-    r = review_deal(Deal(**deal, discount=1.0), today)
+    r = review_deal(Deal(**deal, discount=1.0), today, target_rate=4.5)   # broker target: no rate board needed
     assert r["penalty"]["penalty"] == 6490.0 and r["penalty"]["method"] == "3-month"   # 400k x 6.49% / 4
-    r = review_deal(Deal(**deal, discount=None), today)
+    r = review_deal(Deal(**deal, discount=None), today, target_rate=4.5)
     assert r["status"] == "needs_data" and "posted rate at signing" in r["recommendation"]
