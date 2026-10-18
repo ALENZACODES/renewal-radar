@@ -4,7 +4,7 @@ Each lender's own calculator code names its comparison:
 - Equitable Bank: Government of Canada 1-year T-bill (daily) and 2/3/5-year benchmark bond yields (Bank of Canada)
 - Bridgewater Bank: Government of Canada 1-5 year bond yields, from the feed its calculator loads (ama.ab.ca)
 - Haventree Bank: its published reinvestment rates by remaining-term band (its calculator page)
-- Laurentian Bank: its reference rates (loaded from its CMS at runtime; not published in a readable form)
+- Laurentian Bank: its reference rates, published in the page data of its calculator results page
 
 table_for(policy, as_of) returns (table, label) for these lenders, or None for every other lender. A table is never
 borrowed from another kind of rate: when the right comparison is not available the deal is marked "needs data".
@@ -22,6 +22,9 @@ from .linkcheck import UA
 
 BRIDGEWATER_BONDS_URL = "https://ama.ab.ca/api/bondrate/current"
 HAVENTREE_CALCULATOR_URL = "https://www.haventreebank.com/en-CA/mortgages/pre-payment-calculator"
+LAURENTIAN_CALCULATOR_URL = "https://www.laurentianbank.ca/en/personal/mortgages/prepayment-penalty-calculate"
+LAURENTIAN_KEYS = {6: "sixMonths", 12: "oneYear", 24: "twoYears", 36: "threeYears", 48: "fourYears", 60: "fiveYears",
+                   72: "sixYears", 84: "sevenYears", 96: "eightYears", 108: "nineYears", 120: "tenYears"}
 SPECIAL = ("equitable", "bridgewater", "haventree", "laurentian")
 
 
@@ -98,6 +101,34 @@ def haventree_reinvestment(as_of: date, fetch_live: bool = True):
     return table, f"Haventree's published reinvestment rates ({day})"
 
 
+def laurentian_reference_rows(html: str) -> list:
+    """Laurentian's calculator page data: "referenceRates":{"sixMonths":7.84,"oneYear":5.64,...,"tenYears":7.14}."""
+    m = re.search(r'"referenceRates":(\{[^{}]*\})', html.replace('\\"', '"'))
+    if not m:
+        return []
+    try:
+        ref = json.loads(m.group(1))
+    except ValueError:
+        return []
+    return [(t, "reference", "rate", float(ref[k])) for t, k in LAURENTIAN_KEYS.items()
+            if isinstance(ref.get(k), (int, float))]
+
+
+def laurentian_reference(as_of: date, fetch_live: bool = True):
+    table, day = history.table_on("LBC_REFERENCE", as_of, rtype="rate", kind="reference", max_age_days=31)
+    if len(table) < len(LAURENTIAN_KEYS) and fetch_live and as_of >= date.today():
+        try:
+            rows = laurentian_reference_rows(requests.get(LAURENTIAN_CALCULATOR_URL, headers=UA, timeout=30).text)
+            if len(rows) == len(LAURENTIAN_KEYS):
+                history.save("LBC_REFERENCE", as_of.isoformat(), rows, "html")
+                table, day = history.table_on("LBC_REFERENCE", as_of, rtype="rate", kind="reference", max_age_days=31)
+        except Exception:                                   # noqa: BLE001
+            pass
+    if len(table) < len(LAURENTIAN_KEYS):
+        return {}, "Laurentian's reference rates not available for this date"
+    return table, f"Laurentian's published reference rates ({day})"
+
+
 def table_for(policy, as_of: date, fetch_live: bool = True):
     conv = getattr(policy, "months_convention", "")
     if conv not in SPECIAL:
@@ -108,4 +139,32 @@ def table_for(policy, as_of: date, fetch_live: bool = True):
         return bridgewater_bonds(as_of, fetch_live)
     if conv == "haventree":
         return haventree_reinvestment(as_of, fetch_live)
-    return {}, "Laurentian's reference rates (its calculator loads them at runtime; not published in a readable form)"
+    return laurentian_reference(as_of, fetch_live)
+
+
+ARCHIVED = {  # source id -> (archived page, parser)
+    "HAVENTREE_REINVEST": (HAVENTREE_CALCULATOR_URL, haventree_reinvestment_rows),
+    "LBC_REFERENCE": (LAURENTIAN_CALCULATOR_URL, laurentian_reference_rows),
+}
+
+
+def backfill(source: str, from_year: int = 2021, pause: float = 1.5, sleep=None) -> int:
+    """One Internet Archive copy per month of a lender's own comparison page, saved as how="wayback"."""
+    import time
+    url, parse = ARCHIVED[source]
+    rows = requests.get("https://web.archive.org/cdx/search/cdx", headers=UA, timeout=90, params={
+        "url": url.split("://", 1)[1], "output": "json", "from": str(from_year), "filter": "statuscode:200",
+        "collapse": "timestamp:6"}).json()[1:]
+    saved = 0
+    for r in rows:
+        ts = r[1]
+        try:
+            page = requests.get(f"https://web.archive.org/web/{ts}id_/{url}", headers=UA, timeout=60).text
+        except requests.RequestException:
+            continue
+        got = parse(page)
+        if got:
+            history.save(source, f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}", got, "wayback")
+            saved += 1
+        (sleep or time.sleep)(pause)
+    return saved
