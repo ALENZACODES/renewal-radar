@@ -232,6 +232,8 @@ Four of these lenders measure the penalty against something other than their pos
 - **Equitable:** Bank of Canada 1-year T-bill (`TB.CDN.1Y.MID`) and 2/3/5-year benchmark bonds, stored by `history.official()` (5 years deep).
 - **Bridgewater:** the bond feed its own calculator loads (`ama.ab.ca/api/bondrate/current`), saved by the daily recorder as `BWB_BONDS`.
 - **Haventree:** the reinvestment table on its calculator page, saved daily as `HAVENTREE_REINVEST`.
-- **Laurentian:** its reference rates load from its CMS at runtime and are not published in a readable form. A Laurentian fixed-rate review stops at "needs data" with the three-month floor.
+- **Laurentian:** the reference rates in the page data of its calculator results page (`/en/personal/mortgages/prepayment-penalty-calculate`), saved daily as `LBC_REFERENCE`. Its rule also needs the posted rate at signing (contract + discount). Without a discount on file, the review asks for the commitment letter.
+
+`comparison.backfill()` loads the Internet Archive's monthly copies of the Haventree and Laurentian pages, labelled `wayback`. That gives Haventree 8 months and Laurentian 5 so far. Bridgewater's feed was archived only once (2021), so its history builds from the daily recorder. For a date with no comparison table, the review says "needs data"; it never substitutes another rate.
 
 B2B Bank is its own lender (ALT18), not a Laurentian alias.

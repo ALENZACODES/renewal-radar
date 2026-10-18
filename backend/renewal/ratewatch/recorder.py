@@ -62,11 +62,12 @@ def refresh_boc():
 
 def refresh_comparisons():
     """Comparison feeds named by lenders' own calculators (Bridgewater's bond feed, Haventree's reinvestment
-    table), saved daily so their history builds from here on. A failure leaves the stored figures in place."""
+    table, Laurentian's reference rates), saved daily so their history builds from here on. A failure leaves the stored figures in place."""
     from . import comparison
     got = {}
     for name, fn in (("Bridgewater bonds", comparison.bridgewater_bonds),
-                     ("Haventree reinvestment", comparison.haventree_reinvestment)):
+                     ("Haventree reinvestment", comparison.haventree_reinvestment),
+                     ("Laurentian reference", comparison.laurentian_reference)):
         try:
             got[name] = bool(fn(date.today())[0])
         except Exception as e:                       # noqa: BLE001

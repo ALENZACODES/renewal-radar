@@ -287,6 +287,8 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
             needs.append(f"{d.lender}'s current {'posted ' if policy.comparison != 'offered' else ''}rates")
         if policy.three_month_basis == "posted_at_origination" and not m.posted_at_origination:
             needs.append("the original posted rate used for the three-month charge")
+        if policy.months_convention == "laurentian" and m.discount is None:
+            needs.append("the posted rate at signing (commitment letter)")
         if policy.comparison == "posted_minus_discount" and m.discount is None and not m.posted_at_origination:
             needs.append("the original discount (welcome letter or commitment)")
         if needs:
