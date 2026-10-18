@@ -215,6 +215,23 @@ Three more lenders publish penalty calculators that run in the browser. Each one
 | Tangerine | `mortgagePrePayment-calculator` clientlib, run in a minimal fake page | `tools/tangerine_oracle.mjs` | compares with Tangerine's current rate for the remaining-term bucket; simple-interest IRD over years + months; 7- and 10-year terms pay three months near the end |
 | Simplii | `calculator.js` + `pcf_rules.js` (CIBC family) | `tools/simplii_oracle.mjs` | payment-by-payment IRD at (contract + discount) vs posted; terms under 18 months move to the 2-year rate; +0.15% on short terms; interest to maturity under 3 months |
 
-Five more lenders have browser calculators whose penalty code is bundled inside web-app frameworks: ATB (Vue), Laurentian, Equitable and Haventree (Next.js) and Bridgewater (Angular). Their rules are recorded from the code in the research notes, and they are the next oracles to build.
-- Equitable and Bridgewater compare against Government of Canada bond yields rather than posted rates.
-- Laurentian adds one month's interest capped at $500.
+Five more lenders bundle their penalty code inside web apps: ATB (Vue), Haventree, Laurentian and Equitable (Next.js / Turbopack), and Bridgewater (Angular). Each bundle is loaded into Node through a minimal module loader, or its calculation is cut out verbatim. 3,000 random cases per lender, all equal to the cent. To fetch the files, run `tools/fetch_web_app_oracles.py`; it finds the hashed chunk by the calculator's own code, and the files are never committed.
+
+| Lender | Code run | Harness | Rule (from its code) |
+|---|---|---|---|
+| ATB | `mpp-calculator.app.js` module 8844 + vendors bundle, fake Vue | `tools/atb_oracle.mjs` | 30/360 days remaining; nearest posted term (incl. 2.5 yr) by days, ties to the higher rate; IRD = balance x days x (contract - (posted - original discount)) / 360; no discount for terms started before 2020 |
+| Haventree | Turbopack chunk, fake React `useCallback` | `tools/haventree_oracle.mjs` | whole months; IRD = (rate - reinvestment rate for the band) x balance x months / 12; bands 1-17 / 18-29 / 30-41 / 42+ months |
+| Laurentian | Next.js submit handler cut verbatim | `tools/laurentian_oracle.mjs` | months = floor(days/30) - 1; IRD = balance x months x (posted at signing - reference rate) / 12 + one month's interest capped at $500; 3 months on the posted rate |
+| Equitable | Turbopack helper module 1759 + charge function cut verbatim | `tools/equitable_oracle.mjs` | compares with a Government of Canada yield: 1-year T-bill under 2 years, else the 2/3/5-year bond; simple IRD over calendar months |
+| Bridgewater | `bwb-module.js` IRD class cut verbatim | `tools/bridgewater_oracle.mjs` | months = days x 12/365; GoC 1-5 year bond + 0.75% premium (0.50% before Apr 2011); 20% annual allowance deducted first |
+
+### Comparison rates that are not posted mortgage rates
+
+Four of these lenders measure the penalty against something other than their posted rates. `ratewatch/comparison.py` supplies exactly that, and never borrows a posted table in its place:
+
+- **Equitable:** Bank of Canada 1-year T-bill (`TB.CDN.1Y.MID`) and 2/3/5-year benchmark bonds, stored by `history.official()` (5 years deep).
+- **Bridgewater:** the bond feed its own calculator loads (`ama.ab.ca/api/bondrate/current`), saved by the daily recorder as `BWB_BONDS`.
+- **Haventree:** the reinvestment table on its calculator page, saved daily as `HAVENTREE_REINVEST`.
+- **Laurentian:** its reference rates load from its CMS at runtime and are not published in a readable form. A Laurentian fixed-rate review stops at "needs data" with the three-month floor.
+
+B2B Bank is its own lender (ALT18), not a Laurentian alias.

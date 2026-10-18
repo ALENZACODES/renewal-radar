@@ -11,7 +11,7 @@ reproduces a real payout statement or the lender's own calculator to the dollar.
 """
 import math
 from dataclasses import dataclass, field, replace
-from datetime import date
+from datetime import date, timedelta
 from itertools import product
 
 TERMS = [6, 12, 24, 36, 48, 60, 84, 120]          # months the lender posts rates for
@@ -66,11 +66,16 @@ POLICIES = {p.lender: p for p in [
            source="Tangerine's published calculator code; reproduced to the cent by backtest.tangerine_oracle"), Policy("Simplii", comparison="posted_minus_discount", months_convention="simplii", min_term=6, verified=True,
            source="Simplii's published calculator code; reproduced to the cent by backtest.simplii_oracle"), Policy("Desjardins", comparison="posted_minus_discount", months_convention="desjardins",
            verified=True, source="Desjardins' published calculator code; reproduced to the cent by backtest.desjardins_oracle"),
-    Policy("Laurentian", **BIG6), Policy("Manulife Bank", **BIG6), Policy("ATB", **BIG6),
+    Policy("Laurentian", comparison="posted", months_convention="laurentian", verified=True,
+           source="Laurentian Bank's published calculator code; reproduced to the cent by backtest.laurentian_oracle"), Policy("Manulife Bank", **BIG6), Policy("ATB", comparison="posted_minus_discount", months_convention="atb", verified=True,
+           source="ATB's published calculator code (Vue app); reproduced to the cent by backtest.atb_oracle"),
     Policy("First National", **MONO), Policy("MCAP", **MONO), Policy("RMG", **MONO), Policy("CMLS", **MONO),
     Policy("Merix", **MONO), Policy("Lendwise", **MONO), Policy("Marathon", **MONO), Policy("Strive", **MONO),
-    Policy("Equitable Bank", **MONO), Policy("Home Trust", **MONO), Policy("Haventree", **MONO),
-    Policy("Bridgewater", **MONO),
+    Policy("Equitable Bank", comparison="bond_yields", months_convention="equitable", verified=True,
+           source="Equitable Bank's published calculator code; reproduced to the cent by backtest.equitable_oracle"), Policy("Home Trust", **MONO), Policy("Haventree", comparison="offered", months_convention="haventree", verified=True,
+           source="Haventree's published calculator code; reproduced to the cent by backtest.haventree_oracle"),
+    Policy("Bridgewater", comparison="bond_yields", months_convention="bridgewater", verified=True,
+           source="Bridgewater Bank's published calculator code; reproduced to the cent by backtest.bridgewater_oracle"),
     Policy("Credit union (generic)", comparison="offered", term_match="nearest"),
 ]}
 
@@ -88,6 +93,7 @@ class Mortgage:
     borrower_is_corporation: bool = False
     maturity: date | None = None   # use the exact maturity date when known (overrides start + term)
     payment: float | None = None   # regular monthly P&I payment (CIBC's IRD amortizes with it); None -> computed
+    original_amount: float | None = None   # original principal (Bridgewater deducts a 20% annual allowance from it)
 
     def resolved_discount(self):
         if self.discount is not None:
@@ -430,6 +436,213 @@ def _simplii(m: Mortgage, policy: Policy, current: dict, payout: date, end: date
     }
 
 
+def _atb_days360(a: date, b: date) -> int:
+    """ATB calculator's 30/360 count (its mt()): a month-end start counts as day 30; a month-end end date after a
+    start that is not day 30 rolls to the 1st of the next month."""
+    import calendar
+    a_eom = a.day == calendar.monthrange(a.year, a.month)[1]
+    d1 = 30 if a_eom else a.day
+    b_eom = b.day == calendar.monthrange(b.year, b.month)[1]
+    roll = b_eom and d1 != 30 and b.day > 30
+    e = b + timedelta(days=1) if roll else b
+    d2 = 1 if roll else min(e.day, 30)
+    return 360 * (e.year - a.year) + 30 * (e.month - a.month) + (d2 - d1)
+
+
+ATB_NO_DISCOUNT_BEFORE = date(2020, 1, 1)
+
+
+def _atb(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """ATB's own calculator (mpp-calculator Vue app, RemainingDetails.interestPenalty), conventional closed fixed:
+    remaining = 30/360 days; comparison term = ATB posted term (<= 5 years, incl. 2.5) closest in days (term x 360),
+    ties to the higher rate; IRD = balance x days x (contract - (posted_term - (original posted - contract))) / 360;
+    3 months = balance x contract / 4. Terms that started before 2020-01-01 get no discount."""
+    days = _atb_days360(payout, end)
+    if days <= 0:
+        raise ValueError("ATB rule needs a maturity after the payout date")
+    terms = sorted((t, r) for t, r in current.items() if t * 30 <= 1800)
+    if not terms:
+        raise ValueError("ATB rule needs ATB's posted rates up to 5 years")
+    best, gap = None, float("inf")
+    for t, r in terms:                                   # same scan as ATB's code: sorted by days
+        g = abs(t * 30 - days)
+        if g < gap or (g == gap and best is not None and r > best[1]):
+            best, gap = (t, r), g
+    term, posted = best
+    cur = m.contract_rate / 100
+    disc = 0.0 if m.start < ATB_NO_DISCOUNT_BEFORE else m.resolved_discount()
+    a = ((m.contract_rate + disc) / 100) - cur           # original posted - contract, as ATB computes it
+    u = posted / 100 - a
+    gap_rate = cur - u
+    ird = m.balance * days * gap_rate / 360
+    three = m.balance * cur / 4
+    pen, method = (ird, "IRD") if ird > three else (three, "3-month")
+    notes = [] if disc else ["ATB: no discount applied (term started before 2020-01-01)"]
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": round(days / 30, 2),
+        "compare_term": term, "compare_posted": round(posted, 4), "discount": round(disc, 4),
+        "compare_rate": round(posted - disc, 4), "rate_diff": round(max(gap_rate * 100, 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(max(ird, 0.0)), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
+def _laurentian_reference(months: float, ref: dict):
+    """Laurentian's reference-rate lookup: whole-year bands use that term; half-year bands in between average the two
+    neighbouring terms (e.g. 18-24 months = mean of 1 and 2 years). `ref` is keyed by months (6, 12, 24, ... 120)."""
+    if months < 12:
+        return ref[6]
+    years = [12, 24, 36, 48, 60, 72, 84, 96, 108, 120]
+    for lo, hi in zip(years, years[1:]):
+        if lo <= months < lo + 6:
+            return ref[lo]
+        if lo + 6 <= months < hi:
+            return (ref[lo] + ref[hi]) / 2
+    return None
+
+
+def _laurentian(m: Mortgage, policy: Policy, current: dict, payout: date, end: date, frequency: int = 0):
+    """Laurentian Bank's own calculator (fixed rate, its Next.js submit handler):
+    days remaining -> months = floor(days/30) - 1 (monthly payments); IRD = balance x months x
+    max(posted at signing - reference rate, 0) / 12 + one month's interest capped at $500; three months = balance x
+    posted / 4; with 3 or fewer 30-day periods left the charge is one month's interest x periods.
+    `current` holds Laurentian's reference rates keyed by months."""
+    days = max((end - payout).days, 0)
+    i = days // 30
+    u = max(i - 1, 0) if frequency == 0 else (days // 14) / 2.16 if frequency == 1 else (days // 7) / 4.33
+    bal, x = m.balance, m.contract_rate / 100
+    posted_signing = m.contract_rate + m.resolved_discount()
+    g = posted_signing / 100
+    ref = _laurentian_reference(u, current)
+    if ref is None:
+        raise ValueError("Laurentian rule needs its reference rates (6 months to 10 years)")
+    h = ref / 100
+    p = bal * x / 12
+    b = min(p, 500)
+    f = max(g - h, 0)
+    y = bal * u * f / 12
+    v = b + y
+    w = bal * g / 4
+    pen = p * i if i <= 3 else max(v, w)
+    method = "remaining interest" if i <= 3 else ("IRD" if v > w else "3-month")
+    notes = ["Laurentian compares the posted rate at signing with its current reference rate, adds one month's "
+             "interest (max $500), and bases three months' interest on the posted rate"]
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = w, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": float(u),
+        "compare_term": None, "compare_posted": round(ref, 4), "discount": round(m.resolved_discount(), 4),
+        "compare_rate": round(ref, 4), "rate_diff": round(f * 100, 4), "three_month": _js_round2(w),
+        "ird": _js_round2(v), "penalty": _js_round2(pen), "method": method, "ird_minus_3mo": round(v - w, 2),
+        "policy_verified": policy.verified, "notes": notes,
+    }
+
+
+def _equitable(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """Equitable Bank's own calculator (standard fixed, its SFR calculator chunk): months = calendar-month difference;
+    reference = Government of Canada yield: 1-year T-bill if whole months < 24 (or exactly two years to the day),
+    2-year bond < 36, 3-year bond < 60, else 5-year bond; IRD = months/12 x (rate - reference) x balance (0 if not
+    positive); 3 months = rate/12 x balance x 3. `current` holds the yields keyed 12 (T-bill), 24, 36, 60."""
+    cal = (end.year - payout.year) * 12 + (end.month - payout.month)
+    whole = cal - 1 if end.day < payout.day else cal
+    exact_two = end.year - payout.year == 2 and end.month == payout.month and end.day == payout.day
+    key = 12 if (whole < 24 or exact_two) else 24 if whole < 36 else 36 if whole < 60 else 60
+    if key not in current:
+        raise ValueError(f"Equitable rule needs the Government of Canada {key}-month yield")
+    ref, bal, r = current[key], m.balance, m.contract_rate
+    a = (r - ref) / 100
+    ird = 0.0 if a <= 0 else cal / 12 * a * bal
+    three = r / 100 / 12 * bal * 3
+    pen, method = (ird, "IRD") if ird >= three else (three, "3-month")
+    notes = ["Equitable compares with a Government of Canada T-bill or bond yield for the time remaining"]
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": float(cal), "compare_term": key,
+        "compare_posted": round(ref, 4), "discount": 0.0, "compare_rate": round(ref, 4),
+        "rate_diff": round(max(r - ref, 0.0), 4), "three_month": _js_round2(three), "ird": _js_round2(ird),
+        "penalty": _js_round2(pen), "method": method, "ird_minus_3mo": round(ird - three, 2),
+        "policy_verified": policy.verified, "notes": notes,
+    }
+
+
+BRIDGEWATER_PREMIUM_FROM = date(2011, 4, 1)
+
+
+def _bridgewater(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """Bridgewater Bank's own IRD calculator (component in its Angular bundle), full prepayment:
+    chargeable = prepayment - max(20% x original principal - lump sums this year, 0); months = round(days x 12/365, 3);
+    bond = Government of Canada 1-5 year yield chosen by months (>55, >42, >30, >18); premium 0.75% (term started
+    on or after 2011-04-01) else 0.50%; multiplier = +(round((rate - bond - premium)/12 x 1e4)/1e6).toPrecision(4);
+    IRD (1-5 year fixed terms only) = chargeable x multiplier x months; 3 months = chargeable x rate/1200 x 3.
+    `current` holds the bond yields keyed 12, 24, 36, 48, 60."""
+    days = max((end - payout).days, 0)
+    months = _js_round(days * 12 / 365 * 1000) / 1000
+    idx = 4 if months > 55 else 3 if months > 42 else 2 if months > 30 else 1 if months > 18 else 0
+    key = (idx + 1) * 12
+    if key not in current:
+        raise ValueError(f"Bridgewater rule needs the Government of Canada {key // 12}-year bond yield")
+    rate, bond = m.contract_rate, current[key]
+    premium = 0.75 if m.start >= BRIDGEWATER_PREMIUM_FROM else 0.5
+    n = rate - bond - premium
+    mult = float(f"{_js_round(n / 12 * 1e4) / 1e6:.4g}")
+    allowance = max(0.2 * m.original_amount - m.privilege_used_this_year, 0) if m.original_amount else 0.0
+    chargeable = m.balance - allowance
+    ird = chargeable * mult * months if 12 <= m.term_months <= 60 else 0.0
+    three = max(chargeable * rate / 1200 * 3, 0)
+    if ird <= 0 and three <= 0:
+        pen, method = 0.0, "none"
+    else:
+        pen, method = (ird, "IRD") if ird > three else (three, "3-month")
+    notes = ["Bridgewater compares with a Government of Canada bond yield plus a premium"]
+    if not m.original_amount:
+        notes.append("original principal unknown: the 20% annual allowance was not deducted")
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": months, "compare_term": key,
+        "compare_posted": round(bond, 4), "discount": 0.0, "compare_rate": round(bond + premium, 4),
+        "rate_diff": round(max(n, 0.0), 4), "three_month": _js_round2(three), "ird": _js_round2(max(ird, 0.0)),
+        "penalty": _js_round2(pen), "method": method, "ird_minus_3mo": round(ird - three, 2),
+        "policy_verified": policy.verified, "notes": notes,
+    }
+
+
+HAVENTREE_BANDS = ((1, 17, 12), (18, 29, 24), (30, 41, 36), (42, None, 48))
+
+
+def _haventree(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """Haventree Bank's own calculator (MortgageCalculator component): whole months remaining; 3 months = P x r / 4;
+    IRD = (r - reinvestment rate for the band) x P x months / 12. `current` holds Haventree's published reinvestment
+    rates keyed by band (12 = 1-17 months, 24 = 18-29, 36 = 30-41, 48 = 42+)."""
+    k = max(int(months_between(payout, end) + 1e-9), 0)
+    band = next((t for lo, hi, t in HAVENTREE_BANDS if k >= lo and (hi is None or k <= hi)), None)
+    if band is not None and band not in current:
+        raise ValueError(f"Haventree rule needs its reinvestment rate for the {band}-month band")
+    rate = current[band] if band is not None else 0.0
+    bal, r = m.balance, m.contract_rate / 100
+    three = bal * r / 4
+    ird = (r - rate / 100) * bal * k / 12
+    pen, method = (ird, "IRD") if ird > three else (three, "3-month")
+    notes = ["Haventree compares with its published reinvestment rate for the time remaining"]
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": float(k),
+        "compare_term": band, "compare_posted": round(rate, 4), "discount": 0.0, "compare_rate": round(rate, 4),
+        "rate_diff": round(max(m.contract_rate - rate, 0.0), 4), "three_month": _js_round2(three),
+        "ird": _js_round2(max(ird, 0.0)), "penalty": _js_round2(pen), "method": method,
+        "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
 def _desjardins_term(months: int) -> int:
     for limit, term in ((18, 12), (30, 24), (42, 36), (54, 48), (66, 60), (78, 72), (102, 84)):
         if months < limit:
@@ -493,6 +706,16 @@ def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_of
         return _tangerine(m, policy, current, payout, end)
     if policy.months_convention == "simplii":
         return _simplii(m, policy, current, payout, end)
+    if policy.months_convention == "atb":
+        return _atb(m, policy, current, payout, end)
+    if policy.months_convention == "haventree":
+        return _haventree(m, policy, current, payout, end)
+    if policy.months_convention == "laurentian":
+        return _laurentian(m, policy, current, payout, end)
+    if policy.months_convention == "equitable":
+        return _equitable(m, policy, current, payout, end)
+    if policy.months_convention == "bridgewater":
+        return _bridgewater(m, policy, current, payout, end)
     if policy.privilege_first and policy.privilege_pct:
         free = max(policy.privilege_pct / 100 * bal - m.privilege_used_this_year, 0)
         bal -= free
