@@ -55,9 +55,9 @@ def run(today=None):
     with db() as c:
         sources = [r[0] for r in c.execute("SELECT DISTINCT source FROM rates WHERE how IN ('api','html')")]
     for src in sources:
-        posted, d = table_on(src, today, "posted", max_age_days=3)
-        special, _ = table_on(src, today, "special", max_age_days=3)
-        prev, _ = table_on(src, today - timedelta(days=1), "posted", max_age_days=5)
+        posted, d = table_on(src, today, "posted", max_age_days=3, own_only=True)
+        special, _ = table_on(src, today, "special", max_age_days=3, own_only=True)
+        prev, _ = table_on(src, today - timedelta(days=1), "posted", max_age_days=5, own_only=True)
         if not posted and not special:
             add("R7", src, False, "no rows today (layout change, block, or JS) - run discover/scrape")
             continue
@@ -73,7 +73,7 @@ def run(today=None):
         jumps = {t: (prev[t], posted[t]) for t in posted if t in prev and abs(posted[t] - prev[t]) > 0.75}
         add("R6", src, not jumps, f"big move, confirm with 2nd source: {jumps}" if jumps else "ok")
         if src in BIG6:
-            pr, _ = table_on(src, today, "posted", kind="prime", max_age_days=3)
+            pr, _ = table_on(src, today, "posted", kind="prime", max_age_days=3, own_only=True)
             if pr:
                 add("R8", src, abs(pr.get(0, prime) - prime) < 0.01, f"prime {pr.get(0)} vs BoC {prime}")
 

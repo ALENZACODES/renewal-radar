@@ -157,24 +157,57 @@ def test_to_renewal_inputs():
 
 
 def test_banklink_api(monkeypatch):
+    import base64, hashlib, os
     from renewal import main
+    monkeypatch.setenv('RR_ENABLE_DEMO_WORKSPACES', '1')
     with TestClient(main.app) as c:
         assert c.get('/api/v5/banklink/providers').json()['credential_collection'] is False
         monkeypatch.delenv('RR_ENABLE_BANKLINK_SANDBOX', raising=False)
-        assert c.post('/api/v5/banklink/consents', json={'subject': 'case-1', 'provider': 'plaid',
+        assert c.post('/api/v5/banklink/consents', json={'case_id': 'x', 'workspace_id': 'y',
+                                                         'provider': 'plaid',
                                                          'purpose': 'renewal_analysis'}).status_code == 403
         monkeypatch.setenv('RR_ENABLE_BANKLINK_SANDBOX', '1')
-        consent = c.post('/api/v5/banklink/consents', json={'subject': 'case-1', 'provider': 'plaid',
-                                                            'purpose': 'renewal_analysis'})
+        ws = c.post('/api/v4/broker/workspaces', json={'name': 'BL'}).json()
+        d = c.get('/api/demo').json()
+        case = c.post('/api/cases', json={'title': 'bl', 'workspace_id': ws['workspace_id'],
+                                          'mortgage': d['mortgage'], 'offers': []},
+                      headers={'X-Broker-Token': ws['access_token']}).json()
+        minted = c.post(f"/api/cases/{case['id']}/tokens",
+                        json={'scopes': ['banklink:connect', 'banklink:read'], 'ttl_seconds': 3600},
+                        headers={'X-Broker-Token': ws['access_token']}).json()
+        token = minted['token']
+        consent = c.post('/api/v5/banklink/consents', json={
+            'case_id': case['id'], 'workspace_id': ws['workspace_id'],
+            'provider': 'plaid', 'purpose': 'renewal_analysis'},
+            headers={'X-Broker-Token': ws['access_token']})
         assert consent.status_code == 201, consent.text
         cid = consent.json()['consent_id']
-        assert c.post(f'/api/v5/banklink/consents/{cid}/session').json()['sandbox'] is True
-        bad = c.post(f'/api/v5/banklink/consents/{cid}/complete',
-                     json={'public_token': 't', 'extra': {'password': 'x'}})
+        verifier = base64.urlsafe_b64encode(os.urandom(32)).rstrip(b'=').decode()
+        challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b'=').decode()
+        sess = c.post(f'/api/v5/banklink/consents/{cid}/session',
+                      json={'code_challenge': challenge, 'bind_cookie': False},
+                      headers={'X-Case-Token': token})
+        assert sess.status_code == 200 and sess.json()['sandbox'] is True
+        # legacy complete without state is gone
+        assert c.post(f'/api/v5/banklink/consents/{cid}/complete',
+                      json={'public_token': 't'}).status_code == 410
+        bad = c.post('/api/v5/banklink/complete',
+                     json={'state': sess.json()['state'], 'code_verifier': verifier,
+                           'public_token': 't', 'extra': {'password': 'x'}})
         assert bad.status_code == 422
-        link = c.post(f'/api/v5/banklink/consents/{cid}/complete', json={'public_token': 't'}).json()['link_id']
-        m = c.get(f'/api/v5/banklink/links/{link}/mortgages').json()
+        # new session after failed complete attempt still ok — claim not done on 422 before claim?
+        # Credential refuse happens inside complete after claim — recreate session
+        sess = c.post(f'/api/v5/banklink/consents/{cid}/session',
+                      json={'code_challenge': challenge, 'bind_cookie': False},
+                      headers={'X-Case-Token': token})
+        link = c.post('/api/v5/banklink/complete',
+                      json={'state': sess.json()['state'], 'code_verifier': verifier,
+                            'public_token': 't'}).json()['link_id']
+        m = c.get(f'/api/v5/banklink/links/{link}/mortgages',
+                  headers={'X-Broker-Token': ws['access_token']}).json()
         assert m['mortgages'][0]['balance'] == '412345.67'
         assert m['prefill'][0]['confirm_required'] is True
-        assert c.delete(f'/api/v5/banklink/consents/{cid}').status_code == 204
-        assert c.get(f'/api/v5/banklink/links/{link}/mortgages').status_code == 403
+        assert c.delete(f'/api/v5/banklink/consents/{cid}',
+                        headers={'X-Broker-Token': ws['access_token']}).status_code == 204
+        assert c.get(f'/api/v5/banklink/links/{link}/mortgages',
+                     headers={'X-Broker-Token': ws['access_token']}).status_code == 403

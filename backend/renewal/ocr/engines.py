@@ -14,7 +14,7 @@ import os
 import re
 import shutil
 import subprocess
-import tempfile
+from .tempfiles import ocr_tempdir, sweep_stale_ocr_temps
 from typing import Protocol
 
 from PIL import Image
@@ -156,10 +156,11 @@ class TesseractEngine:
     def recognize(self, scan: PreparedScan, *, page: int = 1) -> OCRPage:
         if not self.available():
             raise OCREngineError('Tesseract is not installed on the server.')
+        sweep_stale_ocr_temps()
         if not 1 <= page <= 100:
             raise OCREngineError('Invalid document page.')
-        with tempfile.TemporaryDirectory(prefix='rr-ocr-') as tmpdir:
-            filename = Path(tmpdir) / 'image.png'
+        with ocr_tempdir('rr-ocr-') as tmpdir:
+            filename = tmpdir / 'image.png'
             filename.write_bytes(scan.normalized_image)
             text = self._invoke(str(filename), 'txt').strip()
             tsv = self._invoke(str(filename), 'tsv')
@@ -197,8 +198,8 @@ class DoclingEngine:
             raise OCREngineError('Docling is an optional dependency and is not installed.')
         try:
             from docling.document_converter import DocumentConverter
-            with tempfile.TemporaryDirectory(prefix='rr-docling-') as folder:
-                path = Path(folder) / 'camera.png'
+            with ocr_tempdir('rr-docling-') as folder:
+                path = folder / 'camera.png'
                 path.write_bytes(scan.normalized_image)
                 document = DocumentConverter().convert(str(path)).document
                 text = document.export_to_markdown()
@@ -306,8 +307,8 @@ class PaddleOCREngine:
     def recognize(self, scan: PreparedScan, *, page: int = 1) -> OCRPage:
         if not 1 <= page <= 100:
             raise OCREngineError('Invalid document page.')
-        with tempfile.TemporaryDirectory(prefix='rr-paddleocr-') as tmpdir:
-            filename = Path(tmpdir) / 'image.png'
+        with ocr_tempdir('rr-paddleocr-') as tmpdir:
+            filename = tmpdir / 'image.png'
             filename.write_bytes(scan.normalized_image)
             raw = self._predict(str(filename))
         rows = _flatten_paddle_result(raw)
@@ -390,8 +391,8 @@ class EasyOCREngine:
     def recognize(self, scan: PreparedScan, *, page: int = 1) -> OCRPage:
         if not 1 <= page <= 100:
             raise OCREngineError('Invalid document page.')
-        with tempfile.TemporaryDirectory(prefix='rr-easyocr-') as tmpdir:
-            filename = Path(tmpdir) / 'image.png'
+        with ocr_tempdir('rr-easyocr-') as tmpdir:
+            filename = tmpdir / 'image.png'
             filename.write_bytes(scan.normalized_image)
             rows = _flatten_easyocr_result(self._predict(str(filename)))
         words = []
@@ -474,8 +475,8 @@ class RapidOCREngine:
     def recognize(self, scan: PreparedScan, *, page: int = 1) -> OCRPage:
         if not 1 <= page <= 100:
             raise OCREngineError('Invalid document page.')
-        with tempfile.TemporaryDirectory(prefix='rr-rapidocr-') as tmpdir:
-            filename = Path(tmpdir) / 'image.png'
+        with ocr_tempdir('rr-rapidocr-') as tmpdir:
+            filename = tmpdir / 'image.png'
             filename.write_bytes(scan.normalized_image)
             rows = _flatten_rapidocr_result(self._predict(str(filename)))
         words = []

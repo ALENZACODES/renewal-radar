@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKIP_DIRS = {".venv", "venv", "__pycache__", ".pytest_cache", ".git", "node_modules", ".mypy_cache"}
-SKIP_PATHS = ("data/ratewatch/td_oracle/", "data/ratewatch/osfi/")
+SKIP_PATHS = ("data/ratewatch/td_oracle/", "data/ratewatch/scotia_oracle/", "data/ratewatch/cibc_oracle/", "data/ratewatch/bmo_oracle/", "data/ratewatch/nbc_oracle/", "data/ratewatch/desjardins_oracle/", "data/ratewatch/tangerine_oracle/", "data/ratewatch/simplii_oracle/", "data/ratewatch/osfi/")
 SKIP_FILES = ("*.db", "*.sqlite", "*.sqlite3", "*.pyc", "*.log", ".env", "data/ratewatch/backfill_progress.json",
               "data/ratewatch/alerts.csv", "data/ratewatch/url_overrides.json")
 MUST_HAVE = (".github/workflows/ci.yml", ".gitignore", ".env.example", "README.md", "LICENSE", "requirements.txt",
@@ -47,7 +47,7 @@ def check(out: Path) -> None:
         names = set(z.namelist())
         assert z.testzip() is None, "corrupt member"
     missing = [m for m in MUST_HAVE if m not in names]
-    leaked = [n for n in names if n.endswith((".db", ".sqlite", ".sqlite3")) or n.startswith("data/ratewatch/td_oracle/")]
+    leaked = [n for n in names if n.endswith((".db", ".sqlite", ".sqlite3")) or n.startswith(("data/ratewatch/td_oracle/", "data/ratewatch/scotia_oracle/", "data/ratewatch/cibc_oracle/", "data/ratewatch/bmo_oracle/", "data/ratewatch/nbc_oracle/", "data/ratewatch/desjardins_oracle/", "data/ratewatch/tangerine_oracle/", "data/ratewatch/simplii_oracle/"))]
     assert not missing, f"missing from zip: {missing}"
     assert not leaked, f"must not be in zip: {leaked}"
 

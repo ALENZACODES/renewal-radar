@@ -81,8 +81,8 @@ def build_mortgage(a):
 
 
 def current_tables(src, payout):
-    cur, d = history.table_on(src, payout, "posted", max_age_days=7) if src else ({}, None)
-    off, _ = history.table_on(src, payout, "special", max_age_days=7) if src else ({}, None)
+    cur, d = history.table_on(src, payout, "posted", max_age_days=7, own_only=True) if src else ({}, None)
+    off, _ = history.table_on(src, payout, "special", max_age_days=7, own_only=True) if src else ({}, None)
     if not cur and src:
         rows, _ = fetch(src)
         cur = {t: r for t, k, rt, r in rows if k == "fixed_closed" and rt == "posted"}

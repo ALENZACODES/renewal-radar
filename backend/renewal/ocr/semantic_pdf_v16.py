@@ -10,8 +10,8 @@ from .semantic_evidence_v16 import DocumentSemanticAuditError
 def audit_semantic_pdf(data: bytes, filename: str = "document.pdf") -> dict:
     if not isinstance(data, bytes) or not data.startswith(b"%PDF-"):
         raise DocumentSemanticAuditError("Upload must be a valid PDF")
-    if len(data) > 8 * 1024 * 1024:
-        raise DocumentSemanticAuditError("PDF exceeds the 8 MB limit")
+    if len(data) > 15 * 1024 * 1024:
+        raise DocumentSemanticAuditError("PDF exceeds the 15 MB limit")
     try:
         document = fitz.open(stream=data, filetype="pdf")
     except Exception as exc:

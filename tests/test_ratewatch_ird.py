@@ -42,9 +42,10 @@ def test_first_months_are_three_month_interest():
     assert r["method"] == "3-month" and r["ird"] == 0
 
 
-def test_cibc_three_month_on_posted():
+def test_cibc_three_month_on_contract_plus_discount_compounded_semi_annually():
+    # CIBC's calculator: 0.25 * 12 * ((1 + (contract + discount)/200)**(1/6) - 1) * balance
     r = penalty(big6_case(), POLICIES["CIBC"], {**TODAY_POSTED, 60: 6.89}, date(2024, 3, 1))
-    assert r["three_month"] == round(400_000 * 0.0689 / 4, 2)
+    assert r["three_month"] == round(0.25 * 12 * ((1 + 6.89 / 200) ** (2 / 12) - 1) * 400_000, 2)
 
 
 def test_offered_rate_method():
@@ -57,7 +58,9 @@ def test_offered_rate_method():
 def test_interest_act_cap_after_year_five():
     m = Mortgage(500_000, 6.0, 120, date(2018, 1, 1), {120: 7.0})
     r = penalty(m, POLICIES["RBC"], {12: 3.0, 24: 3.0, 36: 3.0, 48: 3.0, 60: 3.0}, date(2024, 2, 1))
-    assert r["penalty"] == 7_500.00 and any("Interest Act" in n for n in r["notes"])
+    # capped at three months' interest; RBC computes it as monthly (semi-annual) rate x 3 x 30.42 / (365/12)
+    assert r["penalty"] == r["three_month"] == round(500_000 * ((1.03) ** (1 / 6) - 1) * 3 * 30.42 / (365 / 12), 2)
+    assert any("Interest Act" in n for n in r["notes"])
 
 
 def test_no_negative_ird():
