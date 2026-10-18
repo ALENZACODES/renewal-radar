@@ -204,3 +204,17 @@ Lenders that publish no machine-readable rates are listed in `small_lenders.NOT_
 Cameron Stephens and Trez Capital were removed: both are now commercial-only lenders.
 
 B and private lenders that quote only 1-3 year terms are validated against their longest term instead of a 5-year rate. Banks and credit unions still need a 5-year rate.
+
+## Smaller lenders' own calculators (added 2026-10-18)
+
+Three more lenders publish penalty calculators that run in the browser. Each one is now reproduced exactly: 3,000 random cases per lender against its own unmodified code, all equal to the cent. To fetch the files, run `tools/fetch_small_lender_oracles.py`; they are never committed.
+
+| Lender | Code run | Harness | Rule (from its code) |
+|---|---|---|---|
+| Desjardins | `calculateur-indemnites-calculs.js` | `tools/desjardins_oracle.mjs` | gap = contract - (posted for nearest term - discount), floored at 0; IRD = gap x balance / 365 x days; 3 months = balance x rate / 4 (daily under 30 days) |
+| Tangerine | `mortgagePrePayment-calculator` clientlib, run in a minimal fake page | `tools/tangerine_oracle.mjs` | compares with Tangerine's current rate for the remaining-term bucket; simple-interest IRD over years + months; 7- and 10-year terms pay three months near the end |
+| Simplii | `calculator.js` + `pcf_rules.js` (CIBC family) | `tools/simplii_oracle.mjs` | payment-by-payment IRD at (contract + discount) vs posted; terms under 18 months move to the 2-year rate; +0.15% on short terms; interest to maturity under 3 months |
+
+Five more lenders have browser calculators whose penalty code is bundled inside web-app frameworks: ATB (Vue), Laurentian, Equitable and Haventree (Next.js) and Bridgewater (Angular). Their rules are recorded from the code in the research notes, and they are the next oracles to build.
+- Equitable and Bridgewater compare against Government of Canada bond yields rather than posted rates.
+- Laurentian adds one month's interest capped at $500.

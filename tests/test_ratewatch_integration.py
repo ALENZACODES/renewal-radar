@@ -182,7 +182,7 @@ def test_nbc_rules_from_its_calculator():
 
 def test_td_policy_is_marked_verified_and_others_are_not():
     assert all(POLICIES[b].verified for b in ("TD", "Scotiabank", "CIBC", "BMO", "National Bank", "RBC"))
-    assert all(POLICIES[b].verified for b in ("RBC",)) and not POLICIES["Tangerine"].verified
+    assert not POLICIES["Laurentian"].verified and not POLICIES["Credit union (generic)"].verified
 
 
 # ---- regressions found in review (2026-10-14) ----
@@ -224,3 +224,46 @@ def test_history_never_mixes_two_captures_from_the_same_day(tmp_path, monkeypatc
     table, day = history.table_on("P099", date(2024, 5, 10))
     assert day == "2024-05-01" and table == {60: 6.80}            # the feed wins; no archive row mixed in
     assert history.table_on("P099", date(2024, 4, 30)) == ({}, None)   # nothing from the future (no hindsight)
+
+
+DESJ_JS = backtest.DATA / "desjardins_oracle" / "calculateur-indemnites-calculs.js"
+TANG_JS = backtest.DATA / "tangerine_oracle" / "mortgagePrePayment-calculator.js"
+SIMP_JS = backtest.DATA / "simplii_oracle" / "pcf_rules.js"
+
+
+@pytest.mark.skipif(shutil.which("node") is None or not DESJ_JS.exists(),
+                    reason="needs Node.js and Desjardins' calculator file (python tools/fetch_small_lender_oracles.py)")
+def test_desjardins_oracle_300_random_cases_exact_to_the_cent():
+    r = backtest.desjardins_oracle(n=300, seed=23)
+    assert r["exact_to_the_cent"] == 300, r["examples_of_misses"][:2]
+
+
+@pytest.mark.skipif(shutil.which("node") is None or not TANG_JS.exists(),
+                    reason="needs Node.js and Tangerine's calculator file (python tools/fetch_small_lender_oracles.py)")
+def test_tangerine_oracle_300_random_cases_exact_to_the_cent():
+    r = backtest.tangerine_oracle(n=300, seed=29)
+    assert r["exact_to_the_cent"] == 300, r["examples_of_misses"][:2]
+
+
+@pytest.mark.skipif(shutil.which("node") is None or not SIMP_JS.exists(),
+                    reason="needs Node.js and Simplii's calculator files (python tools/fetch_small_lender_oracles.py)")
+def test_simplii_oracle_300_random_cases_exact_to_the_cent():
+    r = backtest.simplii_oracle(n=300, seed=31)
+    assert r["exact_to_the_cent"] == 300, r["examples_of_misses"][:2]
+
+
+def test_small_lender_rules_from_their_calculators():
+    from datetime import date
+    from renewal.ratewatch.ird import Mortgage, add_months, penalty
+    today = date(2026, 10, 18)
+    mat = add_months(today, 30)
+    # Tangerine: 30 months -> 3-year bucket at its current rate; IRD = 2.5 yrs x (5.49 - 4.29)% x 400k
+    r = penalty(Mortgage(400000, 5.49, 60, mat, discount=0.0, maturity=mat), POLICIES["Tangerine"],
+                {12: 4.94, 24: 4.49, 36: 4.29, 48: 4.49, 60: 4.49, 84: 5.29, 120: 5.49}, today)
+    assert r["penalty"] == 12000.0
+    # Desjardins: daily simple IRD, gap = 5.49 - (6.10 - 1.5) over 913 days
+    m2 = date(2029, 4, 18)
+    r = penalty(Mortgage(400000, 5.49, 60, m2, discount=1.5, maturity=m2), POLICIES["Desjardins"],
+                {12: 6.0, 24: 5.9, 36: 6.1, 48: 6.2, 60: 6.29, 72: 6.4, 84: 6.5, 120: 6.8}, today)
+    assert r["penalty"] == 8904.88
+    assert all(POLICIES[b].verified for b in ("Tangerine", "Desjardins", "Simplii"))

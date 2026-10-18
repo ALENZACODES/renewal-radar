@@ -209,6 +209,87 @@ def rbc_cases(path=None):
             "examples_of_misses": misses}
 
 
+def _node_oracle(tool, cases, env=None):
+    import os
+    proc = subprocess.run(["node", str(PROJECT_ROOT / "tools" / tool)], input=json.dumps(cases), capture_output=True,
+                          text=True, timeout=600, env={**os.environ, **(env or {})})
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr[-2000:])
+    return json.loads(proc.stdout)
+
+
+def _score(cases, answers, ours_fn):
+    exact, misses = 0, []
+    for c, a in zip(cases, answers):
+        ours = ours_fn(c)
+        ok = abs(ours - a["charge"]) < 0.005
+        exact += ok
+        if not ok and len(misses) < 10:
+            misses.append({"case": c, "lender": a, "ours": ours})
+    return {"cases": len(cases), "exact_to_the_cent": exact, "exact_rate": round(exact / max(len(cases), 1), 4),
+            "examples_of_misses": misses}
+
+
+def desjardins_oracle(n=2000, seed=2031):
+    """Random mortgages through Desjardins' own calculator code (tools/desjardins_oracle.mjs) vs our engine."""
+    rng, today = random.Random(seed), date.today()
+    cases = []
+    for _ in range(n):
+        term = rng.choice([12, 24, 36, 48, 60])
+        mat = today + timedelta(days=rng.randint(1, term * 30))
+        cases.append({"balance": round(rng.uniform(50_000, 1_500_000), 2), "contract": round(rng.uniform(1.5, 8.0), 2),
+                      "discount": round(rng.uniform(0, 2.5), 2), "term_months": term, "today": today.isoformat(),
+                      "maturity": mat.isoformat(),
+                      "rates": {str(t): round(rng.uniform(3.0, 8.5), 2) for t in (12, 24, 36, 48, 60, 72, 84, 120)}})
+    answers = _node_oracle("desjardins_oracle.mjs", cases, {"TZ": "UTC"})
+
+    def ours(c):
+        mat = date.fromisoformat(c["maturity"])
+        m = Mortgage(c["balance"], c["contract"], c["term_months"], mat, discount=c["discount"], maturity=mat)
+        return penalty(m, POLICIES["Desjardins"], {int(k): v for k, v in c["rates"].items()}, today)["penalty"]
+    return _score(cases, answers, ours)
+
+
+def tangerine_oracle(n=2000, seed=2032):
+    """Random mortgages through Tangerine's own calculator script in a minimal page (tools/tangerine_oracle.mjs)."""
+    rng, today = random.Random(seed), date.today()
+    cases = []
+    for _ in range(n):
+        term_y = rng.choice([1, 2, 3, 4, 5, 7, 10])
+        k = rng.randint(1, term_y * 12 - 1)          # 0 left = matured: no charge (the form still shows 3 months)
+        cases.append({"balance": round(rng.uniform(50_000, 1_500_000), 2), "contract": round(rng.uniform(1.5, 8.0), 2),
+                      "years": k // 12, "months": k % 12, "term_years": term_y, "frequency": 12,
+                      "rates": {str(y): round(rng.uniform(3.0, 8.5), 2) for y in (1, 2, 3, 4, 5, 7, 10)}})
+    answers = _node_oracle("tangerine_oracle.mjs", cases)
+
+    def ours(c):
+        mat = add_months(today, 12 * c["years"] + c["months"])
+        m = Mortgage(c["balance"], c["contract"], c["term_years"] * 12, mat, discount=0.0, maturity=mat)
+        return penalty(m, POLICIES["Tangerine"], {int(y) * 12: v for y, v in c["rates"].items()}, today)["penalty"]
+    return _score(cases, answers, ours)
+
+
+def simplii_oracle(n=2000, seed=2033):
+    """Random mortgages through Simplii's own calculator modules (tools/simplii_oracle.mjs) vs our engine."""
+    from .ird import monthly_payment
+    rng, today = random.Random(seed), date.today()
+    cases = []
+    for _ in range(n):
+        mat = today + timedelta(days=rng.randint(1, 60 * 31))
+        bal, contract = round(rng.uniform(50_000, 1_500_000), 2), round(rng.uniform(1.5, 8.0), 2)
+        cases.append({"balance": bal, "payment": round(monthly_payment(bal, contract, rng.choice([180, 240, 300, 360])), 2),
+                      "contract": contract, "discount": round(rng.uniform(0, 2.5), 2), "today": today.isoformat(),
+                      "maturity": mat.isoformat(),
+                      "rates": {str(t): round(rng.uniform(3.0, 8.5), 2) for t in (6, 12, 24, 36, 48, 60, 84, 120)}})
+    answers = _node_oracle("simplii_oracle.mjs", cases, {"TZ": "UTC"})
+
+    def ours(c):
+        mat = date.fromisoformat(c["maturity"])
+        m = Mortgage(c["balance"], c["contract"], 60, mat, discount=c["discount"], maturity=mat, payment=c["payment"])
+        return penalty(m, POLICIES["Simplii"], {int(k): v for k, v in c["rates"].items()}, today)["penalty"]
+    return _score(cases, answers, ours)
+
+
 def td_history_vs_boc():
     """TD's own daily posted 5-year (1999-2018) vs BoC weekly big-6 typical."""
     f = DATA / "td_oracle" / "previous_rates.txt"
