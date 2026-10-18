@@ -23,7 +23,7 @@ import json
 from dataclasses import replace
 from datetime import date
 
-from ..ratewatch import history
+from ..ratewatch import comparison as comparison_rates, history
 from ..ratewatch.ird import POLICIES, Mortgage, Policy, add_months, balance_after, months_between, penalty
 from ..ratewatch.paths import DATA
 from .book_ingest import Deal, deal_from_dict
@@ -48,7 +48,7 @@ LENDER_ALIASES = [
     (("tangerine",), "Tangerine", "P033"),
     (("desjardins",), "Desjardins", "P035"),
     (("atb",), "ATB", "P039"),
-    (("laurentian", "b2b"), "Laurentian", "P036"),
+    (("laurentian",), "Laurentian", "P036"),            # B2B Bank is a separate lender (ALT18)
     (("manulife",), "Manulife Bank", "P038"),
     (("first national",), "First National", None),
     (("mcap",), "MCAP", None),
@@ -260,7 +260,11 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
         out["method_status"] = "estimate"
         table = None
     else:
-        table, seen = (lender_tables or {}).get(sid) or (history.table_on(sid, as_of, max_age_days=14, own_only=True) if sid else ({}, None))
+        special = comparison_rates.table_for(policy, as_of, fetch_live=lender_tables is not None)
+        if special is not None:                       # this lender's own calculator compares against other rates
+            table, seen = special
+        else:
+            table, seen = (lender_tables or {}).get(sid) or (history.table_on(sid, as_of, max_age_days=14, own_only=True) if sid else ({}, None))
         if (m.discount is None or policy.three_month_basis == "posted_at_origination") and d.posted_rate is None and sid:
             orig, oday = history.table_on(sid, d.closing_date, max_age_days=45)
             term = d.term_months or 60
@@ -276,7 +280,10 @@ def review_deal(d: Deal, as_of: date, target_rate: float | None = None, new_term
                     out["issues"].append("Original posted rate is a labelled gap fill, not the lender's own record: "
                                          "confirm the discount from the commitment letter.")
         needs = []
-        if not validate_rate_table(table):
+        if special is not None:
+            if not table or not all(isinstance(v, (int, float)) and 0 < v < 15 for v in table.values()):
+                needs.append(seen)
+        elif not validate_rate_table(table):
             needs.append(f"{d.lender}'s current {'posted ' if policy.comparison != 'offered' else ''}rates")
         if policy.three_month_basis == "posted_at_origination" and not m.posted_at_origination:
             needs.append("the original posted rate used for the three-month charge")

@@ -60,6 +60,22 @@ def refresh_boc():
     return False
 
 
+def refresh_comparisons():
+    """Comparison feeds named by lenders' own calculators (Bridgewater's bond feed, Haventree's reinvestment
+    table), saved daily so their history builds from here on. A failure leaves the stored figures in place."""
+    from . import comparison
+    got = {}
+    for name, fn in (("Bridgewater bonds", comparison.bridgewater_bonds),
+                     ("Haventree reinvestment", comparison.haventree_reinvestment)):
+        try:
+            got[name] = bool(fn(date.today())[0])
+        except Exception as e:                       # noqa: BLE001
+            got[name] = False
+            log(f"{name} refresh failed ({type(e).__name__})")
+    log("comparison feeds: " + ", ".join(f"{k} {'ok' if v else 'missing'}" for k, v in got.items()))
+    return got
+
+
 # Hosts that did not answer during this run. A lender's edge network that is blocking us is never hammered:
 # once a host fails it is left alone for the rest of the run, so a temporary block can expire.
 UNREACHABLE: set = set()
@@ -227,6 +243,7 @@ def run(lenders=None, sleep=time.sleep):
     lenders = [l for l in (lenders or live.LENDERS) if l[0] not in NOT_PUBLIC]   # nothing public to record
     log(f"recording pass start: {len(lenders)} lenders")
     refresh_boc()
+    refresh_comparisons()
     UNREACHABLE.clear()                                        # each run gives every site a fresh chance
     todo = [l for l in lenders if not recorded_today(l[0])]
     log(f"{len(lenders) - len(todo)} already recorded today; {len(todo)} to collect")
