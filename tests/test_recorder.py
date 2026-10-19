@@ -19,6 +19,7 @@ def env(tmp_path, monkeypatch):
     monkeypatch.setattr(live, "REFRESH_LOCK", tmp_path / "refresh.lock")
     monkeypatch.setattr(live, "LENDERS", [L1, L2])
     monkeypatch.setattr(recorder, "refresh_boc", lambda: True)
+    monkeypatch.setattr(recorder, "refresh_comparisons", lambda: {})
     monkeypatch.setattr(live, "market_anchor", lambda: {"goc_5y": 3.0, "boc_5y_posted": 6.09})
     import renewal.ratewatch.backfill as bf
     monkeypatch.setattr(bf, "fill_gaps", lambda *a, **k: {})

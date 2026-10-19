@@ -290,6 +290,131 @@ def simplii_oracle(n=2000, seed=2033):
     return _score(cases, answers, ours)
 
 
+def atb_oracle(n=2000, seed=2034):
+    """Random conventional fixed mortgages through ATB's own calculator app (tools/atb_oracle.mjs) vs our engine."""
+    rng, today = random.Random(seed), date.today()
+    cases = []
+    for _ in range(n):
+        start = today - timedelta(days=rng.randint(30, 9 * 365))
+        mat = today + timedelta(days=rng.randint(10, 5 * 365))
+        contract = round(rng.uniform(1.5, 8.0), 2)
+        terms = {12: 0, 24: 0, 30: 0, 36: 0, 48: 0, 60: 0}
+        rows = []
+        for t in terms:
+            r = round(rng.uniform(3.0, 8.5), 2)
+            terms[t] = r
+            rows.append({"Type": "Posted Rates", "Class": "Fixed", "TermYears": str(t / 12).rstrip("0").rstrip("."),
+                         "Rate": f"{r:.2f}", "IsHighRatio": False, "IsConventional": True})
+        rows.append({"Type": "Posted Rates", "Class": "Fixed", "TermYears": "1", "Rate": "10.35",
+                     "IsHighRatio": False, "IsConventional": False})          # open rate: not conventional, ignored
+        cases.append({"balance": round(rng.uniform(50_000, 1_500_000), 2), "contract": contract,
+                      "posted_original": round(contract + rng.uniform(0, 2.5), 2), "start": start.isoformat(),
+                      "maturity": mat.isoformat(), "prepayment": today.isoformat(), "rates": rows, "_table": terms})
+    answers = _node_oracle("atb_oracle.mjs", [{k: v for k, v in c.items() if k != "_table"} for c in cases])
+
+    def ours(c):
+        mat = date.fromisoformat(c["maturity"])
+        m = Mortgage(c["balance"], c["contract"], 60, date.fromisoformat(c["start"]),
+                     discount=round(c["posted_original"] - c["contract"], 4), maturity=mat)
+        return penalty(m, POLICIES["ATB"], c["_table"], today)["penalty"]
+    return _score(cases, answers, ours)
+
+
+def haventree_oracle(n=2000, seed=2035):
+    """Random mortgages through Haventree's own calculator code (tools/haventree_oracle.mjs) vs our engine."""
+    rng, today = random.Random(seed), date.today()
+    cases = []
+    for _ in range(n):
+        k = rng.randint(1, 60)
+        rates = [round(rng.uniform(2.5, 7.5), 2) for _ in range(4)]
+        cases.append({"balance": round(rng.uniform(50_000, 1_500_000), 2), "contract": round(rng.uniform(1.5, 9.0), 2),
+                      "years": k // 12, "months": k % 12,
+                      "reinvestmentRates": [{"minMonths": 1, "maxMonths": 17, "rate": rates[0]},
+                                            {"minMonths": 18, "maxMonths": 29, "rate": rates[1]},
+                                            {"minMonths": 30, "maxMonths": 41, "rate": rates[2]},
+                                            {"minMonths": 42, "maxMonths": None, "rate": rates[3]}]})
+    answers = _node_oracle("haventree_oracle.mjs", cases)
+
+    def ours(c):
+        mat = add_months(today, 12 * c["years"] + c["months"])
+        m = Mortgage(c["balance"], c["contract"], 60, mat, discount=0.0, maturity=mat)
+        table = dict(zip((12, 24, 36, 48), (r["rate"] for r in c["reinvestmentRates"])))
+        return penalty(m, POLICIES["Haventree"], table, today)["penalty"]
+    return _score(cases, answers, ours)
+
+
+LAURENTIAN_KEYS = {6: "sixMonths", 12: "oneYear", 24: "twoYears", 36: "threeYears", 48: "fourYears", 60: "fiveYears",
+                   72: "sixYears", 84: "sevenYears", 96: "eightYears", 108: "nineYears", 120: "tenYears"}
+
+
+def laurentian_oracle(n=2000, seed=2036):
+    """Random mortgages through Laurentian's own calculator computation (tools/laurentian_oracle.mjs) vs our engine."""
+    rng, today = random.Random(seed), date.today()
+    cases = []
+    for _ in range(n):
+        mat = today + timedelta(days=rng.randint(1, 119 * 30))
+        contract = round(rng.uniform(1.5, 8.0), 2)
+        ref = {t: round(rng.uniform(3.0, 8.5), 2) for t in LAURENTIAN_KEYS}
+        cases.append({"balance": round(rng.uniform(50_000, 1_500_000), 2), "contract": contract,
+                      "posted": round(contract + rng.uniform(0, 2.5), 2), "frequency": 0, "today": today.isoformat(),
+                      "maturity": mat.isoformat(), "reference": {LAURENTIAN_KEYS[t]: r for t, r in ref.items()}, "_ref": ref})
+    answers = _node_oracle("laurentian_oracle.mjs", [{k: v for k, v in c.items() if k != "_ref"} for c in cases], {"TZ": "UTC"})
+
+    def ours(c):
+        mat = date.fromisoformat(c["maturity"])
+        m = Mortgage(c["balance"], c["contract"], 60, mat, discount=round(c["posted"] - c["contract"], 4), maturity=mat)
+        return penalty(m, POLICIES["Laurentian"], c["_ref"], today)["penalty"]
+    return _score(cases, answers, ours)
+
+
+def equitable_oracle(n=2000, seed=2037):
+    """Random standard fixed mortgages through Equitable's own calculator code (tools/equitable_oracle.mjs)."""
+    rng, today = random.Random(seed), date.today()
+    cases = []
+    for _ in range(n):
+        if rng.random() < 0.1:                                 # exercise the exactly-two-years-to-the-day rule
+            mat = date(today.year + 2, today.month, min(today.day, 28))
+        else:
+            mat = today + timedelta(days=rng.randint(15, 60 * 31))
+        yields = {k: round(rng.uniform(1.0, 5.0), 3) for k in ("tBill", "bond24", "bond36", "bond60")}
+        cases.append({"balance": round(rng.uniform(50_000, 1_500_000), 2), "contract": round(rng.uniform(1.5, 8.5), 2),
+                      "discount": 0, "type": "standardFixed", "today": today.isoformat(), "maturity": mat.isoformat(),
+                      "reference": {"standardFixed": yields}})
+    answers = _node_oracle("equitable_oracle.mjs", cases)
+
+    def ours(c):
+        mat = date.fromisoformat(c["maturity"])
+        m = Mortgage(c["balance"], c["contract"], 60, mat, discount=0.0, maturity=mat)
+        y = c["reference"]["standardFixed"]
+        return penalty(m, POLICIES["Equitable Bank"], {12: y["tBill"], 24: y["bond24"], 36: y["bond36"], 60: y["bond60"]},
+                       today)["penalty"]
+    return _score(cases, answers, ours)
+
+
+def bridgewater_oracle(n=2000, seed=2038):
+    """Random full prepayments through Bridgewater's own IRD calculator component (tools/bridgewater_oracle.mjs)."""
+    rng, today = random.Random(seed), date.today()
+    cases = []
+    for _ in range(n):
+        term_id = rng.choice([2, 3, 4, 5, 6, 7, 8])
+        term_m = {2: 12, 3: 24, 4: 36, 5: 48, 6: 60, 7: 84, 8: 120}[term_id]
+        start = today - timedelta(days=rng.randint(1, term_m * 30 - 1)) if rng.random() < 0.9 else date(2010, rng.randint(1, 12), 15)
+        mat = today + timedelta(days=rng.randint(10, term_m * 30))
+        principal = round(rng.uniform(80_000, 1_600_000), 2)
+        cases.append({"principal": principal, "lump_sum": round(rng.uniform(0, principal * 0.1), 2) if rng.random() < 0.3 else 0,
+                      "balance": round(principal * rng.uniform(0.5, 1.0), 2), "rate": round(rng.uniform(1.5, 9.0), 2),
+                      "term_id": term_id, "term_months": term_m, "start": start.isoformat(), "maturity": mat.isoformat(),
+                      "today": today.isoformat(), "bonds": [round(rng.uniform(1.0, 5.0), 4) for _ in range(5)]})
+    answers = _node_oracle("bridgewater_oracle.mjs", cases, {"TZ": "UTC"})
+
+    def ours(c):
+        mat = date.fromisoformat(c["maturity"])
+        m = Mortgage(c["balance"], c["rate"], c["term_months"], date.fromisoformat(c["start"]), discount=0.0, maturity=mat,
+                     original_amount=c["principal"], privilege_used_this_year=c["lump_sum"])
+        return penalty(m, POLICIES["Bridgewater"], dict(zip((12, 24, 36, 48, 60), c["bonds"])), today)["penalty"]
+    return _score(cases, answers, ours)
+
+
 def td_history_vs_boc():
     """TD's own daily posted 5-year (1999-2018) vs BoC weekly big-6 typical."""
     f = DATA / "td_oracle" / "previous_rates.txt"

@@ -82,6 +82,6 @@ export function brokerBookView(workspace) {
         <th>Best rate</th><th>Net saving</th><th>Years saved*</th><th>Recommendation</th></tr></thead>
         <tbody>${rv.results.map(resultRow).join('')}</tbody></table></div>
       <p class="fineprint mt">Net saving = interest saved over the shorter of the remaining term and the new term, minus the penalty and fees.
-        *Hypothetical years saved at the same payment frequency, assuming unchanged lifetime rates, with penalty and fees added to the loan. RBC, TD, Scotiabank, BMO, CIBC, National Bank, Tangerine, Simplii and Desjardins penalties follow each lender's own
+        *Hypothetical years saved at the same payment frequency, assuming unchanged lifetime rates, with penalty and fees added to the loan. RBC, TD, Scotiabank, BMO, CIBC, National Bank, Tangerine, Simplii, Desjardins, ATB, Haventree, Laurentian, Equitable and Bridgewater penalties follow each lender's own
         calculator; other lenders are estimates until the payout statement confirms them. Nothing you import is stored.</p></section>` : ''}`;
 }
