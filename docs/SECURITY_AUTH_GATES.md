@@ -24,6 +24,7 @@
 - Secret: `RR_API_ACCESS_KEY` (min 24 characters)
 - `APP_ENV=production`: missing/short key → **503**; wrong/missing header → **401**
 - Development: open unless `RR_API_ACCESS_KEY` is set
+- `APP_ENV=demo` (hosted public demo, see `render.yaml`): the routes in `PUBLIC_DEMO_ROUTES` (samples, market reads and stateless calculations) are open; every other route needs the key, otherwise **403**. `/docs`, `/redoc` and `/openapi.json` are not served. `GET /health` is the platform health check.
 
 ## Resource tokens (existing, still required where declared)
 

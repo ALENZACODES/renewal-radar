@@ -470,21 +470,33 @@ def _refresh(lenders=None) -> dict:
 _refreshing = threading.Event()
 
 
-def board(max_age=STALE_AFTER) -> dict:
-    """Last board; kicks off a background refresh when stale. Never blocks on the network if a board exists."""
-    b = _load(BOARD)
-    stale = not b or datetime.fromisoformat(b["refreshed_at"]) < datetime.now(timezone.utc) - max_age
-    if not b:
-        return refresh()
-    if stale and not _refreshing.is_set():
-        _refreshing.set()
+def _refresh_in_background() -> None:
+    if _refreshing.is_set():
+        return
+    _refreshing.set()
 
-        def run():
-            try:
-                refresh()
-            finally:
-                _refreshing.clear()
-        threading.Thread(target=run, daemon=True).start()
+    def run():
+        try:
+            refresh()
+        finally:
+            _refreshing.clear()
+    threading.Thread(target=run, daemon=True).start()
+
+
+def board(max_age=STALE_AFTER, wait=True) -> dict:
+    """Last board; kicks off a background refresh when stale. Never blocks on the network if a board exists.
+    With no board yet, wait=True collects one now; wait=False (the web page) returns an empty board at once and
+    collects in the background, so a fresh server does not hold the request for the whole collection."""
+    b = _load(BOARD)
+    if not b:
+        if wait:
+            return refresh()
+        _refresh_in_background()
+        return {"refreshed_at": None, "anchor": {}, "banks": [], "credit_unions": [], "alternative_lenders": [],
+                "stale": True, "refreshing": True}
+    stale = datetime.fromisoformat(b["refreshed_at"]) < datetime.now(timezone.utc) - max_age
+    if stale:
+        _refresh_in_background()
     return {**b, "stale": stale, "refreshing": _refreshing.is_set()}
 
 

@@ -1,0 +1,32 @@
+# Render Blueprint: one free web service for the public Renewal Radar demo.
+# No secrets are stored here. Keys marked sync: false are entered in the Render dashboard if ever needed.
+services:
+  - type: web
+    name: renewal-radar
+    runtime: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      # Public demo mode: samples and stateless calculations are open; saving cases,
+      # bank linking, broker workspaces, scraper refresh and rate ingest stay closed.
+      - key: APP_ENV
+        value: demo
+      # Saved data lives in the container and is lost on restart (free plan has no disk).
+      - key: DATABASE_URL
+        value: sqlite:////tmp/renewal_radar.db
+      - key: MAX_PDF_MB
+        value: "8"
+      # Optional. Only needed to unlock the closed endpoints for John's own testing.
+      - key: RR_API_ACCESS_KEY
+        sync: false
+      # Optional. Turns on the Nemotron explanation step. Leave empty for the demo.
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: NEBIUS_MODEL
+        value: nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B
+      # Optional. Source discovery; not used by the demo flow.
+      - key: TAVILY_API_KEY
+        sync: false

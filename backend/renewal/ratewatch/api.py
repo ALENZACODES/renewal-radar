@@ -235,7 +235,7 @@ def extras_endpoint(tool: str, body: ExtrasIn):
 @router.get("/live")
 def live_board():
     from . import live
-    return live.board()
+    return live.board(wait=False)
 
 
 @router.post("/live/refresh")

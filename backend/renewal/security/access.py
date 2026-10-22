@@ -20,6 +20,7 @@ from ..config import settings
 
 # Exact paths that need no credential (probes + static shell).
 PUBLIC_EXACT: frozenset[str] = frozenset({
+    '/health',
     '/api/health',
     '/api/health/live',
     '/api/health/ready',
@@ -62,6 +63,51 @@ RESOURCE_AUTH_HEADERS: frozenset[str] = frozenset({
 AUTH_DEP_NAME = 'require_api_access'
 
 
+# Public demo mode (APP_ENV=demo), used for the hosted judge demo.
+# Anonymous callers may use the read only samples and stateless calculation
+# endpoints below. Anything that stores data, mints tokens, links banks,
+# refreshes scrapers or ingests rates still needs RR_API_ACCESS_KEY.
+PUBLIC_DEMO_ROUTES: tuple[tuple[str, re.Pattern[str]], ...] = tuple(
+    (method, re.compile(pattern)) for method, pattern in (
+        ('GET', r'^/api/demo$'),
+        ('GET', r'^/api/demo/sample\.pdf$'),
+        ('GET', r'^/api/demo/sample-scan\.png$'),
+        ('GET', r'^/api/market$'),
+        ('GET', r'^/api/market/banks/live$'),
+        ('GET', r'^/api/v17/market/snapshot$'),
+        ('GET', r'^/api/ratewatch/live$'),
+        ('GET', r'^/api/broker/book/sample\.csv$'),
+        ('GET', r'^/api/calendar/[0-9]{4}-[0-9]{2}-[0-9]{2}\.ics$'),
+        ('POST', r'^/api/analyze$'),
+        ('POST', r'^/api/documents/extract$'),
+        ('POST', r'^/api/v17/documents/read$'),
+        ('POST', r'^/api/v16/ocr/semantic-audit(/pdf)?$'),
+        ('POST', r'^/api/penalty$'),
+        ('POST', r'^/api/negotiation$'),
+        ('POST', r'^/api/report/pdf$'),
+        ('POST', r'^/api/agent/run$'),
+        ('POST', r'^/api/agent/insight$'),
+        ('POST', r'^/api/ledger\.csv$'),
+        ('POST', r'^/api/ledger/annual$'),
+        ('POST', r'^/api/v17/penalty/timeline$'),
+        ('POST', r'^/api/ratewatch/(penalty|forecast|letter)$'),
+        ('POST', r'^/api/ratewatch/extras/[a-z0-9_\-]+$'),
+        ('POST', r'^/api/broker/book/(import|ocr|review|review\.csv)$'),
+    )
+)
+
+
+def is_public_demo() -> bool:
+    return _env_name() in {'demo', 'public-demo'}
+
+
+def public_demo_allows(method: str, path: str) -> bool:
+    m = method.upper()
+    if m == 'HEAD':
+        m = 'GET'
+    return any(rm == m and rx.match(path) for rm, rx in PUBLIC_DEMO_ROUTES)
+
+
 def _env_name() -> str:
     return (settings.app_env or os.environ.get('APP_ENV') or 'development').strip().lower()
 
@@ -72,7 +118,7 @@ def is_production() -> bool:
 
 def demo_enabled() -> bool:
     """Demo *data-mutating* features (e.g. mint workspaces). Never in production."""
-    if is_production():
+    if is_production() or is_public_demo():
         return False
     return os.environ.get('RR_ENABLE_DEMO_WORKSPACES') == '1'
 
@@ -87,7 +133,7 @@ def is_public_path(path: str) -> bool:
         return True
     if any(path.startswith(p) for p in PUBLIC_PREFIXES):
         return True
-    if path in DOCS_EXACT and not is_production():
+    if path in DOCS_EXACT and not is_production() and not is_public_demo():
         return True
     return False
 
@@ -115,6 +161,12 @@ async def require_api_access(
         return {'mode': 'public' if is_public_path(path) else 'capability_url'}
 
     expected = configured_api_key()
+    if is_public_demo():
+        if public_demo_allows(request.method, path):
+            return {'mode': 'public_demo'}
+        if len(expected) >= 24 and x_api_key and secrets.compare_digest(x_api_key, expected):
+            return {'mode': 'api_key'}
+        raise HTTPException(status_code=403, detail='Not available in the public demo.')
     if is_production():
         if len(expected) < 24:
             raise HTTPException(
