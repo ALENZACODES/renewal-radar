@@ -119,7 +119,7 @@ async def demo():
        'offers':[Offer(name='Illustrative alternative',rate=4.49,rate_type='fixed',term_months=36,type='hypothetical',fees=950).model_dump(),
                  Offer(name='Illustrative variable',rate=4.25,rate_type='variable',term_months=36,type='hypothetical',fees=1100).model_dump()],
        'case_title':'Sample renewal: $480,000 balance',
-       'notice':'RBC Royal Bank demonstration using hypothetical terms. Not issued or endorsed by RBC; no rates are verified borrower quotes.'}
+       'notice':'Maple Bank is a fictional demonstration lender using hypothetical terms; no rates are verified borrower quotes.'}
 
 @app.get('/api/demo/sample.pdf')
 async def demo_pdf():
@@ -132,7 +132,7 @@ async def demo_pdf():
 async def demo_scan():
     if not demo_samples_allowed():
         raise HTTPException(404, 'Not Found')
-    return FileResponse(ROOT/'fixtures'/'rbc-renewal-scan.png', media_type='image/png', headers={'Cache-Control': 'no-store'})
+    return FileResponse(ROOT/'fixtures'/'sample-renewal-scan.png', media_type='image/png', headers={'Cache-Control': 'no-store'})
 
 @app.post('/api/documents/extract')
 async def pdf_extract(file: UploadFile=File(...)):
