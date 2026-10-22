@@ -3,7 +3,7 @@
     python -m renewal.ratewatch.letter            -> data/ratewatch/letters/sample-penalty-letter.pdf
     from renewal.ratewatch.letter import build_letter
 
-Issued by Renewal Radar (Alenza Fintech) to the homeowner. Colours: navy #011F5B, crimson #990000 (palette only, no third-party marks).
+Issued by Renewal Radar (John Khan) to the homeowner. Colours: navy #011F5B, crimson #990000 (palette only, no third-party marks).
 """
 from datetime import date
 from pathlib import Path
@@ -18,10 +18,10 @@ from .paths import DATA
 NAVY = colors.HexColor("#011F5B")
 CRIMSON = colors.HexColor("#990000")
 RULE = colors.HexColor("#C9CED8")
-# Letterhead. Renewal Radar is an Alenza Fintech product; leave a field blank to hide it.
+# Letterhead. Renewal Radar is built by John Khan; leave a field blank to hide it.
 BROKER = {
     "name": "Renewal Radar",
-    "title": "Alenza Fintech",
+    "title": "John Khan",
     "brokerage": "",
     "brokerage_no": "",
     "licence": "",
@@ -138,7 +138,7 @@ def build_letter(out_path, client, mortgage, result, forecast_rows=None, lender_
         raise ValueError("term has matured: there is no prepayment charge to explain")
     doc = SimpleDocTemplate(out_path if hasattr(out_path, "write") else str(out_path), pagesize=LETTER, leftMargin=0.85 * inch, rightMargin=0.85 * inch,
                             topMargin=1.4 * inch, bottomMargin=0.95 * inch, title="Prepayment Penalty Assessment",
-                            author="Alenza Fintech", subject="Mortgage prepayment penalty assessment", creator="Renewal Radar")
+                            author="John Khan", subject="Mortgage prepayment penalty assessment", creator="Renewal Radar")
     s = [Paragraph(_day(today, lang), BODY), Spacer(1, 10)]
     name = (str(client.get("name") or "").strip() or "Homeowner")[:120]
     lender = str(mortgage["lender"])[:60]

@@ -26,7 +26,7 @@ def test_registry_has_100_sources_100_checks_100_ontario_lenders():
 
 def test_letterhead_has_no_brokerage_or_licence_fields():
     from renewal.ratewatch.letter import BROKER
-    assert BROKER["name"] == "Renewal Radar" and BROKER["title"] == "Alenza Fintech"
+    assert BROKER["name"] == "Renewal Radar" and BROKER["title"] == "John Khan"
     assert not any(BROKER[k] for k in ("brokerage", "brokerage_no", "licence", "phone"))
 
 
@@ -53,7 +53,7 @@ def test_letter_endpoint_returns_one_page_pdf():
     assert r.status_code == 200 and r.headers["content-type"] == "application/pdf"
     doc = pymupdf.open(stream=r.content, filetype="pdf")
     text = doc[0].get_text()
-    assert doc.page_count == 1 and "$12,832.00" in text and "Alenza Fintech" in text
+    assert doc.page_count == 1 and "$12,832.00" in text and "John Khan" in text
 
 
 def test_scotia_feed_parser():

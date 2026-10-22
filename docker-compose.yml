@@ -8,7 +8,8 @@ services:
       NEBIUS_API_KEY: ${NEBIUS_API_KEY:-}
       NEBIUS_MODEL: ${NEBIUS_MODEL:-nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B}
       TAVILY_API_KEY: ${TAVILY_API_KEY:-}
-      APP_ENV: production
+      # Public demo mode, the same as render.yaml: samples and calculations only.
+      APP_ENV: demo
     volumes:
       - radar_data:/app/data
     restart: unless-stopped
