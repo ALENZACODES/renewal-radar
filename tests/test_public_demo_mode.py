@@ -22,7 +22,7 @@ def test_health_paths_are_public(demo_client):
 
 def test_sample_flow_works_without_a_key(demo_client):
     demo = demo_client.get('/api/demo').json()
-    assert demo['mortgage']['lender'] == 'Maple Bank (illustrative)'
+    assert demo['mortgage']['lender'] == 'RBC (illustrative sample)'
     assert demo_client.get('/api/demo/sample.pdf').status_code == 200
     r = demo_client.post('/api/analyze', json={'mortgage': demo['mortgage'], 'offers': demo['offers']})
     assert r.status_code == 200

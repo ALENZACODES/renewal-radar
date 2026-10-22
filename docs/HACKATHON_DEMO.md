@@ -4,7 +4,7 @@
 
 0:00–0:15 — “Every Canadian homeowner faces a mortgage renewal. A lender presents a number, but the real decision is a maze of rates, penalties and regulations. This is Renewal Radar.”
 
-0:15–0:35 — Letter X-Ray: click Load sample PDF. Call out the extracted $480,000 balance, 5.49% offer and 19-year amortization, each with page evidence. Explain that Maple Bank is fictional.
+0:15–0:35 — Letter X-Ray: click Load sample PDF. Call out the extracted $480,000 balance, 5.49% offer and 19-year amortization, each with page evidence. Explain that the RBC letter is an illustrative sample, not an RBC document.
 
 0:35–0:55 — Switch panel: eligibility classifier identifies a **potential** uninsured OSFI straight switch without prescribed MQR. Toggle cash-out above zero, and show the result changing to new underwriting. Emphasize lender approval is always required.
 

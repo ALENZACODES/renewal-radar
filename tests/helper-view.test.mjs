@@ -70,7 +70,7 @@ test('offline bootstrap works when demo requests cannot reach the server', async
   const result = await loadInitialWorkspace({demo: async () => {throw new Error('Offline');}});
   assert.equal(result.offline, true);
   assert.equal(result.data.mortgage.balance, 480000);
-  assert.match(result.data.notice, /Hypothetical offline example from Maple Bank/);
+  assert.match(result.data.notice, /RBC illustrative sample, offline/);
 });
 
 test('online bootstrap preserves the server provided workspace', async () => {
