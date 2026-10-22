@@ -16,7 +16,7 @@ This is a sourced implementation note, not a guarantee that the underlying regul
 | Posted five-year benchmark `V80691335` | https://www.bankofcanada.ca/valet/observations/V80691335/json?recent=5 | Aggregate/modal five-year conventional posted benchmark, not a special or quote |
 | One and three year posted `V80691333,V80691334` | https://www.bankofcanada.ca/valet/observations/V80691333,V80691334/json?recent=5 | Historical bank rates |
 | Prime `V80691311` | https://www.bankofcanada.ca/valet/observations/V80691311/json?recent=5 | Typical bank prime, not lender-specific spread |
-| GoC five year bond `V39053` | https://www.bankofcanada.ca/valet/observations/V39053/json?recent=5 | Bond yield context, never confused with borrower rates |
+| GoC five year bond `BD.CDN.5YR.DQ.YLD` | https://www.bankofcanada.ca/valet/observations/BD.CDN.5YR.DQ.YLD/json?recent=5 | Bond yield context, never confused with borrower rates |
 
 **Official Big Six published-rate pages**
 

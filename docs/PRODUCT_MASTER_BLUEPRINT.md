@@ -129,7 +129,7 @@ The Bank of Canada's 2026 Financial Stability Report says the last wave of pande
 | BoC conventional 5-year posted benchmark, `V80691335` | https://www.bankofcanada.ca/valet/observations/V80691335/json?recent=5 | Weekly modal major-bank posted rate; last verified 2026-10-07: **6.19%** |
 | BoC 1-year and 3-year posted mortgage benchmarks | https://www.bankofcanada.ca/valet/observations/V80691333,V80691334/json?recent=5 | Weekly market context, not individualized offers |
 | BoC typical bank prime, `V80691311` | https://www.bankofcanada.ca/valet/observations/V80691311/json?recent=5 | Weekly published benchmark, not necessarily lender-specific prime |
-| GoC 5-year bond, `V39053` | https://www.bankofcanada.ca/valet/observations/V39053/json?recent=5 | Funding/market context, **not** a quoted fixed mortgage rate |
+| GoC 5-year bond, `BD.CDN.5YR.DQ.YLD` | https://www.bankofcanada.ca/valet/observations/BD.CDN.5YR.DQ.YLD/json?recent=5 | Funding/market context, **not** a quoted fixed mortgage rate |
 | BoC major-bank posted-rate methodology | https://www.bankofcanada.ca/rates/banking-and-financial-statistics/posted-interest-rates-offered-by-chartered-banks/ | Explains mode-of-six methodology |
 | BoC 2026 renewal analysis | https://www.bankofcanada.ca/publications/financial-stability-report/financial-stability-report-2026/households/ | Market-need evidence, not individual prediction |
 
