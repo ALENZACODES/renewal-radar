@@ -44,7 +44,8 @@ LENDERS = [
     ("P023", "TD", "bank", ("td_api", "https://www.td.com/ca/en/personal-banking/products/mortgages/mortgage-rates"),
      ("td_json", "https://ix0.apps.td.com/api/get-rates/en")),
     ("P025", "Scotiabank", "bank", ("scotia_api", "https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage"), None),
-    ("P027", "BMO", "bank", ("bmo_api", "https://www.bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json"), None),
+    ("P027", "BMO", "bank", ("bmo_api", "https://www.bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json"),
+     ("bmo_include", "https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp")),
     ("P029", "CIBC", "bank", ("cibc_api", "https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2c5YRVARCLO%2cFOM%2cVROM%2c"),
      ("cibc_js", "https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2c")),
     ("P031", "National Bank", "bank", ("html", "https://www.nbc.ca/personal/mortgages/rates.html"),
@@ -142,6 +143,8 @@ def parse_text(kind: str, text: str) -> list:
         return parse_feed("td_json", text)
     if kind == "equitable":
         return scrape.equitable_rows(text)
+    if kind == "bmo_include":
+        return parse_feed("bmo_include", text)
     return extract_rates(text)
 
 

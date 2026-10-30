@@ -110,3 +110,11 @@ def test_warc_body_unpacks_gzip_and_chunked():
     chunked = b"WARC/1.0\r\n\r\nHTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n" + \
         f"{len(page):x}".encode() + b"\r\n" + page + b"\r\n0\r\n\r\n"
     assert backfill.warc_body(chunked) == page.decode()
+
+
+def test_bmo_has_its_rate_include_as_backup_source():
+    from renewal.ratewatch import live
+    row = next(r for r in live.LENDERS if r[0] == "P027")
+    assert row[4] == ("bmo_include", "https://www.bmo.com/bmocda/templates/json_mortgage_include.jsp")
+    js = "var MORTGAGE = {'fixed' : {'5 year (closed)' : {'value':'6.090', 'type':'closed', 'term_months':'60'}}};"
+    assert live.parse_text("bmo_include", js) == [(60, "fixed_closed", "posted", 6.09)]
