@@ -46,26 +46,7 @@ app.add_middleware(CORSMiddleware,allow_origins=list(settings.allowed_origins),a
 
 limiter=SlidingWindowLimiter()
 
-@app.middleware('http')
-async def rate_limit(request,call_next):
-    if not settings.rate_limit_enabled:
-        return await call_next(request)
-    client=request.client.host if request.client else 'unknown'
-    decision=limiter.check(client,request.url.path)
-    if decision is not None and not decision.allowed:
-        retry=max(1,int(decision.retry_after+0.999))
-        return JSONResponse({'detail':'Too many requests; please retry shortly.'},status_code=429,
-                            headers={'Retry-After':str(retry),'X-RateLimit-Limit':str(decision.limit),
-                                     'X-RateLimit-Remaining':'0'})
-    response=await call_next(request)
-    if decision is not None:
-        response.headers['X-RateLimit-Limit']=str(decision.limit)
-        response.headers['X-RateLimit-Remaining']=str(decision.remaining)
-    return response
-
-@app.middleware('http')
-async def add_security_headers(request,call_next):
-    response=await call_next(request)
+def _security_headers(response,path:str):
     response.headers['X-Content-Type-Options']='nosniff'
     response.headers['X-Frame-Options']='DENY'
     response.headers['Referrer-Policy']='no-referrer'
@@ -74,9 +55,27 @@ async def add_security_headers(request,call_next):
        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
        "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; "
        "frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'")
-    if request.url.path.startswith('/api/'):
+    if path.startswith('/api/'):
         response.headers['Cache-Control']='no-store'
     return response
+
+@app.middleware('http')
+async def security_and_rate_limit(request,call_next):
+    decision=None
+    if settings.rate_limit_enabled:
+        client=request.client.host if request.client else 'unknown'
+        decision=limiter.check(client,request.url.path)
+        if decision is not None and not decision.allowed:
+            retry=max(1,int(decision.retry_after+0.999))
+            response=JSONResponse({'detail':'Too many requests; please retry shortly.'},status_code=429,
+                                  headers={'Retry-After':str(retry),'X-RateLimit-Limit':str(decision.limit),
+                                           'X-RateLimit-Remaining':'0'})
+            return _security_headers(response,request.url.path)
+    response=await call_next(request)
+    if decision is not None:
+        response.headers['X-RateLimit-Limit']=str(decision.limit)
+        response.headers['X-RateLimit-Remaining']=str(decision.remaining)
+    return _security_headers(response,request.url.path)
 
 @app.get('/api/health')
 async def health():

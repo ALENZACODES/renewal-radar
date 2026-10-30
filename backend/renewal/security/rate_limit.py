@@ -3,6 +3,9 @@
 The limiter is deliberately small and dependency-free so the local demo and the
 test suite behave the same way. A multi-instance deployment should swap the
 store for a shared one (for example Redis) behind the same interface.
+
+Callers must pass a trusted client identifier. Behind a reverse proxy this is
+the verified remote address from the proxy, never an unverified X-Forwarded-For.
 """
 from __future__ import annotations
 

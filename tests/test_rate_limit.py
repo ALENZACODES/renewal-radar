@@ -76,4 +76,5 @@ def test_middleware_returns_429_with_retry_after(monkeypatch):
     blocked = client.get('/api/demo')
     assert blocked.status_code == 429
     assert int(blocked.headers['Retry-After']) >= 1
+    assert blocked.headers['X-Content-Type-Options'] == 'nosniff'
     assert client.get('/api/health').status_code == 200
