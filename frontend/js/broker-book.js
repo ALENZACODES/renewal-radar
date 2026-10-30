@@ -46,7 +46,7 @@ export function brokerBookView(workspace) {
     `<div class="field"><label>${esc(label)}</label><input class="book-filter" data-key="${esc(key)}" type="${type}" value="${esc(value)}"/></div>`;
   const head = pageHead('BROKER BOOK REVIEW', 'Who should break their mortgage now?',
     'Import your funded deals, then see which clients save interest and years by breaking at today’s rates.',
-    button('Run review', 'book-review', 'dark') + button('Export CSV', 'book-export', 'ghost') + button('Sample file', 'book-sample', 'ghost') + button('Clear book', 'book-clear', 'ghost'));
+    button('Run review', 'book-review', 'dark') + button('Export CSV', 'book-export', 'ghost') + button('Load sample book', 'book-sample', 'ghost') + button('Sample CSV', 'book-sample-download', 'ghost') + button('Clear book', 'book-clear', 'ghost'));
   return `${head}
     <section class="card padded"><h3>1. Import deals</h3>
       <div class="field mt"><label for="book-date-order">Numeric date order</label>

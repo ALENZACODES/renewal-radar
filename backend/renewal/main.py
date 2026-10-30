@@ -123,6 +123,7 @@ async def demo():
        'offers':[Offer(name='Illustrative alternative',rate=4.49,rate_type='fixed',term_months=36,type='hypothetical',fees=950).model_dump(),
                  Offer(name='Illustrative variable',rate=4.25,rate_type='variable',term_months=36,type='hypothetical',fees=1100).model_dump()],
        'case_title':'Sample renewal: $480,000 balance',
+       'public_demo':_PUBLIC_DEMO,
        'notice':'RBC illustrative sample using hypothetical terms. Not an RBC document, not issued or endorsed by RBC; no rates are verified borrower quotes.'}
 
 @app.get('/api/demo/sample.pdf')

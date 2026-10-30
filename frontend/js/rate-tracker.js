@@ -56,7 +56,7 @@ export class RateRefreshController {
   }
 }
 
-export function rateTrackingView(snapshot) {
+export function rateTrackingView(snapshot, board = null) {
   if (!snapshot) return '';
   const status = snapshot.data_status === 'live-observation' ? 'Official observations retrieved'
     : snapshot.data_status === 'cached-stale' ? 'Cached observations' : 'Source unavailable';
@@ -64,10 +64,20 @@ export function rateTrackingView(snapshot) {
   return `<section class="rate-tracking-band" aria-label="Automatic rate tracking">
     <h3>Rate tracking</h3>
     <p><strong>${esc(status)}</strong>${snapshot.checked_at ? ` &middot; Checked ${esc(snapshot.checked_at)}` : ''}</p>
-    <p class="small">Refresh interval: ${Math.round((snapshot.refresh_interval_seconds || 900) / 60)} minutes. Verified lender pages: ${esc(snapshot.verified_bank_count || 0)}.</p>
+    <p class="small">Refresh interval: ${Math.round((snapshot.refresh_interval_seconds || 900) / 60)} minutes. ${liveVerificationLine(board)}</p>
     ${changes.length ? `<div class="table-scroll"><table class="semantic-facts"><thead><tr><th>Observation</th><th>Previous</th><th>Latest</th><th>Change</th><th>Published</th></tr></thead><tbody>
       ${changes.slice(0, 20).map(change => `<tr><td>${esc(change.label)}</td><td>${esc(change.previous)}%</td><td>${esc(change.current)}%</td><td>${esc(change.change_basis_points)} bps</td><td>${esc(change.observed_at)}</td></tr>`).join('')}
     </tbody></table></div>` : '<p>No rate changes recorded during this session.</p>'}
     ${(snapshot.warnings || []).map(warning => `<p role="status">${esc(warning)}</p>`).join('')}
   </section>`;
+}
+
+/** Big-bank verification from the Live rates board (three-level checks), not the static source catalogue. */
+export function liveVerificationLine(board) {
+  const banks = board?.banks || [];
+  if (!banks.length) return 'Lender rates are verified on the <a href="#/live">Live rates</a> board (three-level checks).';
+  const good = ['primary', 'backup1', 'cache', 'archive', 'published'];
+  const l2 = banks.filter(b => good.includes(b.tier) && (b.verification?.level || 0) >= 2).length;
+  const l3 = banks.filter(b => good.includes(b.tier) && (b.verification?.level || 0) >= 3).length;
+  return `Big-bank rates verified on the <a href="#/live">Live rates</a> board: ${l2} of ${banks.length} pass the market check, ${l3} also independently corroborated.`;
 }

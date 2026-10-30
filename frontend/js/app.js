@@ -45,7 +45,7 @@ function navigate(page,fromHistory=false){
   window.scrollTo({top:0,behavior:'smooth'});
   if(page==='negotiate'&&!state.negotiation)makeNegotiation().catch(handleError);
   if(page==='penalty'&&!state.penaltyTimeline)calcPenalty().catch(handleError);
-  if(page==='live'&&!state.liveRates)loadLiveRates(false).catch(handleError);
+  if((page==='live'||page==='market')&&!state.liveRates)loadLiveRates(false).catch(handleError);
 }
 function handleError(e){toast('⚠ '+(e?.message||'Unable to complete the operation.'));console.warn('Action failed',e?.message||e)}
 async function recalculate(quiet=false){
@@ -172,7 +172,14 @@ async function action(name,element){
       state.bookImport=imported;state.bookReview=null;await runBookReview(ticket);break;
     }
     case 'book-export':{if(!state.bookImport?.deals?.length){toast('Import deals first');break;}const response=await api.bookReviewCsv(bookReviewRequest(state.bookImport.deals,state.bookFilters));await downloadResponse(response,'book-opportunities.csv');break;}
-    case 'book-sample':{const response=await api.bookSample();await downloadResponse(response,'broker-book-sample.csv');break;}
+    case 'book-sample':{
+      // Load the sample book straight into the review so a broker sees results without uploading a real book.
+      const response=await api.bookSample();const blob=await response.blob();
+      const file=new File([blob],'broker-book-sample.csv',{type:'text/csv'});
+      const ticket=beginBookOperation(state);state.bookError=null;state.bookPendingFile=file;
+      state.bookImport=await api.bookImport(file,{date_order:state.bookDateOrder});state.bookReview=null;
+      await runBookReview(ticket);toast('✓ Sample book loaded: illustrative deals, not real clients');break;}
+    case 'book-sample-download':{const response=await api.bookSample();await downloadResponse(response,'broker-book-sample.csv');break;}
     case 'live-rates-refresh':toast('Checking every lender…');await loadLiveRates(true);toast(state.liveRatesNote||state.liveRatesError?'Showing the latest saved rate board.':'✓ Rates refreshed');break;
     case 'lender-exact-letter':{const lx={...(state.lenderExact||{})};const response=await api.ratewatchLetter({...lenderExactRequest(lx,state),client_name:lx.client_name||'Homeowner',language:lx.language||'en'});await downloadResponse(response,'penalty-assessment.pdf');toast('✓ Letter downloaded');break;}
     case 'lender-exact-csv':{const response=await api.ratewatchExtra('csv',lenderExactRequest(state.lenderExact,state));await downloadResponse(response,'penalty.csv');break;}
@@ -225,7 +232,7 @@ async function loadLiveRates(force){
   const empty=b&&!(b.banks||[]).length&&!(b.credit_unions||[]).length;
   clearTimeout(liveRatesPoll);
   if(b&&(empty||b.refreshing)&&state.page==='live')liveRatesPoll=setTimeout(()=>loadLiveRates(false).catch(()=>{}),15000);
-  if(state.page==='live')render();
+  if(state.page==='live'||state.page==='market')render();
 }
 async function lenderExactCalc(){
   const body=lenderExactRequest(state.lenderExact,state);

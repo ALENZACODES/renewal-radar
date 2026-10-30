@@ -20,7 +20,7 @@ export function resetState(demo){
   Object.assign(state,{mortgage:structuredClone(demo.mortgage),offers:structuredClone(demo.offers),analysis:null,
     document:null,penalty:null,penaltyInputs:null,penaltyTimeline:null,penaltyMonth:0,penaltyTimelineError:null,penaltyExample:false,
     negotiation:null,insight:null,loaded:true,loading:false,caseRecord:null,shareRecord:null,checklist:new Set(),
-    horizon:36,discount:4,sharedView:null});
+    horizon:36,discount:4,sharedView:null,publicDemo:!!demo.public_demo});
   try{sessionStorage.removeItem('rr_case')}catch{}
 }
 export function storeCase(record){state.caseRecord=record;try{sessionStorage.setItem('rr_case',JSON.stringify(record))}catch{}}
