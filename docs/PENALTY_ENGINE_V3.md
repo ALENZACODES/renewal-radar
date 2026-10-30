@@ -77,3 +77,15 @@ current posted table and the posted rate at funding, then runs the Decimal
 engine and a sensitivity pass over every rule the table supports. If the rule
 alone moves the estimate by $500 or more, the response warns about it. Missing
 inputs are reported in `missing_fields`; nothing is filled in silently.
+
+## Renewal brief (`POST /api/v5/cases/brief`)
+
+Takes confirmed facts (lender, balance, rate, maturity, term, and optionally amortization,
+renewal offer, contract discount, cashback) and returns:
+
+- `offer`: renewal rate against today's posted rate for the renewal term, with payments at both.
+- `break_today`: workbench penalty estimate for paying out today.
+- `missing`: inputs that are still needed. They are never filled with defaults.
+- `cautions` and `sources`: every rate used, with its date, source and quality.
+
+The funding date is maturity minus term. `as_of` can be passed to reproduce a past brief.
