@@ -17,9 +17,13 @@ H = {"User-Agent": "Mozilla/5.0 (research; Renewal Radar history backfill)"}
 DONE = backfill.DATA / "harvest_done.json"
 FEEDS = [
     ("P027", "bmo_include", "www.bmo.com/bmocda/templates/json_mortgage_include.jsp", None),
-    ("P029", "cibc_js", "www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy", "FRCM"),
+    ("P029", "cibc_js", "www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy", None),
     ("P023", "td_json", "ix0.apps.td.com/api/get-rates/en", None),
+    ("P025", "scotia_json", "dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage", None),
+    ("P021", "html", "www.rbcroyalbank.com/mortgages/mortgage-rates.html", None),
+    ("P031", "html", "www.nbc.ca/personal/mortgages/rates.html", None),
 ]
+PER_MONTH = 5
 
 
 def get(url, **kw):
@@ -39,7 +43,10 @@ def get(url, **kw):
 def main():
     done = json.loads(DONE.read_text()) if DONE.exists() else {}
     window = set(backfill.months())
+    only = next((a.split("=", 1)[1].split(",") for a in sys.argv if a.startswith("--banks=")), None)
     for sid, kind, url, must in FEEDS:
+        if only and sid not in only:
+            continue
         have = set(backfill.own_months(sid, {}))
         r = get("https://web.archive.org/cdx/search/cdx", params={"url": url, "matchType": "prefix", "from": min(window),
                 "filter": "statuscode:200", "fl": "timestamp,original"})
@@ -56,7 +63,7 @@ def main():
         for m in sorted(by_month):
             if m in have or done.get(f"{sid}:{m}") == "ok":
                 continue
-            for ts, orig in sorted(by_month[m], reverse=True)[:3]:
+            for ts, orig in sorted(by_month[m], reverse=True)[:PER_MONTH]:
                 if done.get(f"{sid}:{ts}") == "rejected":
                     continue
                 resp = get(f"https://web.archive.org/web/{ts}id_/{orig}")
