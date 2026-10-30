@@ -1,4 +1,4 @@
-﻿"""OCR temp directories: context-managed workdirs + stale leftover sweep."""
+"""OCR temp directories: context-managed workdirs + stale leftover sweep."""
 from __future__ import annotations
 
 import shutil
