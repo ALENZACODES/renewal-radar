@@ -45,7 +45,7 @@ def _tesseract_gate():
 @pytest.fixture(scope='module')
 def scan_packet():
     _require_tesseract_or_skip()
-    return read_mortgage_document((ROOT / 'fixtures/rbc-renewal-scan.png').read_bytes(), 'rbc-scan.png')
+    return read_mortgage_document((ROOT / 'fixtures/sample-renewal-scan.png').read_bytes(), 'sample-scan.png')
 
 
 @requires_tesseract
@@ -58,7 +58,7 @@ def test_installed_engine_is_real_and_current():
 
 
 @requires_tesseract
-def test_real_ocr_reads_rbc_image_rates_dates_and_terms(scan_packet):
+def test_real_ocr_reads_sample_image_rates_dates_and_terms(scan_packet):
     fields = scan_packet['fields']
     assert fields['balance']['value'] == 480000
     assert fields['offered_rate']['value'] == 5.49
@@ -77,7 +77,7 @@ def test_real_scan_keeps_source_passages_and_review_requirements(scan_packet):
     assert scan_packet['semantic_audit']['mentions']
     assert all(field['page'] == 1 and field['excerpt'] for field in scan_packet['fields'].values())
     assert any('Check every number' in warning for warning in scan_packet['warnings'])
-    assert 'RBC' in scan_packet['preview'][0]['text']
+    assert 'MAPLE' in scan_packet['preview'][0]['text'].upper()
 
 
 def test_text_pdf_does_not_require_an_ocr_pass():
@@ -91,7 +91,7 @@ def test_text_pdf_does_not_require_an_ocr_pass():
 def test_image_only_pdf_uses_real_ocr():
     with fitz.open() as document:
         page = document.new_page(width=612, height=792)
-        page.insert_image(page.rect, stream=(ROOT / 'fixtures/rbc-renewal-scan.png').read_bytes())
+        page.insert_image(page.rect, stream=(ROOT / 'fixtures/sample-renewal-scan.png').read_bytes())
         content = document.tobytes()
     result = read_mortgage_document(content, 'scanned-letter.pdf')
     assert result['fields']['balance']['value'] == 480000
@@ -106,7 +106,7 @@ def test_french_model_is_available_and_bilingual_reading_is_local():
         if _ci_true():
             pytest.fail('tesseract-ocr-fra must be installed in CI for bilingual OCR')
         pytest.skip('French Tesseract language data not installed')
-    result = read_mortgage_document((ROOT / 'fixtures/rbc-renewal-scan.png').read_bytes(), 'bilingual.png', 'eng+fra')
+    result = read_mortgage_document((ROOT / 'fixtures/sample-renewal-scan.png').read_bytes(), 'bilingual.png', 'eng+fra')
     assert result['ocr_pages'][0]['language'] == 'eng+fra'
     assert result['fields']['offered_rate']['value'] == 5.49
 
@@ -114,7 +114,7 @@ def test_french_model_is_available_and_bilingual_reading_is_local():
 def test_missing_engine_is_an_explicit_error_not_invented_fields(monkeypatch):
     monkeypatch.setenv('RENEWAL_RADAR_TESSERACT', str(ROOT / 'runtime/no-such-engine.exe'))
     with pytest.raises(OCREngineError, match='not installed'):
-        read_mortgage_document((ROOT / 'fixtures/rbc-renewal-scan.png').read_bytes(), 'scan.png')
+        read_mortgage_document((ROOT / 'fixtures/sample-renewal-scan.png').read_bytes(), 'scan.png')
 
 
 @pytest.mark.parametrize('payload', [b'', b'%PDF-corrupt', b'not an image', b'x' * (15 * 1024 * 1024 + 1)], ids=['empty', 'bad_pdf', 'not_image', 'oversize'])
@@ -132,13 +132,13 @@ def test_oversized_pdf_page_is_rejected_before_raster_allocation():
 
 
 @requires_tesseract
-def test_rbc_demo_and_real_ocr_api():
+def test_maple_demo_and_real_ocr_api():
     with TestClient(app) as http:
         demo = http.get('/api/demo').json()
-        assert demo['mortgage']['lender'] == 'RBC Royal Bank (illustrative)'
-        assert 'Not issued or endorsed by RBC' in demo['notice']
+        assert demo['mortgage']['lender'] == 'Maple Bank (illustrative)'
+        assert 'fictional demonstration lender' in demo['notice']
         response = http.post('/api/v17/documents/read?language=eng', files={
-            'file': ('rbc.png', (ROOT / 'fixtures/rbc-renewal-scan.png').read_bytes(), 'image/png'),
+            'file': ('sample.png', (ROOT / 'fixtures/sample-renewal-scan.png').read_bytes(), 'image/png'),
         })
         assert response.status_code == 200, response.text
         assert response.json()['fields']['offered_rate']['value'] == 5.49

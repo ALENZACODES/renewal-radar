@@ -5,12 +5,12 @@ import {state, resetState} from '../frontend/js/state.js';
 import {getView} from '../frontend/js/views.js';
 import {offlineDemoWorkspace} from '../frontend/js/offline-workspace.js';
 
-test('offline demonstration stays RBC-labelled and explicitly hypothetical', () => {
+test('offline demonstration uses the fictional Maple Bank and stays explicitly hypothetical', () => {
   const demo = offlineDemoWorkspace();
-  assert.equal(demo.mortgage.lender, 'RBC Royal Bank (illustrative)');
-  assert.match(demo.notice, /not issued or endorsed by RBC/);
+  assert.equal(demo.mortgage.lender, 'Maple Bank (illustrative)');
+  assert.match(demo.notice, /Maple Bank, a fictional lender/);
   resetState(demo); state.page = 'overview';
-  assert.match(getView(), /RBC Royal Bank is the demonstration lender/);
+  assert.match(getView(), /Maple Bank is a fictional demonstration lender/);
 });
 test('document screen accepts scans and exposes local OCR language selection', () => {
   resetState(offlineDemoWorkspace()); state.page = 'document';

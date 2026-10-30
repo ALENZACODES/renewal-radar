@@ -42,7 +42,7 @@ The reader uses the existing evidence auditor. It keeps original/renewal scopes
 separate, does not promote conflicting facts, links candidates to source passages
 and requires manual field verification. OCR word confidence is a model score,
 not the percentage probability that a contract field is correct. In the real
-RBC-labelled scan check, mean word confidence was approximately 96% and all
+sample scan check, mean word confidence was approximately 96% and all
 seven expected English fields were recovered.
 
 Uploads are not permanently saved. OCR uses temporary normalized local page
@@ -51,13 +51,12 @@ sent to a third-party OCR service. Native PDF extraction, OCR and loan calculati
 still require the running local server; only the cached browser helper works
 after that server stops.
 
-## RBC Sample
+## Sample lender
 
-RBC Royal Bank is now the default demonstration lender in the online and offline
-workspaces. The generated PDF and scan explicitly say they are hypothetical,
-not issued or endorsed by RBC and not rate quotes. No RBC logo, authentication,
-account connection or personalized rate has been added. Real user-entered lender
-names remain editable and are not forcibly renamed to RBC.
+Maple Bank is a made-up lender used for the demonstration in the online and offline
+workspaces. The generated PDF and scan say they are illustrative and not rate quotes.
+No real bank's name or logo is used as the sample's brand. Lender names that users
+enter remain editable.
 
 ## Verification
 
