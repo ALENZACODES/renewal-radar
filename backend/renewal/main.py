@@ -16,7 +16,7 @@ from .security.rate_limit import SlidingWindowLimiter
 from pydantic import ValidationError
 from .config import settings
 from .security.access import require_api_access, demo_enabled, demo_samples_allowed, is_production
-from .domain.schemas import AnalyzeRequest,Mortgage,Offer,PenaltyRequest,CaseCreate,ShareRequest,NegotiationRequest
+from .domain.schemas import AnalyzeRequest,Mortgage,Offer,PenaltyRequest,CaseCreate,CaseTokenMint,ShareRequest,NegotiationRequest
 from .domain.mortgage_math import compare_offers,stress_paths,simulate
 from .domain.rules import mqr,switch_decision,penalty_estimate,OSFI_MQR,OSFI_SWITCH,RENEWAL
 from .services.extract import extract_pdf
@@ -266,13 +266,60 @@ async def calendar(maturity_date:str):
     return Response(data,media_type='text/calendar',headers={'Content-Disposition':'attachment; filename="renewal-radar-reminders.ics"','Cache-Control':'no-store'})
 
 @app.post('/api/cases',status_code=201)
-async def cases_create(body:CaseCreate):
-    return store.create_case(body.title,{'mortgage':body.mortgage.model_dump(),'offers':[o.model_dump() for o in body.offers]})
+async def cases_create(body:CaseCreate,x_broker_token:str|None=Header(default=None)):
+    """Broker-owned case create. Returns case id only — no long-lived access token.
+
+    Mint scoped tokens via POST /api/cases/{id}/tokens (broker principal required).
+    """
+    from .broker.workspace import AccessDenied as _AD
+    try:
+        broker_workspace._assert_access(body.workspace_id, x_broker_token or '')
+    except _AD:
+        raise HTTPException(404, 'Workspace not found')
+    return store.create_case(
+        body.title,
+        {'mortgage': body.mortgage.model_dump(), 'offers': [o.model_dump() for o in body.offers]},
+        workspace_id=body.workspace_id,
+        mint_legacy_token=False,
+    )
 
 def access_or_404(uid,token):
     obj=store.read_case(uid,token)
     if not obj:raise HTTPException(404,'Case not found or access token invalid')
     return obj
+
+@app.post('/api/cases/{uid}/tokens',status_code=201)
+async def cases_mint_token(
+    uid: str,
+    body: CaseTokenMint,
+    x_broker_token: str | None = Header(default=None),
+):
+    """Mint a hashed, scoped, TTL case token. Broker of the owning workspace only.
+
+    API-key-only callers cannot mint. Email OTP binding for borrower invites is TODO.
+    """
+    from .broker.workspace import AccessDenied as _AD
+    from .cases.tokens import case_tokens
+    meta = store.get_case_meta(uid)
+    if not meta or not meta.get('workspace_id'):
+        raise HTTPException(404, 'Case not found')
+    try:
+        broker_workspace._assert_access(meta['workspace_id'], x_broker_token or '')
+    except _AD:
+        raise HTTPException(404, 'Case not found')
+    try:
+        minted = case_tokens.mint(
+            case_id=uid,
+            workspace_id=meta['workspace_id'],
+            scopes=body.scopes,
+            ttl_seconds=body.ttl_seconds,
+        )
+    except PermissionError as exc:
+        raise HTTPException(429, str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    # TODO: email OTP verification before handing token to borrower if invite flow is enabled
+    return minted
 
 @app.get('/api/cases/{uid}')
 async def cases_get(uid:str,x_case_token:str|None=Header(default=None)):
@@ -414,6 +461,8 @@ def _market_rate(lender, day):
 
 broker_dashboard = BrokerDashboard(broker_workspace, market_rate=_market_rate)
 banklink_service = _sandbox_service()
+from .banklink.gateway import BankLinkGateway
+banklink_gateway = BankLinkGateway(banklink_service)
 _lead_engine = None
 LEADS_DB = ROOT / 'data' / 'leads.sqlite3'
 
@@ -438,6 +487,7 @@ app.include_router(build_router(
     broker_workspace=broker_workspace,
     broker_dashboard=broker_dashboard,
     banklink_service=banklink_service,
+    banklink_gateway=banklink_gateway,
     get_lead_engine=get_lead_engine,
     frontend_check=_frontend_check,
     case_store_check=_case_store_check,

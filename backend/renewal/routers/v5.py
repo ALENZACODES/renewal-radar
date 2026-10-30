@@ -15,6 +15,9 @@ from pydantic import BaseModel, Field
 from ..banklink.adapters import FlinksAdapter, PlaidAdapter, SandboxTransport
 from ..banklink.models import CredentialRefused, Provider, Scope
 from ..banklink.service import BankLinkService, ConsentError, to_renewal_inputs
+from ..banklink.gateway import BankLinkGateway, COOKIE_NAME
+from ..cases.tokens import case_tokens
+from ..services import store as case_store
 from ..broker.dashboard import BrokerDashboard
 from ..broker.pipeline import InvalidTransition, Stage
 from ..broker.workspace import AccessDenied, BrokerWorkspace
@@ -73,6 +76,7 @@ def build_router(
     broker_workspace: BrokerWorkspace,
     broker_dashboard: BrokerDashboard,
     banklink_service: BankLinkService,
+    banklink_gateway: BankLinkGateway,
     get_lead_engine: Callable[[], LeadEngine],
     frontend_check: Callable[[], object],
     case_store_check: Callable[[], object],
@@ -95,6 +99,12 @@ def build_router(
         status = 200 if report["status"] == "ready" else 503
         return JSONResponse(report, status_code=status)
 
+    def _case_token_for(case_id: str, token: str | None, required: str):
+        rec = case_tokens.verify(case_id, token, required=required)
+        if rec is None:
+            raise HTTPException(403, "Case token missing or insufficient scope")
+        return rec
+
     @router.get("/api/v5/banklink/providers")
     async def banklink_providers():
         return {
@@ -104,17 +114,38 @@ def build_router(
         }
 
     @router.post("/api/v5/banklink/consents", status_code=201)
-    async def banklink_consent(body: dict[str, Any]):
+    async def banklink_consent(
+        body: dict[str, Any],
+        x_broker_token: str | None = Header(None),
+        x_case_token: str | None = Header(None),
+    ):
+        """Bind consent to case/workspace. Broker of workspace OR case token banklink:connect."""
         _require_banklink_sandbox()
+        case_id = str(body.get("case_id") or "")
+        workspace_id = str(body.get("workspace_id") or "")
+        if not case_id or not workspace_id:
+            raise HTTPException(422, "case_id and workspace_id are required")
+        meta = case_store.get_case_meta(case_id)
+        if not meta or meta.get("workspace_id") != workspace_id:
+            raise HTTPException(404, "Case not found")
+        authorized = False
+        if x_broker_token:
+            try:
+                broker_workspace._assert_access(workspace_id, x_broker_token)
+                authorized = True
+            except AccessDenied:
+                pass
+        if not authorized and x_case_token:
+            if case_tokens.verify(case_id, x_case_token, required="banklink:connect") is not None:
+                authorized = True
+        if not authorized:
+            raise HTTPException(403, "Broker or case token with banklink:connect required")
         try:
-            scopes = {Scope.MORTGAGE_READ}
-            if body.get("scopes"):
-                scopes = {Scope(s) for s in body["scopes"]}
-            consent = banklink_service.grant(
-                str(body.get("subject") or ""),
-                Provider(str(body.get("provider") or "")),
-                scopes,
-                str(body.get("purpose") or ""),
+            consent = banklink_gateway.bind_consent(
+                workspace_id=workspace_id,
+                case_id=case_id,
+                provider=Provider(str(body.get("provider") or "")),
+                purpose=str(body.get("purpose") or ""),
                 days=int(body.get("days") or 30),
                 payload=body,
             )
@@ -122,37 +153,114 @@ def build_router(
             raise HTTPException(422, str(exc)) from exc
         except CredentialRefused as exc:
             raise HTTPException(422, str(exc)) from exc
-        return {"consent_id": consent.id, "expires_at": consent.expires_at.isoformat()}
-
-    @router.post("/api/v5/banklink/consents/{cid}/session")
-    async def banklink_session(cid: str):
-        _require_banklink_sandbox()
-        try:
-            session = banklink_service.start(cid)
-        except ConsentError as exc:
-            raise HTTPException(403, str(exc)) from exc
         return {
-            "provider": session.provider.value,
-            "link_token": session.link_token,
-            "widget_url": session.widget_url,
-            "expires_at": session.expires_at.isoformat(),
-            "sandbox": session.sandbox,
+            "consent_id": consent.id,
+            "expires_at": consent.expires_at.isoformat(),
+            "case_id": case_id,
+            "workspace_id": workspace_id,
         }
 
-    @router.post("/api/v5/banklink/consents/{cid}/complete")
-    async def banklink_complete(cid: str, body: dict[str, Any]):
+    @router.post("/api/v5/banklink/consents/{cid}/session")
+    async def banklink_session(
+        cid: str,
+        body: dict[str, Any] | None = None,
+        x_case_token: str | None = Header(None),
+    ):
+        """Borrower path: requires case token banklink:connect + PKCE S256 challenge."""
         _require_banklink_sandbox()
+        body = body or {}
+        binding = banklink_gateway.binding(cid)
+        if binding is None:
+            raise HTTPException(404, "Consent not found")
+        _case_token_for(binding.case_id, x_case_token, "banklink:connect")
+        code_challenge = str(body.get("code_challenge") or "")
+        bind_cookie = bool(body.get("bind_cookie", True))
         try:
-            link_id = banklink_service.complete(cid, str(body.get("public_token") or ""), body)
+            session = banklink_gateway.start_session(
+                cid, code_challenge=code_challenge, bind_cookie=bind_cookie
+            )
+        except ConsentError as exc:
+            raise HTTPException(403, str(exc)) from exc
+        headers = {}
+        resp_body = {k: v for k, v in session.items() if k != "cookie_nonce"}
+        response = JSONResponse(resp_body)
+        if session.get("cookie_nonce"):
+            response.set_cookie(
+                COOKIE_NAME,
+                session["cookie_nonce"],
+                httponly=True,
+                samesite="lax",
+                max_age=900,
+                path="/api/v5/banklink",
+            )
+        return response
+
+    @router.post("/api/v5/banklink/complete")
+    async def banklink_complete_public(request: Request, body: dict[str, Any]):
+        """PUBLIC complete callback: one-time state + PKCE S256 + optional browser cookie.
+
+        No X-Api-Key. Outer gate allowlists this path.
+        """
+        _require_banklink_sandbox()
+        state = str(body.get("state") or "")
+        code_verifier = str(body.get("code_verifier") or "")
+        public_token = str(body.get("public_token") or "")
+        cookie_nonce = request.cookies.get(COOKIE_NAME)
+        if body.get("cookie_nonce"):
+            cookie_nonce = str(body.get("cookie_nonce"))
+        try:
+            result = banklink_gateway.complete(
+                state=state,
+                code_verifier=code_verifier,
+                public_token=public_token,
+                cookie_nonce=cookie_nonce,
+                payload=body,
+            )
         except CredentialRefused as exc:
             raise HTTPException(422, str(exc)) from exc
         except ConsentError as exc:
             raise HTTPException(403, str(exc)) from exc
-        return {"link_id": link_id}
+        return result
+
+    @router.post("/api/v5/banklink/consents/{cid}/complete")
+    async def banklink_complete_legacy(cid: str, body: dict[str, Any], request: Request):
+        """Deprecated path kept for migration; prefer POST /api/v5/banklink/complete."""
+        _require_banklink_sandbox()
+        # If state provided, delegate to public complete flow
+        if body.get("state"):
+            return await banklink_complete_public(request, body)
+        raise HTTPException(
+            410,
+            "Use POST /api/v5/banklink/complete with state + code_verifier (PKCE). "
+            "Direct consent complete is disabled.",
+        )
 
     @router.get("/api/v5/banklink/links/{link_id}/mortgages")
-    async def banklink_mortgages(link_id: str):
+    async def banklink_mortgages(
+        link_id: str,
+        x_broker_token: str | None = Header(None),
+        x_case_token: str | None = Header(None),
+    ):
+        """Readable by same-workspace broker OR scoped case token banklink:read."""
         _require_banklink_sandbox()
+        try:
+            binding = banklink_gateway.authorize_link(link_id)
+        except ConsentError as exc:
+            raise HTTPException(403, str(exc)) from exc
+        authorized = False
+        if x_broker_token:
+            try:
+                broker_workspace._assert_access(binding.workspace_id, x_broker_token)
+                authorized = True
+            except AccessDenied:
+                pass
+        if not authorized and x_case_token:
+            if case_tokens.verify(binding.case_id, x_case_token, required="banklink:read") is not None:
+                authorized = True
+            elif case_tokens.verify(binding.case_id, x_case_token, required="banklink:connect") is not None:
+                authorized = True
+        if not authorized:
+            raise HTTPException(403, "Broker or case token required")
         try:
             snaps = banklink_service.mortgages(link_id)
         except ConsentError as exc:
@@ -160,15 +268,33 @@ def build_router(
         return {
             "mortgages": [s.as_dict() for s in snaps],
             "prefill": [to_renewal_inputs(s) for s in snaps],
+            "case_id": binding.case_id,
+            "workspace_id": binding.workspace_id,
         }
 
     @router.delete("/api/v5/banklink/consents/{cid}", status_code=204)
-    async def banklink_revoke(cid: str):
+    async def banklink_revoke(
+        cid: str,
+        x_broker_token: str | None = Header(None),
+        x_case_token: str | None = Header(None),
+    ):
+        """Idempotent revoke: deletes tokens/data. Broker of workspace or case token."""
         _require_banklink_sandbox()
-        try:
-            banklink_service.revoke(cid)
-        except ConsentError as exc:
-            raise HTTPException(404, str(exc)) from exc
+        binding = banklink_gateway.binding(cid)
+        if binding is not None:
+            authorized = False
+            if x_broker_token:
+                try:
+                    broker_workspace._assert_access(binding.workspace_id, x_broker_token)
+                    authorized = True
+                except AccessDenied:
+                    pass
+            if not authorized and x_case_token:
+                if case_tokens.verify(binding.case_id, x_case_token, required="banklink:connect") is not None:
+                    authorized = True
+            if not authorized:
+                raise HTTPException(403, "Broker or case token required")
+        banklink_gateway.revoke(cid)  # idempotent
         return Response(status_code=204)
 
     @router.get("/api/v5/broker/workspaces/{wid}/dashboard")

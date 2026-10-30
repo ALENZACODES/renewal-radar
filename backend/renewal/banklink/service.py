@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Callable
 
 from .adapters import BankLinkAdapter
+from .crypto import open_handle, seal_handle
 from .models import (ALLOWED_PURPOSES, Consent, LinkSession, MortgageSnapshot, Provider, Scope,
                      reject_credentials)
 
@@ -90,7 +91,7 @@ class BankLinkService:
                 raise ConsentError('unknown consent')
             for key, link in list(self._links.items()):
                 if link.consent_id == consent_id:
-                    self._adapters[link.provider].revoke(link.handle)
+                    self._adapters[link.provider].revoke(open_handle(link.handle))
                     del self._links[key]
             self._consents[consent_id] = replace(consent, revoked_at=self._clock())
             self._log(consent_id, 'consent_revoked', 'provider access removed and snapshots deleted')
@@ -105,7 +106,7 @@ class BankLinkService:
     def complete(self, consent_id: str, public_token: str, payload: dict | None = None) -> str:
         reject_credentials(payload or {})
         consent = self._active(consent_id)
-        handle = self._adapters[consent.provider].exchange(public_token)
+        handle = seal_handle(self._adapters[consent.provider].exchange(public_token))
         link_id = secrets.token_urlsafe(24)
         with self._lock:
             self._links[_digest(link_id)] = _Link(consent_id, consent.provider, handle)
@@ -119,7 +120,7 @@ class BankLinkService:
         self._active(link.consent_id)
         now = self._clock()
         if refresh or link.fetched_at is None or now - link.fetched_at > self._retention:
-            snaps = self._adapters[link.provider].mortgages(link.handle, now.date())
+            snaps = self._adapters[link.provider].mortgages(open_handle(link.handle), now.date())
             link.snapshots = [replace(s, account_ref=_digest(s.account_ref)[:16]) for s in snaps]
             link.fetched_at = now
             self._log(link.consent_id, 'mortgages_fetched', f'{len(snaps)} mortgage account(s)')
@@ -133,7 +134,7 @@ class BankLinkService:
             for key, link in list(self._links.items()):
                 consent = self._consents.get(link.consent_id)
                 if consent is None or not consent.active(now):
-                    self._adapters[link.provider].revoke(link.handle)
+                    self._adapters[link.provider].revoke(open_handle(link.handle))
                     del self._links[key]
                     removed += 1
                 elif link.fetched_at and now - link.fetched_at > self._retention:
