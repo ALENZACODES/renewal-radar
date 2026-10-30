@@ -17,7 +17,7 @@ class Mortgage(BaseModel):
     maturity_date: str = '2027-03-01'
     frequency: Frequency = 'monthly'
     rate_type: RateType = 'fixed'
-    lender: str = Field(default='Maple Bank (sample)',max_length=120)
+    lender: str = Field(default='RBC Royal Bank (illustrative)',max_length=120)
     insurance_status: Literal['insured','uninsured','unknown'] = 'uninsured'
     existing_lender_federally_regulated: bool | None = True
     new_lender_federally_regulated: bool | None = True

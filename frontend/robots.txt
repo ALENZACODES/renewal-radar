@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /api/
+Disallow: /shared/
+Disallow: /docs
+Disallow: /redoc
+Disallow: /openapi.json
+Allow: /

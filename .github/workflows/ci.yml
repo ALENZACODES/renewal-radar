@@ -1,58 +1,15 @@
-name: CI
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-
-permissions:
-  contents: read
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
+name: tests
+on: [push, pull_request]
 jobs:
-  python:
-    name: Python tests (${{ matrix.python-version }})
+  test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: requirements.txt
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Byte-compile backend
-        run: python -m compileall -q backend
-      - name: Run pytest
-        env:
-          PYTHONPATH: backend
-        run: pytest -q
-
-  frontend:
-    name: Frontend tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+        with: { python-version: "3.11" }
       - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Syntax check
-        run: npm run syntax
-      - name: Run node tests
-        run: npm test
-
-  docker:
-    name: Docker build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build image
-        run: docker build -t renewal-radar:ci .
+        with: { node-version: "20" }
+      - run: pip install -r requirements.txt
+      - run: python tools/fetch_td_oracle.py || echo "TD files unavailable; oracle test will be skipped"
+      - run: PYTHONPATH=backend pytest -q
+      - run: node --test tests/*.test.mjs

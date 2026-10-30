@@ -1,0 +1,75 @@
+:root {
+  --ink: #222;
+  --text: #292d32;
+  --muted: #59636d;
+  --green: #011f5b;
+  --deep: #011f5b;
+  --danger: #990000;
+  --panel: #f5f7fa;
+  --line: #d5d9df;
+}
+body { font-size: 17px; }
+h1, h2, h3, h4 { font-family: 'Inter', Arial, sans-serif; font-weight: 500; }
+h1, .page-head h1, .hero h1 { font-size: 42px; color: #990000; line-height: 1.2; }
+h2 { font-size: 28px; color: #011f5b; }
+h3 { font-size: 21px; color: #011f5b; }
+h4 { font-size: 18px; color: #011f5b; }
+.page-head h1::after, .hero h1::after { height: 2px; width: 64px; background: #990000; }
+.page-head { margin-bottom: 25px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 3px 28px; }
+.naval-brand-mark { width: 58px; height: 58px; object-fit: contain; flex-shrink: 0; }
+.brand-word { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: 23px; color: #011f5b; }
+.brand-word > span { color: #011f5b; }
+.brand-word small { font-size: 9px; text-transform: uppercase; color: #59636d; margin-top: 5px; }
+.brand-word small::before { content: ''; display: block; width: 42px; height: 1px; background: #a08b59; margin-bottom: 6px; }
+.mobile-brand { align-items: center; gap: 8px; font-family: Georgia, 'Times New Roman', serif; color: #011f5b; font-size: 20px; }
+.mobile-brand > span { color: #011f5b; }
+.mobile-brand .naval-brand-mark { width: 34px; height: 34px; }
+.sidebar { border-right-color: #e0e3e8; }
+.nav-kicker { font-size: 11px; }
+.nav-link { color: #011f5b; font-size: 15px; padding: 11px 10px; }
+.nav-link.active { color: #990000; background: #f6f7f9; box-shadow: inset 3px 0 #990000; }
+.nav-link:hover { background: #f3f5f7; color: #990000; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.breadcrumb { font-size: 11px; color: var(--muted); }
+.top-primary, .button.dark, .button.primary, .button.lime { background: #011f5b; color: #fff; border: 1px solid #011f5b; }
+.button.ghost, .top-small { background: var(--surface); border: 1px solid #c3c9d2; color: #011f5b; }
+.button:hover, .top-primary:hover { box-shadow: none; filter: brightness(1.1); }
+.naval-wave-band { height: 34px; background: url('/assets/naval-waves.svg') center center / 1200px 100px repeat-x; pointer-events: none; }
+.hero { padding-top: 0; }
+.hero p { font-size: 18px; }
+.hero .eyebrow { font-size: 11px; color: #011f5b; }
+.eyebrow { font-weight: 600; font-size: 11px; }
+.metric-value { font-size: 31px; font-weight: 500; color: #011f5b; }
+.metric-label { font-size: 12px; }
+.metric-foot { font-size: 13px; }
+.section-top h2 { font-size: 26px; }
+.penalty-output-band { border-top-color: #990000; }
+.penalty-status { border-left-color: #a08b59; }
+.penalty-output-heading h2 { font-size: 27px; }
+.penalty-stat strong { color: #011f5b; font-weight: 500; }
+.penalty-date-control input { accent-color: #011f5b; }
+.chart-segment button[aria-pressed='true'] { background: #011f5b; color: #fff; }
+.chart-toolbar h3 { font-size: 21px; }
+.helper-launcher, .toast { background: #011f5b; }
+.helper-heading { border-top: 3px solid #a08b59; }
+.site-footer { background: #f5f7fa url('/assets/naval-waves.svg') bottom / 1200px 100px repeat-x; border-top: 1px solid var(--line); }
+:root[data-theme='dark'] { --ink: #f4f5f7; --text: #f0f0f0; --green: #bfd2f1; --danger: #f4a7a0; }
+:root[data-theme='dark'] h1, :root[data-theme='dark'] .page-head h1, :root[data-theme='dark'] .hero h1 { color: #f4a7a0; }
+:root[data-theme='dark'] h2, :root[data-theme='dark'] h3, :root[data-theme='dark'] h4,
+:root[data-theme='dark'] .brand-word, :root[data-theme='dark'] .brand-word > span,
+:root[data-theme='dark'] .nav-link, :root[data-theme='dark'] .metric-value,
+:root[data-theme='dark'] .penalty-stat strong, :root[data-theme='dark'] .mobile-brand,
+:root[data-theme='dark'] .mobile-brand > span { color: #c4d7f6; }
+:root[data-theme='dark'] .nav-link:hover, :root[data-theme='dark'] .nav-link.active { background: #303030; color: #f4a7a0; }
+:root[data-theme='dark'] .button.ghost, :root[data-theme='dark'] .top-small { color: #c4d7f6; }
+:root[data-theme='dark'] .site-footer { background-color: #303030; }
+@media(max-width:690px) {
+  h1, .page-head h1, .hero h1 { font-size: 35px; }
+  .naval-wave-band { height: 24px; }
+  .metric-value { font-size: 28px; }
+  .page-head { gap: 18px; }
+  .page-head .btnrow { gap: 8px; }
+  .page-head .button { font-size: 13px; padding: 9px 12px; }
+  .penalty-output-heading h2 { font-size: 24px; }
+}

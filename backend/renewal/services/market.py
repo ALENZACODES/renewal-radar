@@ -6,7 +6,8 @@ current quote unless its source, date, term and product type can be established.
 from __future__ import annotations
 import asyncio
 import time
-from datetime import datetime,timezone
+import math
+from datetime import date,datetime,timezone
 import httpx
 
 SERIES={
@@ -15,7 +16,7 @@ SERIES={
  'posted_3y':('V80691334','BoC major-bank posted 3-year mortgage benchmark'),
  'posted_5y':('V80691335','BoC major-bank posted 5-year mortgage benchmark'),
  'prime':('V80691311','BoC typical bank prime rate'),
- 'bond_5y':('V39053','Government of Canada 5-year benchmark bond yield')}
+ 'bond_5y':('BD.CDN.5YR.DQ.YLD','Government of Canada 5-year benchmark bond yield')}
 BANK_SOURCES=[
  ('RBC','https://www.rbcroyalbank.com/mortgages/mortgage-rates.html'),
  ('TD','https://www.td.com/ca/en/personal-banking/products/mortgages/mortgage-rates'),
@@ -33,6 +34,39 @@ def bank_catalog():
             for name,url in BANK_SOURCES]
 
 
+def latest_official_observation(content: dict, code: str, title: str) -> dict | None:
+    observations = content.get('observations', []) if isinstance(content, dict) else []
+    if not isinstance(observations, list):
+        return None
+    candidates = []
+    for item in observations:
+        if not isinstance(item, dict) or not isinstance(item.get(code), dict):
+            continue
+        try:
+            observed = date.fromisoformat(item['d'])
+            value = float(item[code]['v'])
+        except (KeyError, ValueError, TypeError, OverflowError):
+            continue
+        if not math.isfinite(value) or not -10 <= value <= 50 or observed > datetime.now(timezone.utc).date():
+            continue
+        candidates.append((observed, value))
+    if not candidates:
+        return None
+    observed, value = max(candidates, key=lambda item: item[0])
+    return {'value': value, 'label': title, 'observed_at': observed.isoformat(),
+            'code': code, 'source_url': f'https://www.bankofcanada.ca/valet/observations/{code}/json?recent=5',
+            'type': 'official-historical-observation'}
+
+
+async def _individual_observation(client, code, title):
+    try:
+        response = await client.get(f'https://www.bankofcanada.ca/valet/observations/{code}/json?recent=12')
+        response.raise_for_status()
+        return latest_official_observation(response.json(), code, title)
+    except (httpx.HTTPError, ValueError):
+        return None
+
+
 async def fetch_boc(force:bool=False):
     if not force and _cache['data'] and time.time()-_cache['at'] < 3600:
         return {**_cache['data'],'from_cache':True}
@@ -43,23 +77,29 @@ async def fetch_boc(force:bool=False):
             'data_status':'unavailable','series':{},'bank_sources':bank_catalog(),'from_cache':False}
     try:
         async with httpx.AsyncClient(timeout=8,follow_redirects=False,headers={'User-Agent':'RenewalRadar/2.0 (financial educational research)'}) as client:
-            response=await client.get(url)
-            response.raise_for_status()
-            content=response.json()
-        observations=content.get('observations',[])
-        for name,(code,title) in SERIES.items():
-            for observation in reversed(observations):
-                if code not in observation:continue
-                raw=observation[code].get('v')
-                try:rate=float(raw)
-                except (TypeError,ValueError):continue
-                output['series'][name]={'value':rate,'label':title,'observed_at':observation['d'],
-                  'code':code,'source_url':f'https://www.bankofcanada.ca/valet/observations/{code}/json?recent=5',
-                  'type':'official-historical-observation'}
-                break
+            try:
+                response=await client.get(url)
+                response.raise_for_status()
+                content=response.json()
+            except (httpx.HTTPError, ValueError):
+                content = {}
+            for name, (code, title) in SERIES.items():
+                observation = latest_official_observation(content, code, title)
+                if observation:
+                    output['series'][name] = observation
+            missing = [(name, code, title) for name, (code, title) in SERIES.items() if name not in output['series']]
+            if missing:
+                results = await asyncio.gather(*[_individual_observation(client, code, title) for _, code, title in missing])
+                for (name, _, _), observation in zip(missing, results):
+                    if observation:
+                        output['series'][name] = observation
+            output['missing_series'] = [name for name in SERIES if name not in output['series']]
         output['data_status']='live-observation' if output['series'] else 'unavailable'
         if output['series']:
             _cache.update(at=time.time(),data=output)
+        elif _cache['data']:
+            return {**_cache['data'], 'data_status': 'cached-stale', 'checked_at': checked,
+                    'from_cache': True, 'warning': 'Official observations unavailable; cached data is not live.'}
     except (httpx.HTTPError,ValueError,KeyError) as exc:
         output['warning']='Official data could not be retrieved. No rate was substituted.'
         if _cache['data']:
