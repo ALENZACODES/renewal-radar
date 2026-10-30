@@ -103,7 +103,7 @@ def deal(**kw):
 
 
 def test_default_offer_is_labelled_special_rate_not_unlabelled_number():
-    offers = br.best_offers(60)
+    offers = br.best_offers(60, as_of=date(2026, 10, 15))   # the sample board is dated 2026-10-15
     assert offers[0]["lender"] == "RBC" and offers[0]["rate"] == 4.40
     assert all(o["labelled"] for o in offers)
 
