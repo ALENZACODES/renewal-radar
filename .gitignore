@@ -34,3 +34,8 @@ data/ratewatch/backfill_progress*.json
 data/ratewatch/history_coverage*.json
 data/ratewatch/live_*.json
 data/ratewatch/live_refresh.lock
+data/ratewatch/recorder_health.json
+data/ratewatch/recorder_logs/
+data/ratewatch/ALERTS.txt
+data/ratewatch/harvest_done.json
+data/ratewatch/live_refresh.lock
