@@ -42,8 +42,8 @@ def normalize(k:str,match:re.Match,pattern_index:int):
 def extract_pdf(data: bytes, filename: str, max_pages:int=16) -> Extraction:
     if not data.startswith(b'%PDF-'):
         raise ValueError('Upload must be a valid PDF document.')
-    if len(data)>8*1024*1024:
-        raise ValueError('The PDF exceeds the 8 MB limit.')
+    if len(data)>15*1024*1024:
+        raise ValueError('The PDF exceeds the 15 MB limit.')
     try:
         doc=fitz.open(stream=data,filetype='pdf')
     except Exception as exc:

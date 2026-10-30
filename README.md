@@ -1,5 +1,21 @@
 # Renewal Radar - Local Mortgage Intelligence
 
+## Broker-Book Enhanced Source Release
+
+This release adds audited import validation, editable source-field review,
+payment-frequency-aware projections, common-horizon waiting comparisons, and
+privacy-safe CSV export. See docs/BROKER_BOOK_ENHANCED.md for verification and
+limitations.
+
+This source-only ZIP does not include optional Tesseract binaries/models
+or TD's external calculator fixture described in older release notes below.
+Python 3.11+ is required. On Windows, run Start Renewal Radar.cmd; it can
+install requirements.txt in a local virtual environment while online.
+For a manual start: install requirements.txt, set PYTHONPATH=backend,
+then run python -m uvicorn renewal.main:app --host 127.0.0.1 --port 8017.
+Use another port if occupied. Do not expose this local server publicly without
+configuring the project's authentication and release gates.
+
 *By John Khan · Alenza Fintech*
 
 ## V17 Local Release

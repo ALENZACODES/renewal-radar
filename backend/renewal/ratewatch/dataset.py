@@ -81,7 +81,10 @@ def build(years=5):
             f"AND source IN ({placeholders}) AND rtype IN ('posted','special')",
             (start, *BIG6),
         ).fetchall()
-    rows += [[d, f"bank_{rt}", t, BIG6[s], r, f"{BIG6[s]} own data ({how})", s] for s, d, t, rt, r, how in bank]
+    rows += [[d, f"bank_{rt}", t, BIG6[s], r, f"{BIG6[s]} own data ({how})", s] for s, d, t, rt, r, how in bank
+             if how not in history.FILL_HOWS]
+    rows += [[d, f"bank_{rt}_gap_fill", t, BIG6[s], r, f"{BIG6[s]} gap fill: {history.FILL_LABEL[how]}", s]
+             for s, d, t, rt, r, how in bank if how in history.FILL_HOWS]
     rows.sort(key=lambda r: (r[0], r[1], str(r[2])))
     with open(DATA / "rates_5yr.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
@@ -108,7 +111,7 @@ def _wide(rows):
         for wk in weeks:
             vals, days = [], []
             for sid in BIG6:
-                t, day = history.table_on(sid, date.fromisoformat(wk), max_age_days=35)
+                t, day = history.table_on(sid, date.fromisoformat(wk), max_age_days=35, own_only=True)
                 vals.append(t.get(60, ""))
                 days.append(day if t.get(60) is not None else "")
                 if t.get(60) is not None:

@@ -90,9 +90,14 @@ class CaseCreate(BaseModel):
     mortgage: Mortgage
     offers: list[Offer] = Field(default_factory=list,max_length=12)
     title: str = Field(default='My renewal plan',max_length=100)
+    workspace_id: str = Field(..., min_length=1, max_length=64)
 
 class ShareRequest(BaseModel):
     expires_hours: int = Field(default=24,ge=1,le=168)
+
+class CaseTokenMint(BaseModel):
+    scopes: list[str] = Field(..., min_length=1, max_length=8)
+    ttl_seconds: int = Field(default=3600, ge=60, le=604800)
 
 class NegotiationRequest(BaseModel):
     mortgage: Mortgage

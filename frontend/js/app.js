@@ -8,6 +8,8 @@ import {RateRefreshController} from './rate-tracker.js';
 import {mountMortgageCharts} from './chart-runtime.js';
 import {timelineRequest,exitCostExample} from './penalty-studio.js';
 import {lenderExactRequest} from './lender-exact.js';
+import {bookReviewRequest} from './broker-book.js';
+import {editBookDeal,clearBookState,beginBookOperation,currentBookOperation} from './book-editor.js';
 
 const names={overview:'OVERVIEW',document:'LETTER X-RAY',scenarios:'COMPARE OFFERS',switch:'SWITCH ELIGIBILITY',market:'RATE INTELLIGENCE',penalty:'PENALTY WORKBENCH',negotiate:'NEGOTIATION COACH',plan:'ACTION PLAN',report:'STRATEGY REPORT',shared:'SHARED REPORT'};
 const $=id=>document.getElementById(id);
@@ -16,9 +18,11 @@ let documentUploadSeq=0;
 let penaltySeq=0;
 
 function render(){
+  const bookEditorOpen=document.getElementById('book-editor')?.open;
   const penaltyInputsOpen=document.getElementById('penalty-inputs')?.open;
   if(penaltyInputsOpen!==undefined)state.penaltyInputsOpen=penaltyInputsOpen;
   $('content').innerHTML=getView();
+  if(bookEditorOpen&&document.getElementById('book-editor'))document.getElementById('book-editor').open=true;
   $('breadcrumb').textContent='YOUR MORTGAGE / '+(names[state.page]||'OVERVIEW');
   document.querySelectorAll('[data-nav]').forEach(b=>{
     const active=b.dataset.nav===state.page;
@@ -154,6 +158,17 @@ async function action(name,element){
     case 'make-negotiation':await makeNegotiation();toast('✓ Negotiation plan ready');break;
     case 'calc-penalty':await calcPenalty();toast('✓ Updated penalty sensitivity');break;
     case 'lender-exact-calc':await lenderExactCalc();break;
+    case 'book-review':await runBookReview();break;
+    case 'book-clear':clearBookState(state);delete state.bookPendingFile;render();break;
+    case 'book-reimport':{
+      if(!state.bookPendingFile){toast('Select an import file first');break;}
+      const ticket=beginBookOperation(state);
+      const imported=await api.bookImport(state.bookPendingFile,{date_order:state.bookDateOrder});
+      if(!currentBookOperation(state,ticket))break;
+      state.bookImport=imported;state.bookReview=null;await runBookReview(ticket);break;
+    }
+    case 'book-export':{if(!state.bookImport?.deals?.length){toast('Import deals first');break;}const response=await api.bookReviewCsv(bookReviewRequest(state.bookImport.deals,state.bookFilters));await downloadResponse(response,'book-opportunities.csv');break;}
+    case 'book-sample':{const response=await api.bookSample();await downloadResponse(response,'broker-book-sample.csv');break;}
     case 'live-rates-refresh':toast('Checking every lender…');await loadLiveRates(true);toast('✓ Rates refreshed');break;
     case 'lender-exact-letter':{const lx={...(state.lenderExact||{})};const response=await api.ratewatchLetter({...lenderExactRequest(lx),client_name:lx.client_name||'Homeowner',language:lx.language||'en'});await downloadResponse(response,'penalty-assessment.pdf');toast('✓ Letter downloaded');break;}
     case 'lender-exact-csv':{const response=await api.ratewatchExtra('csv',lenderExactRequest(state.lenderExact));await downloadResponse(response,'penalty.csv');break;}
@@ -182,6 +197,16 @@ async function action(name,element){
 }
 
 // All events are delegated so re-rendering forms never duplicates listeners.
+async function runBookReview(ticket=beginBookOperation(state)){
+  if(!state.bookImport?.deals?.length){state.bookError='Import a file of deals first.';render();return;}
+  state.bookError=null;
+  const body=bookReviewRequest(structuredClone(state.bookImport.deals),{...state.bookFilters});
+  try{
+    const review=await api.bookReview(body);
+    if(currentBookOperation(state,ticket))state.bookReview=review;
+  }catch(err){if(currentBookOperation(state,ticket))state.bookError=err.message;}
+  if(currentBookOperation(state,ticket))render();
+}
 async function loadLiveRates(force){
   state.liveRatesError=null;
   try{state.liveRates=force?await api.liveRatesRefresh():await api.liveRates();}
@@ -225,6 +250,51 @@ document.addEventListener('change',e=>{
   if(t.matches('.analysis-field')){
     if(t.dataset.key==='horizon')state.horizon=Number(t.value);
     recalculate(true);return;
+  }
+  if(t.matches('.book-filter')){
+    state.bookFilters??={};
+    state.bookFilters[t.dataset.key]=t.value;
+    beginBookOperation(state);state.bookReview=null;
+    return;
+  }
+  if(t.matches('.book-date-order')){
+    state.bookDateOrder=t.value;return;
+  }
+  if(t.matches('.book-edit-select')){
+    state.bookEditingIndex=Number(t.value);render();return;
+  }
+  if(t.matches('.book-deal-field,.book-deal-confirm')){
+    const index=Number(t.dataset.index);
+    const deal=state.bookImport?.deals?.[index];
+    try{
+      const key=t.matches('.book-deal-confirm')?'review_confirmed':t.dataset.field;
+      state.bookImport.deals[index]=editBookDeal(deal,key,key==='review_confirmed'?t.checked:t.value);
+      beginBookOperation(state);
+      state.bookReview=null;state.bookError=null;
+    }catch(err){state.bookError=err.message;}
+    render();return;
+  }
+  if(t.matches('.book-file')&&t.files?.[0]){
+    state.bookError=null;
+    state.bookPendingFile=t.files[0];
+    const ticket=beginBookOperation(state);
+    api.bookImport(t.files[0],{date_order:state.bookDateOrder}).then(r=>{
+      if(!currentBookOperation(state,ticket))return;
+      state.bookImport=r;state.bookReview=null;return runBookReview(ticket);
+    }).catch(err=>{if(currentBookOperation(state,ticket)){state.bookError=err.message;render();}});
+    return;
+  }
+  if(t.matches('.book-ocr')&&t.files?.length){
+    state.bookError=null;toast('Reading documents locally…');
+    const ticket=beginBookOperation(state);
+    api.bookOcr([...t.files]).then(r=>{
+      if(!currentBookOperation(state,ticket))return;
+      const prior=state.bookImport?.deals||[];
+      state.bookImport={deals:[...prior,...r.deals],with_issues:r.deals.length,mapping:null};
+      if(r.errors?.length)state.bookError=r.errors.map(e=>`${e.file}: ${e.error}`).join(' · ');
+      return runBookReview(ticket);
+    }).catch(err=>{if(currentBookOperation(state,ticket)){state.bookError=err.message;render();}});
+    return;
   }
   if(t.matches('.lx-field')){
     state.lenderExact??={};

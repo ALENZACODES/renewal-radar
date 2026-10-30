@@ -11,7 +11,7 @@ from ..ocr.engines import TesseractEngine, OCREngineError
 from ..ocr.document_semantic_auditor_v16 import create_document_semantic_audit
 
 
-MAX_BYTES = 8 * 1024 * 1024
+MAX_BYTES = 15 * 1024 * 1024
 FIELD_SCOPES = {
     'balance': ('renewal.balance',),
     'offered_rate': ('renewal.offered_rate',),
@@ -25,7 +25,7 @@ FIELD_SCOPES = {
 
 def read_mortgage_document(data: bytes, filename: str, language: str = 'eng') -> dict:
     if not isinstance(data, bytes) or not data or len(data) > MAX_BYTES:
-        raise ValueError('Supply a document between 1 byte and 8 MB')
+        raise ValueError('Supply a document between 1 byte and 15 MB')
     pages = []
     ocr_pages = []
     warnings = []
