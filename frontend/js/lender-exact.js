@@ -5,16 +5,26 @@ export const LENDERS = [['TD', 'TD (exact lender method)'], ['RBC', 'RBC'], ['Sc
   ['CIBC', 'CIBC'], ['National Bank', 'National Bank'], ['Simplii', 'Simplii'], ['ATB', 'ATB'],
   ['Desjardins', 'Desjardins'], ['Tangerine', 'Tangerine']];
 
-export function lenderExactDefaults() {
-  return {lender: 'TD', balance: '400000', contract_rate: '4.89', term_months: '60', start: '2023-10-15',
+/** Defaults follow the open workspace mortgage so this panel and the timeline above describe the same loan. */
+export function lenderExactDefaults(workspace) {
+  const m = workspace?.mortgage;
+  if (!m) return {lender: 'TD', balance: '400000', contract_rate: '4.89', term_months: '60', start: '2023-10-15',
     maturity: '2028-10-15', discount: '2.00', amort_months: '300', payout: '', client_name: '', language: 'en'};
+  const known = LENDERS.map(([v]) => v);
+  const lender = known.find(v => String(m.lender || m.lender_name || '').toLowerCase().startsWith(v.toLowerCase())) || 'RBC';
+  const maturity = /^\d{4}-\d{2}-\d{2}$/.test(m.maturity_date || '') ? m.maturity_date : '2027-03-01';
+  const termMonths = 60;
+  const startYear = Number(maturity.slice(0, 4)) - termMonths / 12;
+  return {lender, balance: String(m.balance ?? '480000'), contract_rate: String(m.current_rate ?? '4.19'),
+    term_months: String(termMonths), start: `${startYear}${maturity.slice(4)}`, maturity, discount: '2.00',
+    amort_months: '300', payout: '', client_name: '', language: 'en'};
 }
 
 const num = v => (v === '' || v == null || !Number.isFinite(Number(v))) ? null : Number(v);
 
 /** Body for POST /api/ratewatch/penalty. Empty optional fields are omitted, never sent as 0. */
-export function lenderExactRequest(input) {
-  const i = {...lenderExactDefaults(), ...(input || {})};
+export function lenderExactRequest(input, workspace) {
+  const i = {...lenderExactDefaults(workspace), ...(input || {})};
   const body = {lender: i.lender, balance: num(i.balance), contract_rate: num(i.contract_rate),
     term_months: num(i.term_months), start: i.start, amort_months: num(i.amort_months) ?? 300};
   if (i.maturity) body.maturity = i.maturity;
@@ -24,7 +34,7 @@ export function lenderExactRequest(input) {
 }
 
 export function lenderExactView(workspace) {
-  const i = {...lenderExactDefaults(), ...(workspace.lenderExact || {})};
+  const i = {...lenderExactDefaults(workspace), ...(workspace.lenderExact || {})};
   const r = workspace.lenderExactResult, f = workspace.lenderExactForecast, cheap = workspace.lenderExactCheapest;
   const exact = r?.status === 'exact-method';
   const stat = (label, value, note) => `<div class="penalty-stat"><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></div>`;

@@ -169,9 +169,9 @@ async function action(name,element){
     }
     case 'book-export':{if(!state.bookImport?.deals?.length){toast('Import deals first');break;}const response=await api.bookReviewCsv(bookReviewRequest(state.bookImport.deals,state.bookFilters));await downloadResponse(response,'book-opportunities.csv');break;}
     case 'book-sample':{const response=await api.bookSample();await downloadResponse(response,'broker-book-sample.csv');break;}
-    case 'live-rates-refresh':toast('Checking every lender…');await loadLiveRates(true);toast('✓ Rates refreshed');break;
-    case 'lender-exact-letter':{const lx={...(state.lenderExact||{})};const response=await api.ratewatchLetter({...lenderExactRequest(lx),client_name:lx.client_name||'Homeowner',language:lx.language||'en'});await downloadResponse(response,'penalty-assessment.pdf');toast('✓ Letter downloaded');break;}
-    case 'lender-exact-csv':{const response=await api.ratewatchExtra('csv',lenderExactRequest(state.lenderExact));await downloadResponse(response,'penalty.csv');break;}
+    case 'live-rates-refresh':toast('Checking every lender…');await loadLiveRates(true);toast(state.liveRatesNote||state.liveRatesError?'Showing the latest saved rate board.':'✓ Rates refreshed');break;
+    case 'lender-exact-letter':{const lx={...(state.lenderExact||{})};const response=await api.ratewatchLetter({...lenderExactRequest(lx,state),client_name:lx.client_name||'Homeowner',language:lx.language||'en'});await downloadResponse(response,'penalty-assessment.pdf');toast('✓ Letter downloaded');break;}
+    case 'lender-exact-csv':{const response=await api.ratewatchExtra('csv',lenderExactRequest(state.lenderExact,state));await downloadResponse(response,'penalty.csv');break;}
     case 'penalty-example':state.penaltyInputs=exitCostExample();state.penaltyExample=true;state.penaltyMonth=0;await calcPenalty();break;
     case 'penalty-workspace':state.penaltyInputs=null;state.penaltyExample=false;state.penaltyMonth=0;await calcPenalty();break;
     case 'generate-insight':await makeInsight();break;
@@ -207,14 +207,24 @@ async function runBookReview(ticket=beginBookOperation(state)){
   }catch(err){if(currentBookOperation(state,ticket))state.bookError=err.message;}
   if(currentBookOperation(state,ticket))render();
 }
+let liveRatesPoll=null;
 async function loadLiveRates(force){
-  state.liveRatesError=null;
+  state.liveRatesError=null;state.liveRatesNote=null;
   try{state.liveRates=force?await api.liveRatesRefresh():await api.liveRates();}
-  catch(err){state.liveRatesError=err.message;}
-  render();
+  catch(err){
+    // A forced re-check is closed in the public demo: keep the board on screen and reload the saved copy.
+    if(force){state.liveRatesNote='A manual re-check is not open in the public demo. The board refreshes itself in the background; showing the latest saved reading.';
+      try{state.liveRates=await api.liveRates();}catch(e){state.liveRatesError=e.message;}}
+    else state.liveRatesError=err.message;
+  }
+  const b=state.liveRates;
+  const empty=b&&!(b.banks||[]).length&&!(b.credit_unions||[]).length;
+  clearTimeout(liveRatesPoll);
+  if(b&&(empty||b.refreshing)&&state.page==='live')liveRatesPoll=setTimeout(()=>loadLiveRates(false).catch(()=>{}),15000);
+  if(state.page==='live')render();
 }
 async function lenderExactCalc(){
-  const body=lenderExactRequest(state.lenderExact);
+  const body=lenderExactRequest(state.lenderExact,state);
   state.lenderExactError=null;
   try{
     state.lenderExactResult=await api.ratewatchPenalty(body);

@@ -33,13 +33,19 @@ export function liveRatesView(workspace) {
   const head = pageHead('LIVE CURRENT RATES', 'Big banks and credit unions',
     'Each lender is read from its own published rates, with three automatic backups if a source fails.',
     button('Refresh now', 'live-rates-refresh', 'dark'));
-  if (workspace.liveRatesError) return `${head}<div class="notice warn" role="status">${esc(workspace.liveRatesError)}</div>`;
+  if (!b && workspace.liveRatesError) return `${head}<div class="notice warn" role="status">${esc(workspace.liveRatesError)}</div>`;
   if (!b) return `${head}<p>Loading current rates…</p>`;
+  const note = workspace.liveRatesNote || workspace.liveRatesError;
+  const noteHtml = note ? `<div class="notice mb" role="status">${esc(note)}</div>` : '';
+  const hasRows = (b.banks || []).length || (b.credit_unions || []).length || (b.alternative_lenders || []).length;
+  if (!hasRows) return `${head}${noteHtml}<section class="card padded"><h3>Collecting today’s rates</h3>
+    <p>The server is reading each lender’s own published rates now (primary source plus three backups per lender).
+    This page checks again every 15 seconds and fills in as soon as the first reading passes validation. No rate is ever estimated.</p></section>`;
   const a = b.anchor || {};
   const table = (rows, banks) => `<div class="table-scroll"><table class="compare-table"><thead><tr><th>Lender</th><th>1-yr</th><th>3-yr</th>
       ${banks ? '<th>5-yr posted</th><th>5-yr special</th>' : '<th>5-yr advertised</th>'}<th>Source</th><th>Updated</th><th></th></tr></thead>
       <tbody>${rows.map(r => lenderRow(r, banks)).join('')}</tbody></table></div>`;
-  return `${head}
+  return `${head}${noteHtml}
     <div class="notice mb">${b.refreshed_at ? `Refreshed ${esc(ageText(b.refreshed_at))}${b.stale ? ' · refreshing in the background' : ''}.` : 'First collection running in the background; reload in a few minutes.'}
       Bank of Canada big-six typical 5-year posted: <strong>${pct(a.boc_5y_posted)}</strong>
       ${a.boc_5y_posted_date ? `(${esc(dt(a.boc_5y_posted_date))})` : ''} · 5-year Government of Canada bond: <strong>${pct(a.goc_5y)}</strong></div>

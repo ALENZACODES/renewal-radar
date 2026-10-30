@@ -26,6 +26,30 @@ BANK_SOURCES=[
  ('National Bank','https://www.nbc.ca/personal/mortgages/rates.html')]
 _cache={'at':0,'data':None}
 
+# Announced policy-rate decisions. Valet's daily V39079 series can lag an announcement by a
+# day or more, so a newer announced decision replaces an older daily observation.
+# Add each decision here on announcement day, with the Bank's own press release URL.
+POLICY_DECISIONS=[
+ ('2026-10-28', 2.50, 'https://www.bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/'),
+]
+
+
+def apply_policy_decisions(series: dict, today: date | None = None) -> dict:
+    today = today or datetime.now(timezone.utc).date()
+    announced = [d for d in POLICY_DECISIONS if date.fromisoformat(d[0]) <= today]
+    if not announced:
+        return series
+    day, value, url = max(announced, key=lambda d: d[0])
+    current = series.get('policy_rate')
+    if current and current.get('observed_at', '') >= day and abs(current.get('value', -1) - value) < 1e-9:
+        return series
+    if current and current.get('observed_at', '') > day:
+        return series
+    series['policy_rate'] = {'value': value, 'label': 'Bank of Canada overnight target (announced)',
+                             'observed_at': day, 'code': 'V39079', 'source_url': url,
+                             'type': 'official-announcement'}
+    return series
+
 
 def bank_catalog():
     return [{'lender':name,'source_url':url,'status':'official-source-link',
@@ -93,6 +117,8 @@ async def fetch_boc(force:bool=False):
                 for (name, _, _), observation in zip(missing, results):
                     if observation:
                         output['series'][name] = observation
+            if output['series']:
+                apply_policy_decisions(output['series'])
             output['missing_series'] = [name for name in SERIES if name not in output['series']]
         output['data_status']='live-observation' if output['series'] else 'unavailable'
         if output['series']:

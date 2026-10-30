@@ -36,7 +36,7 @@ def read_mortgage_document(data: bytes, filename: str, language: str = 'eng') ->
         if remaining < 2:
             raise OCREngineError('Document OCR exceeded its time budget; split the document')
         scan = prepare_scan(image)
-        engine = TesseractEngine(language=language, timeout=min(25, max(1, int(remaining / 2))))
+        engine = TesseractEngine(language=language, timeout=min(85, max(1, int(remaining - 3))))
         result = engine.recognize(scan, page=number)
         metadata = result.summary()
         confidence = metadata['mean_word_confidence']
