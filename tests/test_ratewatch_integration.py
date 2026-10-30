@@ -181,8 +181,8 @@ def test_nbc_rules_from_its_calculator():
 
 
 def test_td_policy_is_marked_verified_and_others_are_not():
-    assert all(POLICIES[b].verified for b in ("TD", "Scotiabank", "CIBC", "BMO", "National Bank"))
-    assert not POLICIES["RBC"].verified
+    assert all(POLICIES[b].verified for b in ("TD", "Scotiabank", "CIBC", "BMO", "National Bank", "RBC"))
+    assert all(POLICIES[b].verified for b in ("RBC",)) and not POLICIES["Tangerine"].verified
 
 
 # ---- regressions found in review (2026-10-14) ----
