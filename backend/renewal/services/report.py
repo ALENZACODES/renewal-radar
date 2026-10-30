@@ -24,7 +24,7 @@ def _para(s,style): return Paragraph(escape(str(s)),_STY[style])
 
 def render_report(mortgage, analysis, switch, penalty=None, title='Mortgage Renewal Strategy') -> bytes:
     result=BytesIO()
-    doc=SimpleDocTemplate(result,author="John Khan",creator="John Khan",pagesize=letter,topMargin=48,bottomMargin=46,leftMargin=52,rightMargin=52,
+    doc=SimpleDocTemplate(result,pagesize=letter,topMargin=48,bottomMargin=46,leftMargin=52,rightMargin=52,
                           title='Renewal Radar - Mortgage Strategy')
     story=[]
     story.append(_para('RENEWAL RADAR / CANADA','SmallRR'))

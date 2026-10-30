@@ -18,13 +18,13 @@
 - Hosted public URL, commercial bank-specific quotes/lead integrations, full public-user authentication and encrypted multi-tenant storage.
 - An OCR cloud service for scanned image-only PDFs, automated full bank-rate coverage, real Nebius/Tavily API credentials.
 - iOS/Android applications, licensed broker handoff, lender prequalification or approved mortgage offers.
-- Independently validated WCAG/browser render across all devices.
+- Independently validated WCAG/browser render across all devices; Chromium automation was blocked by this runtime's navigation policy.
 - The aspirational approximately 50,000+ lines of enterprise functionality described in the product master blueprint. The implementation is a smaller functional MVP, not 1,000 pages of certified production code.
 
 ## Test evidence
 - 62 Python tests passed.
 - 6 Node template/format tests passed.
 - Three-page sample PDF rendered and manually inspected.
-- Manual browser acceptance checklist supplied for checks that still need a real browser.
+- Manual browser acceptance checklist supplied for tests that could not run here.
 
 No GitHub publishing, contest registration/submission, production deployment or paid API actions were performed.
