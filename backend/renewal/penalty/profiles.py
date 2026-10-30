@@ -7,7 +7,7 @@ from .models import LenderProfile, Method
 
 PROFILES = (
     LenderProfile('generic','Unspecified lender',Method.UNKNOWN,
-        'https://www.canada.ca/en/financial-consumer-agency/services/mortgages/prepayment-penalty.html',
+        'https://www.canada.ca/en/financial-consumer-agency/services/mortgages/reduce-prepayment-penalties.html',
         '2026-10',True,'Avoid suggesting an IRD without documentary evidence.'),
     LenderProfile('rbc','RBC Royal Bank',Method.POSTED_DISCOUNT,
         'https://www.rbcroyalbank.com/mortgages/understanding-mortgage-prepayment-charges.html',
@@ -28,7 +28,7 @@ PROFILES = (
         'https://www.cibc.com/en/personal-banking/mortgages/calculators/prepayment-calculator.html',
         '2026-10:estimated',True,'Discount added back for the three-month floor on certain contracts; contract controls.'),
     LenderProfile('bmo','BMO',Method.UNKNOWN,
-        'https://www.bmo.com/main/personal/mortgages/prepayment-charges/',
+        'https://www.bmo.com/en-ca/main/personal/mortgages/pay-mortgage-faster/',
         '2026-10:unverified',False,'No unverified BMO formula promoted to production.'),
     LenderProfile('nbc','National Bank',Method.UNKNOWN,
         'https://www.nbc.ca/personal/mortgages.html',

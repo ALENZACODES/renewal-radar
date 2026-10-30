@@ -46,6 +46,6 @@ All money and rates are serialized as strings, not binary floating-point numbers
 - TD: https://apps.td.com/mortgage-prepayment-calculator/
 - Scotia: https://www.scotiabank.com/content/dam/scotiabank/canada/en/documents/mortgages/What_you_need_to_know_Mortgages_and_Mortgage-Prepayment-Charges_1343814_1202_EN.pdf
 - CIBC: https://www.cibc.com/en/personal-banking/mortgages/calculators/prepayment-calculator.html
-- FCAC: https://www.canada.ca/en/financial-consumer-agency/services/mortgages/prepayment-penalty.html
+- FCAC: https://www.canada.ca/en/financial-consumer-agency/services/mortgages/reduce-prepayment-penalties.html
 
 **Validation gap:** Golden tests matching dated authenticated lender calculator statements across all applicable contract versions are still required before claiming lender-exact commercial calculations.
