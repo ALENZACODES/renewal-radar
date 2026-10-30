@@ -145,7 +145,7 @@ Files:
 
 Expected misses: most B lenders and private lenders publish no rates, so they always show "Unavailable". That is not a fault.
 
-### Blocked sites (added 2026-10-17)
+### Blocked sites
 
 On 2026-10-16, bmo.com and coastcapitalsavings.com began refusing this machine: they accept the connection and never reply. Every other bank answered in under half a second. That is a block on their side, and it is never routed around.
 - **Cool-down.** Once a lender's site fails to answer, the recorder leaves it alone for the rest of the run: no retries, no self-repair crawl, about one request per run instead of 10 or more. A temporary block can then expire instead of being renewed.
@@ -161,7 +161,7 @@ Manual readings count as the lender's own data. The recorder never automates a b
 Coast Capital's mortgage rates are on `/rates/mortgages`; `/rates` lists only GIC, prime and foreign-exchange rates. Its posted table, the one it uses for term-break penalties, is identified by the heading above it (`scrape.coast_rows`).
 
 
-## RBC (added 2026-10-18)
+## RBC
 
 RBC's calculator runs on RBC's server (`prepayment-charge-calculator.cgi`), so it cannot be executed locally the way the other five banks' code is.
 Instead, `tools/rbc_oracle.py` submits cases to it politely (one case every 15 seconds). The 34 answers recorded on 2026-10-18 are kept in `tests/fixtures/rbc_calculator_2026-10-18.json`, and `backtest.rbc_cases()` checks the engine against them offline.
@@ -176,7 +176,7 @@ What RBC's calculator does, reconstructed from those answers:
 Result: all 34 cases are within $0.30 (worst $0.29 on $6,694, under 0.005%). 12 are exact to the cent, including every three-month and whole-month case.
 RBC itself calls its calculator an estimate; the payout statement is final.
 
-## Smaller lenders' own rate pages (added 2026-10-18; `ratewatch/small_lenders.py`)
+## Smaller lenders' own rate pages (`ratewatch/small_lenders.py`)
 
 Found by searching the lenders' own sites. Every source below is the lender's own page, data feed or PDF, read without a login.
 
@@ -205,7 +205,7 @@ Cameron Stephens and Trez Capital were removed: both are now commercial-only len
 
 B and private lenders that quote only 1-3 year terms are validated against their longest term instead of a 5-year rate. Banks and credit unions still need a 5-year rate.
 
-## Smaller lenders' own calculators (added 2026-10-18)
+## Smaller lenders' own calculators
 
 Three more lenders publish penalty calculators that run in the browser. Each one is now reproduced exactly: 3,000 random cases per lender against its own unmodified code, all equal to the cent. To fetch the files, run `tools/fetch_small_lender_oracles.py`; they are never committed.
 
