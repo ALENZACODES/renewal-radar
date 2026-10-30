@@ -140,7 +140,7 @@ async function loadSamplePdf(){
 async function loadSampleScan(){
   const response=await fetch('/api/demo/sample-scan.png');
   if(!response.ok)throw new Error('Sample scan is unavailable');
-  const blob=await response.blob();await uploadDocument(new File([blob],'maple-bank-renewal-illustration.png',{type:'image/png'}));
+  const blob=await response.blob();await uploadDocument(new File([blob],'rbc-renewal-illustration.png',{type:'image/png'}));
 }
 async function action(name,element){
   switch(name){
