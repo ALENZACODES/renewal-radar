@@ -1,4 +1,4 @@
-const shellCacheName = 'renewal-radar-shell-v18';
+const shellCacheName = 'renewal-radar-shell-v19';
 const shellAssets = [
   '/', '/assets/app.css', '/assets/public-service.css',
   '/assets/naval-academic.css', '/assets/naval-waves.svg', '/assets/renewal-radar-naval-v17.png',
@@ -10,7 +10,7 @@ const shellAssets = [
   '/js/helper-answers.js', '/js/helper-review.js', '/js/helper-conversation.js',
   '/js/helper-view.js', '/js/helper-panel.js', '/js/offline-workspace.js', '/js/rate-tracker.js',
   '/js/chart-data.js', '/js/chart-options.js', '/js/chart-view.js', '/js/chart-runtime.js',
-  '/js/penalty-studio.js', '/js/lender-exact.js', '/js/live-rates.js',
+  '/js/penalty-studio.js', '/js/lender-exact.js', '/js/live-rates.js', '/js/broker-book.js',
 ];
 const allowedPaths = new Set(shellAssets);
 

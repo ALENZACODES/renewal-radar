@@ -59,6 +59,8 @@ app=FastAPI(title='Renewal Radar 2.0',version='2.0.0',
     dependencies=[Depends(require_api_access)])
 from .ratewatch.api import router as ratewatch_router
 app.include_router(ratewatch_router)
+from .broker.book_api import router as broker_book_router
+app.include_router(broker_book_router)
 app.add_middleware(CORSMiddleware,allow_origins=list(settings.allowed_origins),allow_methods=['GET','POST','PUT','DELETE'],allow_headers=['Content-Type','X-Case-Token','X-Broker-Token','X-Rate-Ingest-Key','X-OCR-Review-Token','X-Api-Key'])
 
 limiter = SlidingWindowLimiter()

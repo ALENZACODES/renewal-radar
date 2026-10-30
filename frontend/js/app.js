@@ -8,6 +8,7 @@ import {RateRefreshController} from './rate-tracker.js';
 import {mountMortgageCharts} from './chart-runtime.js';
 import {timelineRequest,exitCostExample} from './penalty-studio.js';
 import {lenderExactRequest} from './lender-exact.js';
+import {bookReviewRequest} from './broker-book.js';
 
 const names={overview:'OVERVIEW',document:'LETTER X-RAY',scenarios:'COMPARE OFFERS',switch:'SWITCH ELIGIBILITY',market:'RATE INTELLIGENCE',penalty:'PENALTY WORKBENCH',negotiate:'NEGOTIATION COACH',plan:'ACTION PLAN',report:'STRATEGY REPORT',shared:'SHARED REPORT'};
 const $=id=>document.getElementById(id);
@@ -154,6 +155,9 @@ async function action(name,element){
     case 'make-negotiation':await makeNegotiation();toast('✓ Negotiation plan ready');break;
     case 'calc-penalty':await calcPenalty();toast('✓ Updated penalty sensitivity');break;
     case 'lender-exact-calc':await lenderExactCalc();break;
+    case 'book-review':await runBookReview();break;
+    case 'book-export':{if(!state.bookImport?.deals?.length){toast('Import deals first');break;}const response=await api.bookReviewCsv(bookReviewRequest(state.bookImport.deals,state.bookFilters));await downloadResponse(response,'book-opportunities.csv');break;}
+    case 'book-sample':{const response=await api.bookSample();await downloadResponse(response,'broker-book-sample.csv');break;}
     case 'live-rates-refresh':toast('Checking every lender…');await loadLiveRates(true);toast('✓ Rates refreshed');break;
     case 'lender-exact-letter':{const lx={...(state.lenderExact||{})};const response=await api.ratewatchLetter({...lenderExactRequest(lx),client_name:lx.client_name||'Homeowner',language:lx.language||'en'});await downloadResponse(response,'penalty-assessment.pdf');toast('✓ Letter downloaded');break;}
     case 'lender-exact-csv':{const response=await api.ratewatchExtra('csv',lenderExactRequest(state.lenderExact));await downloadResponse(response,'penalty.csv');break;}
@@ -182,6 +186,13 @@ async function action(name,element){
 }
 
 // All events are delegated so re-rendering forms never duplicates listeners.
+async function runBookReview(){
+  if(!state.bookImport?.deals?.length){state.bookError='Import a file of deals first.';render();return;}
+  state.bookError=null;
+  try{state.bookReview=await api.bookReview(bookReviewRequest(state.bookImport.deals,state.bookFilters));}
+  catch(err){state.bookError=err.message;}
+  render();
+}
 async function loadLiveRates(force){
   state.liveRatesError=null;
   try{state.liveRates=force?await api.liveRatesRefresh():await api.liveRates();}
@@ -225,6 +236,27 @@ document.addEventListener('change',e=>{
   if(t.matches('.analysis-field')){
     if(t.dataset.key==='horizon')state.horizon=Number(t.value);
     recalculate(true);return;
+  }
+  if(t.matches('.book-filter')){
+    state.bookFilters??={};
+    state.bookFilters[t.dataset.key]=t.value;
+    return;
+  }
+  if(t.matches('.book-file')&&t.files?.[0]){
+    state.bookError=null;
+    api.bookImport(t.files[0]).then(r=>{state.bookImport=r;state.bookReview=null;return runBookReview();})
+      .catch(err=>{state.bookError=err.message;render();});
+    return;
+  }
+  if(t.matches('.book-ocr')&&t.files?.length){
+    state.bookError=null;toast('Reading documents locally…');
+    api.bookOcr([...t.files]).then(r=>{
+      const prior=state.bookImport?.deals||[];
+      state.bookImport={deals:[...prior,...r.deals],with_issues:r.deals.length,mapping:null};
+      if(r.errors?.length)state.bookError=r.errors.map(e=>`${e.file}: ${e.error}`).join(' · ');
+      return runBookReview();
+    }).catch(err=>{state.bookError=err.message;render();});
+    return;
   }
   if(t.matches('.lx-field')){
     state.lenderExact??={};
