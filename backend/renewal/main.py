@@ -361,6 +361,34 @@ async def penalty_v3_workbench(body: WorkbenchBody):
     except (ValueError, ArithmeticError) as exc:
         raise HTTPException(422, str(exc)) from exc
 
+from .rates.service import reference_book, workbench_rates, as_strings
+
+@app.get('/api/v5/rates/posted')
+async def posted_rate_at(lender: str = Query(min_length=1, max_length=40),
+                         term_months: int = Query(ge=1, le=360), on: date = Query(...),
+                         allow_proxy: bool = True):
+    hit = reference_book().posted_at(lender, term_months, on, allow_proxy=allow_proxy)
+    if hit is None:
+        raise HTTPException(404, 'No usable posted-rate observation within 120 days of that date')
+    return hit.as_dict()
+
+@app.get('/api/v5/rates/table')
+async def posted_rate_table(lender: str = Query(min_length=1, max_length=40), on: date = Query(...)):
+    table = reference_book().table_at(lender, on)
+    return {'lender': lender.lower(), 'on': on.isoformat(),
+            'table': {str(k): v.as_dict() for k, v in table.items()},
+            'notice': 'Proxy rows are Bank of Canada chartered-bank posted rates, not this lender\'s own figure.'}
+
+@app.get('/api/v5/rates/workbench-inputs')
+async def posted_workbench_inputs(lender: str = Query(min_length=1, max_length=40), funded: date = Query(...),
+                                  payout: date = Query(...), term_months: int = Query(60, ge=1, le=120)):
+    if payout < funded:
+        raise HTTPException(422, 'payout is before funding')
+    out = workbench_rates(reference_book(), lender, funded, payout, term_months)
+    out['original_posted_rate'] = None if out['original_posted_rate'] is None else str(out['original_posted_rate'])
+    out['current_posted'] = as_strings(out['current_posted'])
+    return out
+
 # Phase IV: provenance-backed historical rates and tenant-isolated broker tools.
 # Neither service pulls third-party bank account data without consent.
 from .intelligence.rate_history import RateArchive, RateObservation
