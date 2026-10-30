@@ -165,11 +165,15 @@ async def document_read_v17(file: UploadFile = File(...), language: str = Query(
     finally:
         await file.close()
 
+def _variable_rate(body):
+    """Shock the variable offer the user is weighing; fall back to the renewal offer rate."""
+    return next((o.rate for o in body.offers if o.rate_type=='variable'),None)
+
 @app.post('/api/analyze')
 async def analyze(body:AnalyzeRequest):
     output=compare_offers(body.mortgage,body.offers,body.horizon_months,body.discount_rate)
     output['switch']=switch_decision(body.mortgage,body.offers[0].rate if body.offers else body.mortgage.offered_rate)
-    output['stress']=stress_paths(body.mortgage,horizon_months=body.horizon_months)
+    output['stress']=stress_paths(body.mortgage,_variable_rate(body),horizon_months=body.horizon_months)
     output['plan']=make_plan(body.mortgage.maturity_date)
     output['audit']={'math':'RR-MATH-v2.0','policy':'CAN-MQR-2026.10',
       'input_rates_are_user_supplied':True,'as_of':datetime.now(timezone.utc).isoformat(),
@@ -203,7 +207,7 @@ async def agent_run(body:AnalyzeRequest):
     event('classify_switch',switch['headline'],switch['sources'][0])
     comp=compare_offers(body.mortgage,body.offers,body.horizon_months,body.discount_rate)
     event('compare_offers',str(len(comp['scenarios']))+' modelled choices over a shared time horizon.')
-    stress=stress_paths(body.mortgage,horizon_months=body.horizon_months)
+    stress=stress_paths(body.mortgage,_variable_rate(body),horizon_months=body.horizon_months)
     event('stress_paths',str(len(stress['paths']))+' independently modelled variable-rate trajectories.')
     negotiation=negotiation_packet(NegotiationRequest(mortgage=body.mortgage,
        competing_rate=body.offers[0].rate if body.offers else body.mortgage.offered_rate))

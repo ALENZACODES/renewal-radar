@@ -3,7 +3,20 @@ import {esc, money, percent, field, options, button, dt} from './ui.js';
 
 export const LENDERS = [['TD', 'TD (exact lender method)'], ['RBC', 'RBC'], ['Scotiabank', 'Scotiabank'], ['BMO', 'BMO'],
   ['CIBC', 'CIBC'], ['National Bank', 'National Bank'], ['Simplii', 'Simplii'], ['ATB', 'ATB'],
-  ['Desjardins', 'Desjardins'], ['Tangerine', 'Tangerine']];
+  ['Desjardins', 'Desjardins'], ['Tangerine', 'Tangerine'], ['Laurentian', 'Laurentian Bank'],
+  ['Equitable Bank', 'Equitable Bank'], ['Haventree', 'Haventree Bank'], ['Bridgewater', 'Bridgewater Bank']];
+/** Lenders with no automatic posted-rate feed: the comparison rates must be entered from the lender's own page. */
+export const MANUAL_TABLE = new Set(['Laurentian', 'Equitable Bank', 'Haventree', 'Bridgewater']);
+/** "12:5.29, 36:5.49, 60:6.09" -> {12: 5.29, 36: 5.49, 60: 6.09}; null when blank or malformed. */
+export function parseTable(text) {
+  const out = {};
+  for (const part of String(text || '').split(/[,;\n]+/).map(x => x.trim()).filter(Boolean)) {
+    const m = part.match(/^(\d{1,3})\s*[:=]\s*(\d+(?:\.\d+)?)$/);
+    if (!m) return null;
+    out[Number(m[1])] = Number(m[2]);
+  }
+  return Object.keys(out).length ? out : null;
+}
 
 /** Defaults follow the open workspace mortgage so this panel and the timeline above describe the same loan. */
 export function lenderExactDefaults(workspace) {
@@ -30,6 +43,8 @@ export function lenderExactRequest(input, workspace) {
   if (i.maturity) body.maturity = i.maturity;
   if (num(i.discount) != null) body.discount = num(i.discount);
   if (i.payout) body.payout = i.payout;
+  const table = parseTable(i.current_posted);
+  if (table) body.current_posted = table;
   return body;
 }
 
@@ -48,6 +63,7 @@ export function lenderExactView(workspace) {
       ${f2('Original term (months)', 'term_months', i.term_months)}${f2('Term start', 'start', i.start, 'date')}
       ${f2('Maturity date', 'maturity', i.maturity, 'date')}${f2('Original discount (points)', 'discount', i.discount)}
       ${f2('Remaining amortization (months)', 'amort_months', i.amort_months)}${f2('Payout date (blank = today)', 'payout', i.payout, 'date')}
+      ${MANUAL_TABLE.has(i.lender) || i.current_posted ? f2(`Today's comparison rates, term:rate (${MANUAL_TABLE.has(i.lender) ? 'required for this lender' : 'optional override'})`, 'current_posted', i.current_posted || '', 'text') : ''}
       ${f2('Client name (letter only)', 'client_name', i.client_name, 'text')}
       ${field('Letter language', 'language', options([['en', 'English'], ['fr', 'Français']], i.language), 'select', '', 'lx-field')}
     </div>

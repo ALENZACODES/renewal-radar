@@ -15,7 +15,8 @@ COPY data ./data
 COPY docs ./docs
 ENV PYTHONPATH=/app/backend \
     DATABASE_URL=sqlite:////tmp/renewal_radar.db \
-    PORT=8000
+    PORT=8000 \
+    RR_PUBLISHED_BOARD_URL=https://raw.githubusercontent.com/ALENZACODES/renewal-radar/rates-data/published_board.json
 EXPOSE 8000
 # One worker keeps memory well under 512 MB. Proxy headers give the rate limiter the real client address.
 CMD ["sh", "-c", "exec uvicorn renewal.main:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --forwarded-allow-ips='*'"]

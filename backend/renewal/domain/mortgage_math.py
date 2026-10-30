@@ -174,4 +174,9 @@ def stress_paths(mortgage, comparison_rate=None,horizon_months=36):
             mortgage.frequency,'variable',variable_path_bps=p)
         output[name]={k:v for k,v in s.items() if k != 'schedule'}
         output[name]['month_balances']=[item['balance'] for item in s['schedule']]
-    return {'paths':output,'assumption':'Immediate basis-point rate changes held by path; adjustable payment is recalculated at rate changes. This is a scenario, not a rate forecast.'}
+        pays=[item['payment'] for item in s['schedule']]
+        # regular_payment is the payment at the unshocked base rate; these show what each path actually charges.
+        output[name]['starting_payment']=pays[0] if pays else s['regular_payment']
+        output[name]['peak_payment']=max(pays) if pays else s['regular_payment']
+        output[name]['starting_rate']=s['schedule'][0]['rate'] if s['schedule'] else r
+    return {'base_rate':r,'paths':output,'assumption':'Immediate basis-point rate changes held by path; adjustable payment is recalculated at rate changes. This is a scenario, not a rate forecast.'}

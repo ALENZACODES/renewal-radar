@@ -7,11 +7,13 @@ import {loadInitialWorkspace,registerOfflineShell} from './offline-workspace.js'
 import {RateRefreshController} from './rate-tracker.js';
 import {mountMortgageCharts} from './chart-runtime.js';
 import {timelineRequest,exitCostExample} from './penalty-studio.js';
-import {lenderExactRequest} from './lender-exact.js';
+import {lenderExactRequest,MANUAL_TABLE} from './lender-exact.js';
 import {bookReviewRequest} from './broker-book.js';
 import {editBookDeal,clearBookState,beginBookOperation,currentBookOperation} from './book-editor.js';
 
-const names={overview:'OVERVIEW',document:'LETTER X-RAY',scenarios:'COMPARE OFFERS',switch:'SWITCH ELIGIBILITY',market:'RATE INTELLIGENCE',penalty:'PENALTY WORKBENCH',negotiate:'NEGOTIATION COACH',plan:'ACTION PLAN',report:'STRATEGY REPORT',shared:'SHARED REPORT'};
+const names={overview:'OVERVIEW',document:'LETTER X-RAY',scenarios:'COMPARE OFFERS',switch:'SWITCH ELIGIBILITY',market:'RATE INTELLIGENCE',penalty:'PENALTY WORKBENCH',negotiate:'NEGOTIATION COACH',plan:'ACTION PLAN',report:'STRATEGY REPORT',live:'LIVE RATES',book:'BROKER BOOK REVIEW',shared:'SHARED REPORT'};
+const PAGES=new Set(Object.keys(names).filter(p=>p!=='shared'));
+const pageFromHash=()=>{const p=(window.location.hash||'').replace(/^#\/?/,'');return PAGES.has(p)?p:null};
 const $=id=>document.getElementById(id);
 let recalculationSeq=0;
 let documentUploadSeq=0;
@@ -33,9 +35,11 @@ function render(){
   localHelper.refresh();
   mortgageCharts.refresh();
 }
-function navigate(page){
+function navigate(page,fromHistory=false){
   if(!state.loaded)return;
+  if(!PAGES.has(page))page='overview';
   state.page=page;
+  if(!fromHistory&&window.location.hash!=='#/'+page&&!window.location.pathname.startsWith('/shared/'))window.history.pushState({page},'','#/'+page);
   document.getElementById('mobile-more')?.removeAttribute('open');
   render();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -226,6 +230,7 @@ async function loadLiveRates(force){
 async function lenderExactCalc(){
   const body=lenderExactRequest(state.lenderExact,state);
   state.lenderExactError=null;
+  if(MANUAL_TABLE.has(body.lender)&&!body.current_posted){state.lenderExactResult=null;state.lenderExactError=`${body.lender} has no automatic rate feed yet. Enter today's comparison rates from its own page as term:rate pairs, for example 12:5.29, 36:5.49, 60:6.09.`;render();return;}
   try{
     state.lenderExactResult=await api.ratewatchPenalty(body);
     const matured=state.lenderExactResult.method==='matured';
@@ -309,6 +314,7 @@ document.addEventListener('change',e=>{
   if(t.matches('.lx-field')){
     state.lenderExact??={};
     state.lenderExact[t.dataset.key]=t.value;
+    if(t.dataset.key==='lender'){state.lenderExactResult=null;state.lenderExactError=null;render();}
     return;
   }
   if(t.matches('.penalty-field')){
@@ -341,6 +347,8 @@ $('theme-toggle').addEventListener('click',()=>{
   try{localStorage.setItem('rr_theme',state.theme)}catch{}
   mortgageCharts.refresh();
 });
+window.addEventListener('popstate',()=>{const p=pageFromHash();if(p&&p!==state.page)navigate(p,true)});
+window.addEventListener('hashchange',()=>{const p=pageFromHash();if(p&&p!==state.page)navigate(p,true)});
 $('restart-demo').addEventListener('click',()=>start(true).then(()=>navigate('overview')).then(()=>toast('✓ Sample restored')).catch(handleError));
 
 async function start(forceReset=false){
@@ -360,6 +368,9 @@ async function start(forceReset=false){
   state.offlineWorkspace=initial.offline;
   state.page='overview';
   render();
+  const linked=forceReset?null:pageFromHash();
+  if(linked&&linked!=='overview')navigate(linked,true);
+  else if(!window.location.hash)window.history.replaceState({page:'overview'},'','#/overview');
   const caseRecord=!forceReset&&!initial.offline?recoverCase():null;
   if(caseRecord&&window.confirm('A previous case is saved in this tab. Restore it?')){
     try{const saved=await api.load(caseRecord.id,caseRecord.access_token);

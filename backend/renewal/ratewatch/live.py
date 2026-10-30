@@ -25,19 +25,23 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
-from . import history, scrape, small_lenders
+from . import history, scrape, small_lenders, verify
 from .linkcheck import UA
 from .parse import extract_rates
 from .paths import DATA
 
 CACHE = DATA / "live_cache.json"
+# Verified board published every 6 hours by the scheduled scraper (.github/workflows/scrape-rates.yml) to the
+# rates-data branch. A server whose own collection fails or has not finished yet serves it, labelled as such.
+PUBLISHED = DATA / "published_board.json"
+PUBLISHED_URL = os.environ.get("RR_PUBLISHED_BOARD_URL", "").strip()
 BOARD = DATA / "live_board.json"
 CACHE_DAYS = 14
 STALE_AFTER = timedelta(hours=6)
 TIMEOUT = 20
 TIER_LABEL = {"primary": "Live", "backup1": "Live (backup source)", "cache": "Last good reading",
               "archive": "Archive copy", "boc_typical": "Bank of Canada big-six typical", "unavailable": "Unavailable",
-              "not_public": "Not published"}
+              "not_public": "Not published", "published": "Verified scheduled reading"}
 
 # id, name, type, primary (kind, url), backup1 (kind, url) or None -> rediscovery
 LENDERS = [
@@ -359,22 +363,32 @@ def resolve(lender, anchor, now=None) -> dict:
     if got:
         rows, url, note = got
         as_of = now.isoformat(timespec="seconds")
-        _save_cache(lid, {"at": as_of, "tier": tier, "url": url, "rows": rows})
+        previous = _load(CACHE).get(lid)
+        second = None
+        if tier == "primary" and backup:                        # level 3: an independent second live source
+            try:
+                second = read_live(backup[0], backup[1])
+            except Exception:
+                second = None
+        check = verify.verify(rows, ltype, anchor, second=second, previous=previous, now=now)
+        _save_cache(lid, {"at": as_of, "tier": tier, "url": url, "rows": rows, "level": check["level"]})
         history.save(lid, now.astimezone().date().isoformat(), rows, "api" if pkind.endswith("_api") and tier == "primary" else "html")
-        return _row(lender, tier, as_of, url, rows, tried, anchor)
+        return _row(lender, tier, as_of, url, rows, tried, anchor, check)
     entry = _load(CACHE).get(lid)
     if entry and datetime.fromisoformat(entry["at"]) >= now - timedelta(days=CACHE_DAYS):
         ok, why = validate(entry["rows"], ltype, anchor)
         tried.append({"tier": "cache", "ok": ok, "reason": why if not ok else f"saved {entry['at']}"})
         if ok:
-            return _row(lender, "cache", entry["at"], entry["url"], entry["rows"], tried, anchor)
+            return _row(lender, "cache", entry["at"], entry["url"], entry["rows"], tried, anchor,
+                        verify.verify(entry["rows"], ltype, anchor, now=now))
     else:
         tried.append({"tier": "cache", "ok": False, "reason": "no reading in the last %d days" % CACHE_DAYS})
     got = attempt("archive", lambda: read_archive(backup[0] if (backup and pkind == "td_api") else pkind,
                                                   backup[1] if (backup and pkind == "td_api") else purl), purl)
     if got:
         rows, url, note = got
-        return _row(lender, "archive", note, url, rows, tried, anchor)
+        return _row(lender, "archive", note, url, rows, tried, anchor,
+                    verify.verify(rows, ltype, anchor, previous=_load(CACHE).get(lid), now=now))
     if ltype == "bank" and anchor.get("boc_5y_posted") is not None:
         rows = [(60, "fixed_closed", "posted", anchor["boc_5y_posted"])]
         return _row(lender, "boc_typical", anchor.get("boc_5y_posted_date"),
@@ -388,7 +402,7 @@ def _with_note(pair, note):
     return rows, (f"{note}: {url}" if url else None)
 
 
-def _row(lender, tier, as_of, url, rows, tried, anchor):
+def _row(lender, tier, as_of, url, rows, tried, anchor, check=None):
     lid, name, ltype, *_ = lender
     terms = summarize(rows)
     five = terms.get(60, {})
@@ -396,7 +410,8 @@ def _row(lender, tier, as_of, url, rows, tried, anchor):
             "source_url": url, "rates": {str(t): v for t, v in sorted(terms.items())},
             "five_year": {"posted": five.get("posted"), "special": five.get("special"),
                           "advertised": min(five.values()) if five else None},
-            "lender_specific": tier not in ("boc_typical", "unavailable", "not_public"), "tried": tried}
+            "lender_specific": tier not in ("boc_typical", "unavailable", "not_public"), "tried": tried,
+            "verification": check}
 
 
 # ---------------- board ----------------
@@ -460,6 +475,8 @@ def _refresh(lenders=None) -> dict:
         rows = list(ex.map(lambda l: resolve(l, anchor, now), lenders or LENDERS))
     board = {"refreshed_at": now.isoformat(timespec="seconds"), "anchor": anchor,
              "summary": {t: sum(1 for r in rows if r["tier"] == t) for t in TIER_LABEL},
+             "verified": {f"level{n}": sum(1 for r in rows if (r.get("verification") or {}).get("level", 0) >= n)
+                          for n in (1, 2, 3)},
              "banks": [r for r in rows if r["type"] == "bank"],
              "credit_unions": [r for r in rows if r["type"] == "credit_union"],
              "alternative_lenders": [r for r in rows if r["type"] == "alternative"]}
@@ -483,6 +500,72 @@ def _refresh_in_background() -> None:
     threading.Thread(target=run, daemon=True).start()
 
 
+_published = {"at": 0.0, "board": None}
+
+
+def published_snapshot() -> dict | None:
+    """The scheduled scraper's last verified board: bundled file first, then RR_PUBLISHED_BOARD_URL (cached 30 min)."""
+    import time
+    if _published["board"] is not None and time.time() - _published["at"] < 1800:
+        return _published["board"]
+    snap = _load(PUBLISHED) or None
+    if PUBLISHED_URL:
+        try:
+            r = requests.get(PUBLISHED_URL, headers=UA, timeout=5)
+            if r.ok:
+                remote = r.json()
+                if not snap or (remote.get("refreshed_at") or "") > (snap.get("refreshed_at") or ""):
+                    snap = remote
+        except (requests.RequestException, ValueError):
+            pass
+    if snap and not isinstance(snap.get("banks"), list):
+        snap = None
+    _published.update(at=time.time(), board=snap)
+    return snap
+
+
+GOOD = ("primary", "backup1", "cache", "archive")
+
+
+def merge_published(b: dict | None, snap: dict | None, now=None) -> dict | None:
+    """Fill lenders the server could not read itself with the scheduled scraper's verified reading (<= CACHE_DAYS old).
+    A lender the server read itself is never overwritten."""
+    if not snap:
+        return b
+    now = now or datetime.now(timezone.utc)
+    oldest = now - timedelta(days=CACHE_DAYS)
+
+    def usable(row):
+        if row.get("tier") not in GOOD or (row.get("verification") or {}).get("level", 0) < 2:
+            return False
+        try:
+            return datetime.fromisoformat(row["as_of"]) >= oldest
+        except (KeyError, TypeError, ValueError):
+            return False
+
+    out = dict(b or {"refreshed_at": None, "anchor": snap.get("anchor", {})})
+    filled = 0
+    for group in ("banks", "credit_unions", "alternative_lenders"):
+        mine = {r["id"]: r for r in (b or {}).get(group, [])}
+        rows = []
+        for srow in snap.get(group, []):
+            own = mine.pop(srow["id"], None)
+            if own and own.get("tier") in GOOD:
+                rows.append(own)
+            elif usable(srow):
+                rows.append({**srow, "tier": "published", "tier_label": TIER_LABEL["published"],
+                             "scraped_tier": srow.get("tier")})
+                filled += 1
+            elif own:
+                rows.append(own)
+        rows.extend(mine.values())
+        out[group] = rows
+    out["published"] = {"refreshed_at": snap.get("refreshed_at"), "lenders_filled": filled}
+    if not out.get("anchor"):
+        out["anchor"] = snap.get("anchor", {})
+    return out
+
+
 def board(max_age=STALE_AFTER, wait=True) -> dict:
     """Last board; kicks off a background refresh when stale. Never blocks on the network if a board exists.
     With no board yet, wait=True collects one now; wait=False (the web page) returns an empty board at once and
@@ -492,11 +575,15 @@ def board(max_age=STALE_AFTER, wait=True) -> dict:
         if wait:
             return refresh()
         _refresh_in_background()
+        snap = published_snapshot()
+        if snap:
+            return {**merge_published(None, snap), "stale": True, "refreshing": True}
         return {"refreshed_at": None, "anchor": {}, "banks": [], "credit_unions": [], "alternative_lenders": [],
                 "stale": True, "refreshing": True}
     stale = datetime.fromisoformat(b["refreshed_at"]) < datetime.now(timezone.utc) - max_age
     if stale:
         _refresh_in_background()
+    b = merge_published(b, published_snapshot())
     return {**b, "stale": stale, "refreshing": _refreshing.is_set()}
 
 

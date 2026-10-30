@@ -17,6 +17,9 @@ services:
       # Saved data lives in the container and is lost on restart (free plan has no disk).
       - key: DATABASE_URL
         value: sqlite:////tmp/renewal_radar.db
+      # Verified board from the 6-hourly scraper (.github/workflows/scrape-rates.yml).
+      - key: RR_PUBLISHED_BOARD_URL
+        value: https://raw.githubusercontent.com/ALENZACODES/renewal-radar/rates-data/published_board.json
       - key: MAX_PDF_MB
         value: "8"
       # Optional. Only needed to unlock the closed endpoints for John's own testing.

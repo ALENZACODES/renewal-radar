@@ -1,0 +1,46 @@
+# Auto-scraper: every 6 hours, read every lender's own published rates (primary source + 3 backups),
+# verify each reading at three levels (structure, Bank of Canada market check, independent corroboration)
+# and publish the verified board to the rates-data branch. The live site reads it from there
+# (RR_PUBLISHED_BOARD_URL), so a lender the server cannot reach still shows a verified, dated reading.
+# Pushing to rates-data never redeploys the site (Render deploys main only).
+name: scrape-rates
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: scrape-rates
+  cancel-in-progress: false
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - name: Check out the published branch (level 3 compares against its last readings)
+        run: |
+          PUB="$RUNNER_TEMP/published"
+          if git ls-remote --exit-code --heads origin rates-data >/dev/null; then
+            git clone -q --depth=1 --branch rates-data "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" "$PUB"
+            cp "$PUB/live_cache.json" data/ratewatch/live_cache.json 2>/dev/null || true
+          else
+            mkdir -p "$PUB" && cd "$PUB" && git init -q -b rates-data \
+              && git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          fi
+      - name: Scrape and verify
+        run: PYTHONPATH=backend python -m renewal.ratewatch.autoscrape "$RUNNER_TEMP/published"
+      - name: Publish to rates-data
+        run: |
+          cp data/ratewatch/live_cache.json "$RUNNER_TEMP/published/" || true
+          cd "$RUNNER_TEMP/published"
+          git config user.name "rates-bot"
+          git config user.email "rates-bot@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && { echo "no change"; exit 0; }
+          git commit -q -m "Verified rates $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -q origin HEAD:rates-data
