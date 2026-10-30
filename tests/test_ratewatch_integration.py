@@ -271,7 +271,8 @@ def test_small_lender_rules_from_their_calculators():
 
 WEB_APP_ORACLES = {"atb": ("atb_oracle", "mpp-calculator.app.js", 37), "haventree": ("haventree_oracle", "mortgage-calculator-chunk.js", 41),
                    "laurentian": ("laurentian_oracle", "calculator-chunk.js", 43), "equitable": ("equitable_oracle", "calculator-chunk.js", 47),
-                   "bridgewater": ("bridgewater_oracle", "bwb-module.js", 53)}
+                   "bridgewater": ("bridgewater_oracle", "bwb-module.js", 53),
+                   "community_trust": ("community_trust_oracle", "pages.js", 59)}
 
 
 @pytest.mark.parametrize("name", sorted(WEB_APP_ORACLES))
@@ -281,6 +282,45 @@ def test_web_app_lender_oracles_300_random_cases_exact_to_the_cent(name):
         pytest.skip(f"needs Node.js and {name}'s calculator code (python tools/fetch_web_app_oracles.py)")
     r = getattr(backtest, f"{name}_oracle")(n=300, seed=seed)
     assert r["exact_to_the_cent"] == 300, r["examples_of_misses"][:2]
+
+
+FN_FIXTURE = backtest.PROJECT_ROOT / "tests" / "fixtures" / "first_national_calculator_2026-10-28.json"
+
+
+@pytest.mark.skipif(not FN_FIXTURE.exists(),
+                    reason="needs First National's recorded calculator answers "
+                           "(python tools/record_first_national.py)")
+def test_first_national_recorded_cases_exact_to_the_cent():
+    r = backtest.first_national_cases()
+    assert r["exact_to_the_cent"] == r["cases"], r["examples_of_misses"][:2]
+
+
+def test_first_national_is_verified_with_its_own_convention():
+    assert POLICIES["First National"].verified
+    assert POLICIES["First National"].months_convention == "first_national"
+
+
+MCAP_FIXTURE = backtest.PROJECT_ROOT / "tests" / "fixtures" / "mcap_calculator_2026-10-28.json"
+RMG_FIXTURE = backtest.PROJECT_ROOT / "tests" / "fixtures" / "rmg_calculator_2026-10-28.json"
+
+
+@pytest.mark.skipif(not MCAP_FIXTURE.exists(),
+                    reason="needs MCAP's recorded calculator answers (python tools/record_mcap.py)")
+def test_mcap_recorded_cases_exact_to_the_cent():
+    r = backtest.mcap_cases()
+    assert r["exact_to_the_cent"] == r["cases"], r["examples_of_misses"][:2]
+
+
+@pytest.mark.skipif(not RMG_FIXTURE.exists(),
+                    reason="needs RMG's recorded calculator answers (python tools/record_mcap.py)")
+def test_rmg_recorded_cases_exact_to_the_cent():
+    r = backtest.rmg_cases()
+    assert r["exact_to_the_cent"] == r["cases"], r["examples_of_misses"][:2]
+
+
+def test_mcap_and_rmg_are_verified_with_their_own_conventions():
+    assert POLICIES["MCAP"].verified and POLICIES["MCAP"].months_convention == "mcap"
+    assert POLICIES["RMG"].verified and POLICIES["RMG"].months_convention == "rmg"
 
 
 def test_web_app_lenders_are_verified_with_their_own_comparison():

@@ -33,12 +33,18 @@ PROFILES = (
     LenderProfile('nbc','National Bank',Method.UNKNOWN,
         'https://www.nbc.ca/personal/mortgages.html',
         '2026-10:unverified',False,'National Bank-specific IRD formula requires validated product documents.'),
-    LenderProfile('first_national','First National',Method.UNKNOWN,
-        'https://www.firstnational.ca/residential',
-        '2026-10:unverified',False,'Monoline rules depend on product and registered mortgage terms.'),
+    LenderProfile('first_national','First National',Method.PRESENT_VALUE,
+        'https://www.firstnational.ca/residential/mortgage-calculators/prepayment-calculator',
+        '2026-10:verified-ratewatch',True,'Present value of the monthly interest differential on the declining balance; reproduced to the cent against First National\'s own calculator in the ratewatch registry.'),
     LenderProfile('mcap','MCAP',Method.UNKNOWN,
-        'https://www.mcap.com/residential-mortgages',
-        '2026-10:unverified',False,'Do not generalize all monoline contracts.'),
+        'https://www.mcap.com/residential-mortgages/resources/mortgage-payment-calculator',
+        '2026-10:verified-ratewatch',True,'Simple rate differential (contract minus current posted rate for the remaining-term band) x balance x months/12; reproduced to the cent against MCAP\'s own calculator in the ratewatch registry.'),
+    LenderProfile('rmg','RMG',Method.UNKNOWN,
+        'https://www.rmgmortgages.ca/customers/rate-calculator',
+        '2026-10:verified-ratewatch',True,'RMG is a division of MCAP; its own calculator returns MCAP\'s answers at every yearly term (no sub-year reinvestment rates). Reproduced to the cent in the ratewatch registry.'),
+    LenderProfile('mcan','MCAN',Method.UNKNOWN,
+        'https://mcanfinancial.com/wp-content/uploads/2026/10/MCAN-Home-Mortgage-Current-Interest-Rates-Oct-10-2026.pdf',
+        '2026-10:documented-method',False,'Documented method only: greater of IRD or three months\' interest per MCAN Home\'s published lender summaries; no public MCAN calculator exists to calibrate against.'),
 )
 REGISTRY = {p.code:p for p in PROFILES}
 def lender_profiles() -> list[dict]:

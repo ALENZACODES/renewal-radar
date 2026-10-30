@@ -43,6 +43,20 @@ TD_BANDS = ((0, 8.999, 6), (9, 17.999, 12), (18, 29.999, 24), (30, 41.999, 36), 
 SCOTIA_BANDS = ((0, 8.999, 6), (9, 17.999, 12), (18, 29.999, 24), (30, 41.999, 36), (42, 53.999, 48),
                 (54, 71.999, 60), (72, 101.999, 84), (102, 120, 120))
 MONO = dict(comparison="offered", term_match="nearest")
+# Read from MCAP's own prepayment calculator (the calculator linked from mcap.com): the term whose
+# posted ("reinvestment") rate applies is set by whole months remaining — nearest term, ties upward.
+# (4..6 -> 6, 7..17 -> 12, 18..29 -> 24, ...; at 3 or fewer months the calculator instead sets the
+# reinvestment rate equal to the contract rate — see _ppcalc.)
+MCAP_BANDS = ((4, 6, 6), (7, 17, 12), (18, 29, 24), (30, 41, 36), (42, 53, 48),
+              (54, 71, 60), (72, 101, 84), (102, 9999, 120))
+# RMG's instance of the same vendor calculator: identical at every yearly term, but its table
+# carries no 3- or 6-month reinvestment rate — remainders under a year use the 1-year rate.
+RMG_BANDS = ((0, 17, 12), (18, 29, 24), (30, 41, 36), (42, 53, 48),
+             (54, 71, 60), (72, 101, 84), (102, 9999, 120))
+# Read from Community Trust's own prepayment calculator (communitytrust.com): the band that
+# selects its current posted rate by months remaining.
+CT_BANDS = ((0, 17.999, 12), (18, 29.999, 24), (30, 41.999, 36), (42, 53.999, 48),
+            (54, 9999, 60))
 POLICIES = {p.lender: p for p in [
     Policy("RBC", comparison="posted_minus_discount", months_convention="rbc", min_term=6, verified=True,
            source="RBC's method reproduced from RBC's own online calculator (tools/rbc_oracle.py, backtest.rbc_cases): "
@@ -69,8 +83,53 @@ POLICIES = {p.lender: p for p in [
     Policy("Laurentian", comparison="posted", months_convention="laurentian", verified=True,
            source="Laurentian Bank's published calculator code; reproduced to the cent by backtest.laurentian_oracle"), Policy("Manulife Bank", **BIG6), Policy("ATB", comparison="posted_minus_discount", months_convention="atb", verified=True,
            source="ATB's published calculator code (Vue app); reproduced to the cent by backtest.atb_oracle"),
-    Policy("First National", **MONO), Policy("MCAP", **MONO), Policy("RMG", **MONO), Policy("CMLS", **MONO),
-    Policy("Merix", **MONO), Policy("Lendwise", **MONO), Policy("Marathon", **MONO), Policy("Strive", **MONO),
+    Policy("First National", comparison="offered", term_match="nearest", months_convention="first_national",
+           verified=True,
+           source="First National's published prepayment calculator (firstnational.ca, RemainingBalanceFixed "
+                  "service); reproduced to the cent by backtest.first_national_cases on cases recorded from "
+                  "that calculator (tests/fixtures/first_national_calculator_2026-10-28.json)"),
+    Policy("MCAP", comparison="posted", term_match="bands", bands=MCAP_BANDS, min_term=3,
+           months_convention="mcap", verified=True,
+           source="MCAP's published prepayment calculator (the calculator linked from mcap.com, "
+                  "ppcalculators.com instance 876145); reproduced to the cent by backtest.mcap_cases on "
+                  "cases recorded from that calculator (tests/fixtures/mcap_calculator_2026-10-28.json)"),
+    Policy("RMG", comparison="posted", term_match="bands", bands=RMG_BANDS, min_term=12,
+           months_convention="rmg", verified=True,
+           source="RMG's published prepayment calculator (the calculator linked from rmgmortgages.ca, "
+                  "ppcalculators.com instance 184737); reproduced to the cent by backtest.rmg_cases on "
+                  "cases recorded from that calculator (tests/fixtures/rmg_calculator_2026-10-28.json). "
+                  "RMG is a division of MCAP and its calculator returns MCAP's answers at every yearly "
+                  "term; its table has no 6-month reinvestment rate, so remainders of 4..12 months use "
+                  "the 1-year rate where MCAP's own instance uses its 6-month rate. Its table also has "
+                  "no 7- or 10-year rate: the calculator answers remainders up to 71 months and returns "
+                  "'rates are temporarily unavailable' beyond that, so the recorded battery covers "
+                  "1..71 months and longer remainders follow the proven formula with MCAP's band shape"),
+    Policy("MCAN", **MONO,
+           source="Documented method only — no public MCAN calculator exists. Greater of the interest "
+                  "rate differential or three months' interest, per MCAN Home Mortgage Corporation's "
+                  "published lender summaries (rateshop.ca MCAN lender review, 2026) and MCAN's own "
+                  "published rate sheet (mcanfinancial.com, MCAN Home Mortgage Corporation Interest "
+                  "Rates, Oct 10, 2026: posted rates, 20/20 prepayment privileges). Modelled on the "
+                  "standard monoline offered-rate method until MCAN publishes a calculator or worked "
+                  "examples to calibrate against."),
+    Policy("CMLS", **MONO,
+           source="CMLS's own Standard Mortgage Terms (documents.fnf.ca, CMLS Financial Ltd.): the "
+                  "fixed-rate prepayment charge is the greater of the interest rate differential and "
+                  "the lesser of three months' interest and the remaining interest to maturity; "
+                  "modelled on the standard monoline method, not yet calibrated against a CMLS "
+                  "calculator or worked examples."),
+    Policy("Community Trust", comparison="posted", term_match="bands", bands=CT_BANDS, min_term=12,
+           months_convention="community_trust", verified=True,
+           source="Community Trust's published prepayment calculator (communitytrust.com, "
+                  "MortgagePrePaymentPenaltyCalculatorPage in the lender's theme code; posted rates "
+                  "injected on the calculator page); reproduced to the cent by "
+                  "backtest.community_trust_oracle"),
+    Policy("Merix", **MONO), Policy("Marathon", **MONO), Policy("Strive", **MONO),
+    Policy("Lendwise", **MONO,
+           source="Lendwise is a brand of MERIX Financial (legal lender: Paradigm Quest Inc., MCAP "
+                  "group) — it is not a separate lender and appears on no insurer approved-lender "
+                  "list in its own name (CMHC/Sagen/Canada Guaranty lists, Oct 2026). This entry "
+                  "exists so statements naming Lendwise resolve; its terms are the Merix terms."),
     Policy("Equitable Bank", comparison="bond_yields", months_convention="equitable", verified=True,
            source="Equitable Bank's published calculator code; reproduced to the cent by backtest.equitable_oracle"), Policy("Home Trust", **MONO), Policy("Haventree", comparison="offered", months_convention="haventree", verified=True,
            source="Haventree's published calculator code; reproduced to the cent by backtest.haventree_oracle"),
@@ -348,6 +407,175 @@ def _rbc(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
         "compare_rate": round(posted - disc, 4), "rate_diff": round(max(m.contract_rate - (posted - disc), 0.0), 4),
         "three_month": _js_round2(three), "ird": _js_round2(ird), "penalty": _js_round2(pen),
         "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
+def _first_national(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """First National's own prepayment calculator (firstnational.ca prepayment calculator, its
+    RemainingBalanceFixed computation service), monthly payments, full payout:
+    - months remaining = the calendar month-index difference between payout and maturity,
+      (maturity.year - payout.year) x 12 + (maturity.month - payout.month): the day of the month
+      is ignored — a day-by-day maturity sweep against the live calculator showed the charge is
+      constant within a calendar month and steps at the month boundary
+    - the comparison rate is First National's current rate for the remaining term (the calculator's
+      posted-rate input), used as-is: no discount is added back or subtracted
+    - IRD = present value of the monthly interest differential on the declining balance (regular
+      payments at the contract rate, semi-annual compounding), each month's differential discounted
+      at the comparison rate
+    - 3 months' interest = balance x contract rate / 4 (the method in First National's own
+      "How to calculate prepayment charges" guide)
+    - on a term longer than 5 years the calculator charges the IRD only while at least 60 whole
+      months remain (whole months = the month-index difference, less one when the maturity day
+      precedes the payout day of month); inside the last 60 whole months of a long term the
+      charge is 3 months' interest however large the rate differential (proven on the recorded
+      battery: every one of the 472 recorded cases with a term over 60 months follows the rule,
+      and 50 of them would otherwise overstate the charge)
+    - a cash-back mortgage also repays cash back x months remaining / term months (the calculator's
+      separate Repayment figure; not part of this charge)
+    First National's guide describes a per-diem charge when under 3 months remain; its calculator
+    (the calibration source) applies the greater of 3 months' interest and the IRD at every
+    remaining term tested, so the calculator's behaviour is what is reproduced here."""
+    whole = max((end.year - payout.year) * 12 + (end.month - payout.month), 0)
+    remaining = float(whole)
+    term, posted = pick_term(remaining, policy, current)
+    bal0 = m.balance
+    ic = (1 + m.contract_rate / 200) ** (1 / 6) - 1
+    ik = (1 + posted / 200) ** (1 / 6) - 1
+    pay = m.payment if m.payment is not None else monthly_payment(bal0, m.contract_rate, m.amort_months)
+    three = bal0 * m.contract_rate / 100 / 4
+    bal, ird = bal0, 0.0
+    for k in range(1, whole + 1):
+        ird += bal * (ic - ik) / (1 + ik) ** k
+        bal = bal * (1 + ic) - pay
+        if bal <= 0:
+            break
+    ird = max(ird, 0.0)
+    pen, method = (ird, "IRD") if ird > three else (three, "3-month")
+    notes = ["First National compares the contract rate with its current rate for the remaining term "
+             "(no discount adjustment); the IRD is the present value of the monthly interest difference "
+             "on the declining balance"]
+    whole_months_left = whole - (1 if end.day < payout.day else 0)
+    if m.term_months > 60 and whole_months_left < 60:
+        pen, method = three, "3-month"
+        notes.append("term over 5 years with under 60 whole months remaining: First National's "
+                     "calculator charges 3 months' interest, not the IRD")
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": round(remaining, 2),
+        "compare_term": term, "compare_posted": round(posted, 4), "discount": 0.0,
+        "compare_rate": round(posted, 4), "rate_diff": round(max(m.contract_rate - posted, 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(ird), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
+def _ppcalc(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """The prepayment calculator MCAP links from mcap.com and RMG links from rmgmortgages.ca
+    (a vendor-hosted calculator, one instance per lender; the two return identical answers at
+    every yearly term — RMG is a division of MCAP — and differ only in the sub-year rates):
+    - months remaining = whole months from payout to maturity; the payment amount and the
+      payment frequency do not enter the calculation at all (probed: identical answers)
+    - the comparison ("reinvestment") rate is the lender's current posted rate for the term
+      band set by months remaining (policy.bands — nearest term, ties upward). At 3 or fewer
+      months remaining both instances set the reinvestment rate equal to the contract rate
+      itself, so no differential can arise; MCAP's instance then carries a 6-month rate for
+      4..6 months remaining, where RMG's instance uses its 1-year rate
+    - IRD = (contract rate - reinvestment rate) x balance x months remaining / 12, floored
+      at 0 — a simple differential: no discounting and no declining balance
+    - 3 months' interest = balance x contract rate / 4; when 3 or fewer months remain the
+      calculator charges interest to maturity instead: balance x contract rate x months
+      remaining x 30 / 365
+    - the charge is the greater of the two
+    The calculator takes no term-start input, so it cannot apply the Interest Act s.10 cap;
+    this engine applies it (a term over 5 years, 5+ years elapsed, caps the charge at
+    3 months' interest), as the lender's own standard charge terms require."""
+    months = max(int(months_between(payout, end) + 1e-9), 0)
+    if months <= 3:
+        # The calculator sets the reinvestment rate equal to the contract rate at 3 or fewer
+        # months remaining (probed on both instances at several contract rates).
+        term, comp = 3, m.contract_rate
+    else:
+        try:
+            term, comp = pick_term(months, policy, current)
+        except ValueError:
+            # The band's term is not in the supplied table: use the shortest term the table
+            # does carry rather than fail the estimate.
+            shortest = min(current)
+            term, comp = shortest, current[shortest]
+    # The vendor computes in decimal and rounds half-up: recorded cases land exactly on a
+    # half cent (e.g. (7.60 - 5.29)% x $725,000 x 13/12 = $18,143.125, printed $18,143.13),
+    # which binary floating point would round down. Decimal arithmetic throughout.
+    from decimal import Decimal, ROUND_HALF_UP
+    bal_d, rate_d, comp_d = Decimal(str(m.balance)), Decimal(str(m.contract_rate)), Decimal(str(comp))
+    if months > 3:
+        three_d = bal_d * rate_d / 400
+    else:
+        three_d = bal_d * rate_d * months * 30 / 36500
+    ird_d = max(rate_d - comp_d, Decimal(0)) * bal_d * months / 1200
+    pen_d, method = (ird_d, "IRD") if ird_d > three_d else (three_d, "3-month")
+    notes = [f"{policy.lender} compares the contract rate with its current posted rate for the "
+             f"remaining-term band (reinvestment rate); the IRD is the simple rate difference "
+             f"x balance x months remaining / 12, undiscounted"]
+    if months <= 3:
+        notes.append("three or fewer months remain: the charge is interest to maturity "
+                     "(months x 30/365) rather than a full 3 months' interest")
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen_d, method = three_d, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    cents = Decimal("0.01")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": months,
+        "compare_term": term, "compare_posted": round(comp, 4), "discount": 0.0,
+        "compare_rate": round(comp, 4), "rate_diff": round(max(m.contract_rate - comp, 0.0), 4),
+        "three_month": float(three_d.quantize(cents, rounding=ROUND_HALF_UP)),
+        "ird": float(ird_d.quantize(cents, rounding=ROUND_HALF_UP)),
+        "penalty": float(pen_d.quantize(cents, rounding=ROUND_HALF_UP)),
+        "method": method, "ird_minus_3mo": round(float(ird_d - three_d), 2),
+        "policy_verified": policy.verified,
+        "notes": notes,
+    }
+
+
+def _community_trust(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """Community Trust's own prepayment calculator (communitytrust.com mortgage pre-payment
+    penalty calculator; MortgagePrePaymentPenaltyCalculatorPage in the lender's published
+    theme code), fixed rate, full payout:
+    - months remaining = the calendar month-index difference between payout and maturity
+      (the calculator's monthDiff ignores the day of the month); the calculator itself only
+      accepts 3 to 78 months remaining
+    - the posted rate is Community Trust's current rate for the remaining-term band
+      (policy.bands: up to 17 months -> 1-year, 18..29 -> 2-year, 30..41 -> 3-year,
+      42..53 -> 4-year, 54 and over -> 5-year)
+    - IRD = (contract rate - (posted rate - 1.00)) x balance x months remaining / 12 — the
+      comparison rate is the posted rate less a 1-point adjustment
+    - 3 months' interest = balance x contract rate / 4; the charge is the greater of the two
+    The calculator adds a $300 discharge fee on a full payout; that fee is not part of the
+    prepayment charge and is not modelled here. The calculator takes no term-start input, so
+    it cannot apply the Interest Act s.10 cap; this engine applies it, as the lender's
+    standard charge terms require."""
+    months = max((end.year - payout.year) * 12 + (end.month - payout.month), 0)
+    term, posted = pick_term(months, policy, current)
+    comp = posted - 1.0
+    bal, rate = m.balance, m.contract_rate
+    three = bal * rate / 100 / 4
+    ird_raw = (rate - comp) / 100 * bal * months / 12
+    ird = max(ird_raw, 0.0)
+    pen, method = (ird_raw, "IRD") if ird_raw > three else (three, "3-month")
+    notes = ["Community Trust compares the contract rate with its current posted rate for the "
+             "remaining-term band less a 1-point adjustment; the IRD is the simple rate "
+             "difference x balance x months remaining / 12, undiscounted"]
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": months,
+        "compare_term": term, "compare_posted": round(posted, 4), "discount": 0.0,
+        "compare_rate": round(comp, 4), "rate_diff": round(max(rate - comp, 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(ird), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird_raw - three, 2),
+        "policy_verified": policy.verified, "notes": notes,
     }
 
 
@@ -679,7 +907,26 @@ def _desjardins(m: Mortgage, policy: Policy, current: dict, payout: date, end: d
 
 def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_offered: dict | None = None):
     """current: lender's posted table {term_months: rate} on payout date.
-    current_offered: lender's discounted/offered table (for comparison='offered')."""
+    current_offered: lender's discounted/offered table (for comparison='offered').
+
+    Every result carries the lender's lifecycle status from the status registry
+    (lender_registry.py): "lender_status" (active / merged / ceased / unknown), the successor
+    when the lender merged, and a plain-language note whenever the status is anything the
+    reader should know about — merged/ceased lenders, unverified status, stale source data.
+    Estimating a charge for a lender that no longer exists, without saying so, is not allowed."""
+    r = _penalty(m, policy, current, payout, current_offered)
+    from .lender_registry import status_for, status_note
+    rec = status_for(policy.lender)
+    r["lender_status"] = rec["status"]
+    if rec.get("successor"):
+        r["lender_successor"] = rec["successor"]
+    note = status_note(policy.lender)
+    if note:
+        r["notes"] = [*r.get("notes", []), note]
+    return r
+
+
+def _penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_offered: dict | None = None):
     end = maturity_of(m)
     remaining = max(td_months_remaining(payout, end) if policy.months_convention == "td" else months_between(payout, end), 0.0)
     if policy.months_convention == "scotia":     # Scotiabank's calculator takes whole months remaining
@@ -700,6 +947,12 @@ def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_of
         return _bmo(m, policy, current, payout, end)
     if policy.months_convention == "rbc":
         return _rbc(m, policy, current, payout, end)
+    if policy.months_convention == "first_national":
+        return _first_national(m, policy, current, payout, end)
+    if policy.months_convention in ("mcap", "rmg"):
+        return _ppcalc(m, policy, current, payout, end)
+    if policy.months_convention == "community_trust":
+        return _community_trust(m, policy, current, payout, end)
     if policy.months_convention == "desjardins":
         return _desjardins(m, policy, current, payout, end)
     if policy.months_convention == "tangerine":

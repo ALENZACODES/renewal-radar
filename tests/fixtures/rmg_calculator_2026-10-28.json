@@ -1,0 +1,414 @@
+{
+ "lender": "RMG",
+ "source": "RMG's online prepayment calculator (ppcalculators.com instance 184737, linked from the lender's own site), answers recorded by tools/record_mcap.py",
+ "recorded": "2026-10-28",
+ "cases": [
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 1,
+   "payment": 2559.23,
+   "reinvestment": 6.0,
+   "three_month": 1972.6,
+   "ird": 0.0,
+   "charge": 1972.6
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 2,
+   "payment": 2559.23,
+   "reinvestment": 6.0,
+   "three_month": 3945.21,
+   "ird": 0.0,
+   "charge": 3945.21
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 3,
+   "payment": 2559.23,
+   "reinvestment": 6.0,
+   "three_month": 5917.81,
+   "ird": 0.0,
+   "charge": 5917.81
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 4,
+   "payment": 2559.23,
+   "reinvestment": 5.29,
+   "three_month": 6000.0,
+   "ird": 946.67,
+   "charge": 6000.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 5,
+   "payment": 2559.23,
+   "reinvestment": 5.29,
+   "three_month": 6000.0,
+   "ird": 1183.33,
+   "charge": 6000.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 6,
+   "payment": 2559.23,
+   "reinvestment": 5.29,
+   "three_month": 6000.0,
+   "ird": 1420.0,
+   "charge": 6000.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 7,
+   "payment": 2559.23,
+   "reinvestment": 5.29,
+   "three_month": 6000.0,
+   "ird": 1656.67,
+   "charge": 6000.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 9,
+   "payment": 2559.23,
+   "reinvestment": 5.29,
+   "three_month": 6000.0,
+   "ird": 2130.0,
+   "charge": 6000.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 11,
+   "payment": 2559.23,
+   "reinvestment": 5.29,
+   "three_month": 6000.0,
+   "ird": 2603.33,
+   "charge": 6000.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 12,
+   "payment": 2559.23,
+   "reinvestment": 5.29,
+   "three_month": 6000.0,
+   "ird": 2840.0,
+   "charge": 6000.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 13,
+   "payment": 2559.23,
+   "reinvestment": 5.29,
+   "three_month": 6000.0,
+   "ird": 3076.67,
+   "charge": 6000.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 17,
+   "payment": 2559.23,
+   "reinvestment": 5.29,
+   "three_month": 6000.0,
+   "ird": 4023.33,
+   "charge": 6000.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 18,
+   "payment": 2559.23,
+   "reinvestment": 4.99,
+   "three_month": 6000.0,
+   "ird": 6060.0,
+   "charge": 6060.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 23,
+   "payment": 2559.23,
+   "reinvestment": 4.99,
+   "three_month": 6000.0,
+   "ird": 7743.33,
+   "charge": 7743.33
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 24,
+   "payment": 2559.23,
+   "reinvestment": 4.99,
+   "three_month": 6000.0,
+   "ird": 8080.0,
+   "charge": 8080.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 25,
+   "payment": 2559.23,
+   "reinvestment": 4.99,
+   "three_month": 6000.0,
+   "ird": 8416.67,
+   "charge": 8416.67
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 29,
+   "payment": 2559.23,
+   "reinvestment": 4.99,
+   "three_month": 6000.0,
+   "ird": 9763.33,
+   "charge": 9763.33
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 30,
+   "payment": 2559.23,
+   "reinvestment": 4.79,
+   "three_month": 6000.0,
+   "ird": 12100.0,
+   "charge": 12100.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 35,
+   "payment": 2559.23,
+   "reinvestment": 4.79,
+   "three_month": 6000.0,
+   "ird": 14116.67,
+   "charge": 14116.67
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 36,
+   "payment": 2559.23,
+   "reinvestment": 4.79,
+   "three_month": 6000.0,
+   "ird": 14520.0,
+   "charge": 14520.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 37,
+   "payment": 2559.23,
+   "reinvestment": 4.79,
+   "three_month": 6000.0,
+   "ird": 14923.33,
+   "charge": 14923.33
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 41,
+   "payment": 2559.23,
+   "reinvestment": 4.79,
+   "three_month": 6000.0,
+   "ird": 16536.67,
+   "charge": 16536.67
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 42,
+   "payment": 2559.23,
+   "reinvestment": 4.89,
+   "three_month": 6000.0,
+   "ird": 15540.0,
+   "charge": 15540.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 47,
+   "payment": 2559.23,
+   "reinvestment": 4.89,
+   "three_month": 6000.0,
+   "ird": 17390.0,
+   "charge": 17390.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 48,
+   "payment": 2559.23,
+   "reinvestment": 4.89,
+   "three_month": 6000.0,
+   "ird": 17760.0,
+   "charge": 17760.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 49,
+   "payment": 2559.23,
+   "reinvestment": 4.89,
+   "three_month": 6000.0,
+   "ird": 18130.0,
+   "charge": 18130.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 53,
+   "payment": 2559.23,
+   "reinvestment": 4.89,
+   "three_month": 6000.0,
+   "ird": 19610.0,
+   "charge": 19610.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 54,
+   "payment": 2559.23,
+   "reinvestment": 5.09,
+   "three_month": 6000.0,
+   "ird": 16380.0,
+   "charge": 16380.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 59,
+   "payment": 2559.23,
+   "reinvestment": 5.09,
+   "three_month": 6000.0,
+   "ird": 17896.67,
+   "charge": 17896.67
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 60,
+   "payment": 2559.23,
+   "reinvestment": 5.09,
+   "three_month": 6000.0,
+   "ird": 18200.0,
+   "charge": 18200.0
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 61,
+   "payment": 2559.23,
+   "reinvestment": 5.09,
+   "three_month": 6000.0,
+   "ird": 18503.33,
+   "charge": 18503.33
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 65,
+   "payment": 2559.23,
+   "reinvestment": 5.09,
+   "three_month": 6000.0,
+   "ird": 19716.67,
+   "charge": 19716.67
+  },
+  {
+   "balance": 400000,
+   "contract": 6.0,
+   "rem_months": 71,
+   "payment": 2559.23,
+   "reinvestment": 5.09,
+   "three_month": 6000.0,
+   "ird": 21536.67,
+   "charge": 21536.67
+  },
+  {
+   "balance": 725000,
+   "contract": 7.6,
+   "rem_months": 2,
+   "payment": 5349.38,
+   "reinvestment": 7.6,
+   "three_month": 9057.53,
+   "ird": 0.0,
+   "charge": 9057.53
+  },
+  {
+   "balance": 725000,
+   "contract": 7.6,
+   "rem_months": 5,
+   "payment": 5349.38,
+   "reinvestment": 5.29,
+   "three_month": 13775.0,
+   "ird": 6978.13,
+   "charge": 13775.0
+  },
+  {
+   "balance": 725000,
+   "contract": 7.6,
+   "rem_months": 13,
+   "payment": 5349.38,
+   "reinvestment": 5.29,
+   "three_month": 13775.0,
+   "ird": 18143.13,
+   "charge": 18143.13
+  },
+  {
+   "balance": 725000,
+   "contract": 7.6,
+   "rem_months": 25,
+   "payment": 5349.38,
+   "reinvestment": 4.99,
+   "three_month": 13775.0,
+   "ird": 39421.88,
+   "charge": 39421.88
+  },
+  {
+   "balance": 725000,
+   "contract": 7.6,
+   "rem_months": 37,
+   "payment": 5349.38,
+   "reinvestment": 4.79,
+   "three_month": 13775.0,
+   "ird": 62815.21,
+   "charge": 62815.21
+  },
+  {
+   "balance": 725000,
+   "contract": 7.6,
+   "rem_months": 49,
+   "payment": 5349.38,
+   "reinvestment": 4.89,
+   "three_month": 13775.0,
+   "ird": 80227.29,
+   "charge": 80227.29
+  },
+  {
+   "balance": 725000,
+   "contract": 7.6,
+   "rem_months": 61,
+   "payment": 5349.38,
+   "reinvestment": 5.09,
+   "three_month": 13775.0,
+   "ird": 92503.96,
+   "charge": 92503.96
+  }
+ ],
+ "reinvestment_table": {
+  "12": 5.29,
+  "24": 4.99,
+  "36": 4.79,
+  "48": 4.89,
+  "60": 5.09
+ }
+}
