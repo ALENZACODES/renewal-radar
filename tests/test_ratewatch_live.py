@@ -113,9 +113,9 @@ def test_alternative_lenders_validate_with_wider_band():
     assert not live.validate([(60, "fixed_closed", "posted", 14.9)], "alternative", anchor)[0]
 
 
-def test_registry_is_banks_credit_unions_and_30_alternative_lenders():
+def test_registry_is_banks_credit_unions_and_28_alternative_lenders():
     assert {t for _, _, t, _, _ in live.LENDERS} == {"bank", "credit_union", "alternative"}
-    assert sum(t == "alternative" for _, _, t, _, _ in live.LENDERS) == 30
+    assert sum(t == "alternative" for _, _, t, _, _ in live.LENDERS) == 28      # 2 commercial-only lenders removed
     assert sum(t == "bank" for _, _, t, _, _ in live.LENDERS) == 6
 
 
