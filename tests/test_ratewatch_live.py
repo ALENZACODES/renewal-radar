@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from renewal.main import app
 from renewal.ratewatch import history, live
 
+ORIGINAL_REDISCOVER = live.read_rediscovered          # captured before fixtures replace it
 ANCHOR = {"boc_5y_posted": 6.19, "boc_5y_posted_date": "2026-10-14", "goc_5y": 3.55}
 GOOD_BANK = [(60, "fixed_closed", "posted", 6.19), (60, "fixed_closed", "special", 5.14), (36, "fixed_closed", "posted", 6.25)]
 GOOD_CU = [(60, "fixed_closed", "posted", 4.84)]
@@ -104,6 +105,24 @@ def test_refresh_and_api(monkeypatch):
     assert again["refreshed_at"] == b["refreshed_at"] and again["stale"] is False
 
 
-def test_registry_is_banks_and_credit_unions_only():
-    assert {t for _, _, t, _, _ in live.LENDERS} == {"bank", "credit_union"}
+def test_alternative_lenders_validate_with_wider_band():
+    anchor = {"boc_5y_posted": 6.19, "goc_5y": 3.55}
+    assert live.validate([(60, "fixed_closed", "posted", 9.99)], "alternative", anchor)[0]       # B/private pricing
+    assert not live.validate([(60, "fixed_closed", "posted", 9.99)], "credit_union", anchor)[0]
+    assert not live.validate([(60, "fixed_closed", "posted", 14.9)], "alternative", anchor)[0]
+
+
+def test_registry_is_banks_credit_unions_and_30_alternative_lenders():
+    assert {t for _, _, t, _, _ in live.LENDERS} == {"bank", "credit_union", "alternative"}
+    assert sum(t == "alternative" for _, _, t, _, _ in live.LENDERS) == 30
     assert sum(t == "bank" for _, _, t, _, _ in live.LENDERS) == 6
+
+
+def test_sub_brand_rediscovery_never_takes_parent_bank_rates(monkeypatch):
+    from renewal.ratewatch import scrape
+    url = "https://www.nbc.ca/en/optimummortgage/brokers/rates.html"
+    monkeypatch.setattr(live, "read_rediscovered", ORIGINAL_REDISCOVER)
+    monkeypatch.setattr(scrape, "rediscovered", lambda u: (GOOD_BANK, "https://www.nbc.ca/personal/mortgages/rates.html"))
+    assert live.read_rediscovered(url) == ([], None)
+    monkeypatch.setattr(scrape, "rediscovered", lambda u: (GOOD_BANK, "https://www.nbc.ca/en/optimummortgage/rates-2.html"))
+    assert live.read_rediscovered(url)[0] == GOOD_BANK

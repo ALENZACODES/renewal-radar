@@ -71,6 +71,38 @@ LENDERS = [
     ("CU18", "Kawartha", "credit_union", ("html", "https://www.kawarthacu.com/rates"), None),
     ("CU19", "Steinbach", "credit_union", ("html", "https://scu.mb.ca/rates"), None),
     ("CU20", "Tandia", "credit_union", ("html", "https://www.tandia.com/rates"), None),
+    # ---- B lenders, trust companies, MICs and private lenders. Most quote brokers privately and publish no rates;
+    #      they run through the same chain and show "Unavailable" until a public lender source exists. ----
+    ("ALT01", "Home Trust", "alternative", ("html", "https://www.hometrust.ca"), None),
+    ("ALT02", "Equitable Bank (EQ Bank)", "alternative", ("html", "https://www.eqbank.ca/residential/mortgage-rates"), None),
+    ("ALT03", "Haventree Bank", "alternative", ("html", "https://www.haventreebank.com"), None),
+    ("ALT04", "Community Trust", "alternative", ("html", "https://www.communitytrust.ca"), None),
+    ("ALT05", "Bridgewater Bank", "alternative", ("html", "https://bridgewaterbank.ca"), None),
+    ("ALT06", "Wealth One Bank of Canada", "alternative", ("html", "https://www.wealthonebankofcanada.com"), None),
+    ("ALT07", "RFA Bank of Canada", "alternative", ("html", "https://www.rfa.ca"), None),
+    ("ALT08", "Peoples Group", "alternative", ("html", "https://www.peoplesgroup.com/personal/resources/mortgage-rates"), None),
+    ("ALT09", "CMLS Financial", "alternative", ("html", "https://www.cmls.ca"), None),
+    ("ALT10", "MCAN Financial", "alternative", ("html", "https://www.mcanfinancial.com"), None),
+    ("ALT11", "Optimum Mortgage (National Bank)", "alternative", ("html", "https://www.nbc.ca/en/optimummortgage/brokers/rates.html"), None),
+    ("ALT12", "Merix Financial", "alternative", ("html", "https://www.merixfinancial.com"), None),
+    ("ALT13", "Cameron Stephens", "alternative", ("html", "https://cameronstephens.com"), None),
+    ("ALT14", "Effort Trust", "alternative", ("html", "https://www.efforttrust.ca"), None),
+    ("ALT15", "Questbank (Questrade)", "alternative", ("html", "https://www.questrade.com"), None),
+    ("ALT16", "KEB Hana Bank Canada", "alternative", ("html", "https://www.kebhana.com"), None),
+    ("ALT17", "HomeEquity Bank (CHIP)", "alternative", ("html", "https://www.chip.ca"), None),
+    ("ALT18", "B2B Bank", "alternative", ("html", "https://b2bbank.com/advisor-broker-rates/mortgage-rates"), None),
+    ("ALT19", "Fisgard Capital", "alternative", ("html", "https://www.fisgard.com"), None),
+    ("ALT20", "Antrim Investments", "alternative", ("html", "https://www.antriminvestments.com"), None),
+    ("ALT21", "CMI Financial Group", "alternative", ("html", "https://thecmigroup.ca"), None),
+    ("ALT22", "Brightpath Capital", "alternative", ("html", "https://www.brightpathcapital.ca"), None),
+    ("ALT23", "Hillmount Capital", "alternative", ("html", "https://www.hillmount.com"), None),
+    ("ALT24", "Atrium Mortgage Investment Corp", "alternative", ("html", "https://www.atriummic.com"), None),
+    ("ALT25", "Firm Capital", "alternative", ("html", "https://www.firmcapital.com"), None),
+    ("ALT26", "Trez Capital", "alternative", ("html", "https://trezcapital.com"), None),
+    ("ALT27", "Alpine Credits", "alternative", ("html", "https://www.alpinecredits.ca"), None),
+    ("ALT28", "Fairstone (home equity)", "alternative", ("html", "https://www.fairstone.ca"), None),
+    ("ALT29", "Neighbourhood Holdings", "alternative", ("html", "https://www.neighbourhoodholdings.com"), None),
+    ("ALT30", "Bloom Finance (reverse)", "alternative", ("html", "https://www.bloomfinance.ca"), None),
 ]
 
 
@@ -134,11 +166,21 @@ def read_archive(kind: str, url: str) -> tuple[list, str | None]:
     return (rows, f"common crawl {ts[:8]}") if rows else ([], reason + "; no recent Common Crawl copy")
 
 
+# Sub-brands that share a parent bank's website: a rediscovered page must stay inside the brand's own section,
+# otherwise the parent's retail rates would be reported as the brand's.
+SCOPE = {"https://www.nbc.ca/en/optimummortgage/brokers/rates.html": "/en/optimummortgage/"}
+
+
 def read_rediscovered(url: str) -> tuple[list, str | None]:
+    from urllib.parse import urlparse
     try:
-        return scrape.rediscovered(url)
+        rows, found = scrape.rediscovered(url)
     except Exception:
         return [], None
+    scope = SCOPE.get(url)
+    if scope and found and not urlparse(found).path.startswith(scope):
+        return [], None                       # outside the brand's section: never use another brand's rates
+    return rows, found
 
 
 # ---------------- validation ----------------
@@ -190,11 +232,16 @@ def validate(rows: list, lender_type: str, anchor: dict) -> tuple[bool, str]:
         if boc is not None and abs(five["posted"] - boc) > 0.75:
             return False, f"5-year posted {five['posted']} is far from the big-six typical {boc}"
         return True, "ok"
+    upper = 11.0 if lender_type == "alternative" else 6.5
     for t, v in terms.items():                  # other terms: same plausible band around the 5-year bond
         for rt, r in v.items():
-            if not goc - 0.5 <= r <= goc + 6.5:
+            if not goc - 0.5 <= r <= goc + upper:
                 return False, f"{t}-month {rt} rate {r} implausible against a 5-year bond at {goc}"
     advertised = min(five.values())
+    if lender_type == "alternative":           # B/private pricing runs higher than prime lenders
+        if not (goc + 0.3 <= advertised <= goc + 9.0):
+            return False, f"5-year rate {advertised} outside the plausible B/private band for a 5-year bond at {goc}"
+        return True, "ok"
     if not (goc + 0.3 <= advertised <= goc + 4.5):
         return False, f"5-year rate {advertised} outside the plausible band for a 5-year bond at {goc}"
     return True, "ok"
@@ -350,7 +397,8 @@ def _refresh(lenders=None) -> dict:
     board = {"refreshed_at": now.isoformat(timespec="seconds"), "anchor": anchor,
              "summary": {t: sum(1 for r in rows if r["tier"] == t) for t in TIER_LABEL},
              "banks": [r for r in rows if r["type"] == "bank"],
-             "credit_unions": [r for r in rows if r["type"] == "credit_union"]}
+             "credit_unions": [r for r in rows if r["type"] == "credit_union"],
+             "alternative_lenders": [r for r in rows if r["type"] == "alternative"]}
     BOARD.write_text(json.dumps(board, indent=1))
     return board
 

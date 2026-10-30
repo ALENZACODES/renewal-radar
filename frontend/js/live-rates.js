@@ -45,6 +45,10 @@ export function liveRatesView(workspace) {
       ${a.boc_5y_posted_date ? `(${esc(dt(a.boc_5y_posted_date))})` : ''} · 5-year Government of Canada bond: <strong>${pct(a.goc_5y)}</strong></div>
     <section class="card padded"><h3>Big banks</h3>${table(b.banks || [], true)}</section>
     <section class="card padded mt2"><h3>Credit unions</h3>${table(b.credit_unions || [], false)}</section>
+    <section class="card padded mt2"><h3>Private and B lenders</h3>
+      <p class="fineprint">Most B lenders, trust companies and private lenders quote brokers directly and publish no public rates.
+        They are checked through the same sources and backups, and show “Unavailable” until a public lender source exists.</p>
+      ${table(b.alternative_lenders || [], false)}</section>
     <p class="fineprint mt">Source order per lender: lender feed or page → second lender source (or its moved page, found automatically) →
       last good reading (up to 14 days) → newest web-archive copy. * Not lender-specific: shown only when every lender source fails.
       “Unavailable” means no reading passed validation; no rate is ever estimated. Credit-union “advertised” is the lowest
