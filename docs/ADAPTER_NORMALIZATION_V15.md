@@ -76,7 +76,7 @@ as expected.
 ## Current adapter references
 
 The V15 adapter shapes are based on public project interfaces and release notes
-available during the October 2026 build:
+available when the adapters were built:
 
 - PaddleOCR / PP-OCRv6 and PaddleOCR-VL 1.6 for modern OCR and document parsing
 - Docling for structured document conversion and pluggable OCR engines

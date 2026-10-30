@@ -2,7 +2,7 @@
 
 **Product and technical master blueprint | October 11, 2026**  
 **Status:** proposed design, **not** implemented, deployed, or submitted. Data illustrations are synthetic unless an official dated observation is cited.  
-**Hackathon contexts:** Build North: Ship Something Real (build week Oct 16–25, 2026; short video at most 2 minutes per supplied brief); Nebius x NVIDIA (deadline Oct 30, 2026; demo video under 3 minutes per supplied brief). Any earlier Renewal Radar work must be disclosed where required. No sign-up or submission is authorized by this blueprint.
+**Hackathon contexts:** Build North: Ship Something Real (short video at most 2 minutes per supplied brief); Nebius x NVIDIA (deadline Oct 30, 2026; demo video under 3 minutes per supplied brief). Any earlier Renewal Radar work must be disclosed where required. No sign-up or submission is authorized by this blueprint.
 
 ## 1. Concept, pitch and commercial objective
 
@@ -292,13 +292,13 @@ Delete rate-path deep dive, shorten architecture reveal, compress upload and let
 | Stage | Target | Deliverable | Exit gate |
 |---|---|---|---|
 | 0 — architecture/fixture | Before new-build eligibility period | Sources, synthetic sample letters, threat model, UX flows and previously developed inventory | Contest prior-work disclosure drafted; no code misrepresented as new |
-| 1 — vertical slice | Oct 16–17 | Working Next.js / API / auth or demo bypass, core dashboard, finance library | One end-to-end synthetic homeowner flow |
-| 2 — true document agent | Oct 18–19 | PDF extraction, highlights, strict schemas, Nemotron agent | 95%+ correct required fields on curated clean letter corpus; mistakes require review |
-| 3 — Canada rules and math | Oct 20–21 | Uninsured/insured classification, 2026 MQR, payment/penalty engine | All golden mortgage and policy tests pass |
-| 4 — market and comparisons | Oct 22 | BoC official adapter, 2–3 reliable bank adapters, comparison charts | Freshness and provenance visible; other banks staged honestly |
-| 5 — shareable impact | Oct 23 | Script, action plan, branded PDF and sample sharing | Printable auditable result; no fabricated quote |
-| 6 — harden and cut video | Oct 24–25 | Mobile tests, no-login mode, security review, fallback, short demo | Live URL, public MIT repo, correct prior-work disclosure, ≤2m video; human approval to submit |
-| 7 — Nebius finalist expansion | Oct 26–29 | Nemotron substantive run, Tavily source verifier, more bank adapters, trace viewer, broker teaser | Meets Nebius rules, <3m YouTube video and feedback form; documented model ID |
+| 1 — vertical slice | — | Working Next.js / API / auth or demo bypass, core dashboard, finance library | One end-to-end synthetic homeowner flow |
+| 2 — true document agent | — | PDF extraction, highlights, strict schemas, Nemotron agent | 95%+ correct required fields on curated clean letter corpus; mistakes require review |
+| 3 — Canada rules and math | — | Uninsured/insured classification, 2026 MQR, payment/penalty engine | All golden mortgage and policy tests pass |
+| 4 — market and comparisons | — | BoC official adapter, 2–3 reliable bank adapters, comparison charts | Freshness and provenance visible; other banks staged honestly |
+| 5 — shareable impact | — | Script, action plan, branded PDF and sample sharing | Printable auditable result; no fabricated quote |
+| 6 — harden and cut video | — | Mobile tests, no-login mode, security review, fallback, short demo | Live URL, public MIT repo, correct prior-work disclosure, ≤2m video; human approval to submit |
+| 7 — Nebius finalist expansion | — | Nemotron substantive run, Tavily source verifier, more bank adapters, trace viewer, broker teaser | Meets Nebius rules, <3m YouTube video and feedback form; documented model ID |
 | 8 — submission deadline | Oct 30, 1:00 PM ET per supplied brief | Complete Nebius entry | Obtain explicit owner's approval first |
 | 9 — commercialization | After hackathons, 3–6 months | Multi-tenant SaaS, complete lender coverage, additional regulation checks, penetration test, privacy counsel review, broker pilot | Paid pilots, signed lender/data rights as needed, security evidence |
 

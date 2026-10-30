@@ -1,6 +1,6 @@
 # Renewal Radar roadmap
 
-*John Khan · Alenza Fintech · status as of October 15, 2026*
+*John Khan · Alenza Fintech*
 
 Three separate statuses, never merged:
 
@@ -45,7 +45,7 @@ Passing tests prove the code does what we intended. They do not prove a lender c
 | + | Reverse-rate explorer | Yes | Yes | No | Returns **compatible ranges**, never a single "true" rate |
 | + | Rate/date heatmap | Yes | Yes | No | Labelled HYPOTHETICAL; shows interest paid while waiting, since a lower penalty is not always a lower total cost |
 
-## Review fixes (October 14)
+## Review fixes
 
 All fixed with a regression test each (`tests/test_ratewatch_review_fixes.py`): no charge at or after maturity; TD never
 substitutes a different term rate; synthetic/duplicate cases cannot verify a lender (evidence required, held-out grading);
@@ -55,7 +55,7 @@ reverse-rate solved exactly; same-day source conflicts reported; failed download
 names kept out of URLs; release ZIP keeps dotfiles and excludes all databases; website calls the new endpoints
 (Penalty page "Lender-exact check", new "Live rates" page).
 
-## Second review (October 15)
+## Second review
 
 All 14 fixed with tests (`tests/test_ratewatch_review2.py`): no negative interest after repayment; variable/open/unknown
 inputs rejected; past payouts use recorded rates, never today's; PDF text escaped; live validation fails closed; reverse-rate
