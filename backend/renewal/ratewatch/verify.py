@@ -1,8 +1,8 @@
 """Three-level verification for every scraped lender reading.
 
     Level 1  Structure    the reading came from the lender's own source and is internally consistent:
-                          a 5-year rate exists, every rate is 1-15%, no special rate above its posted rate,
-                          and no jump of more than 2.5 points between neighbouring terms.
+                          a 5-year rate exists, every rate is 1-15%, no 3-year-plus special above its posted
+                          rate, and no jump of more than 2.5 points between neighbouring terms of 1 year or more.
     Level 2  Market       the reading is plausible against independent Bank of Canada figures
                           (big-six typical 5-year posted for banks; 5-year Government of Canada bond for others).
                           This is live.validate(), unchanged.
@@ -39,9 +39,9 @@ def level1(rows: list, lender_type: str) -> tuple[bool, str]:
         for rt, r in v.items():
             if not 1.0 <= r <= 15.0:
                 return False, f"{t}-month {rt} rate {r} outside 1-15%"
-        if "posted" in v and "special" in v and v["special"] > v["posted"] + 0.01:
+        if t >= 36 and "posted" in v and "special" in v and v["special"] > v["posted"] + 0.01:
             return False, f"{t}-month special {v['special']} above posted {v['posted']}"
-    ordered = sorted(terms)
+    ordered = sorted(t for t in terms if t >= 12)        # sub-1-year terms are often open/convertible pricing
     for a, b in zip(ordered, ordered[1:]):
         for rt in set(terms[a]) & set(terms[b]):          # posted vs posted, special vs special
             ra, rb = terms[a][rt], terms[b][rt]

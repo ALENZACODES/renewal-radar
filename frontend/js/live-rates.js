@@ -65,7 +65,7 @@ export function liveRatesView(workspace) {
         They are checked through the same sources and backups, and show “Unavailable” until a public lender source exists.</p>
       ${table(b.alternative_lenders || [], false)}</section>
     <p class="fineprint mt"><strong>Verification, three levels.</strong> 1 Structure: the reading came from the lender’s own source and is internally consistent
-      (5-year rate present, every rate 1–15%, no special above posted, no jump over 2.5 points between terms). 2 Market: plausible against Bank of Canada
+      (5-year rate present, every rate 1–15%, no 3-year-plus special above posted, no jump over 2.5 points between terms of a year or more). 2 Market: plausible against Bank of Canada
       figures (big-six typical 5-year posted for banks, 5-year Government of Canada bond for others). 3 Corroborated: a second independent reading of the
       same lender agrees (another live source in the same run, or its previous reading within 0.50 points, 0.75 if over 3 days old). A scheduled scraper
       re-reads and re-verifies every lender every 6 hours. Hover the dots to see each check.</p>

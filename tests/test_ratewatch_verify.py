@@ -61,3 +61,8 @@ def test_merge_skips_stale_snapshot_rows():
     snap = {"refreshed_at": old, "banks": [{"id": "P021", "tier": "primary", "as_of": old, "verification": {"level": 3}}]}
     out = live.merge_published({"refreshed_at": NOW.isoformat(), "banks": []}, snap, now=NOW)
     assert out["banks"] == []
+
+
+def test_short_terms_are_not_held_to_the_long_term_rules():
+    rows = ROWS + [(6, "fixed_closed", "posted", 9.5), (12, "fixed_closed", "special", 6.12)]
+    assert verify.level1(rows, "bank")[0]
