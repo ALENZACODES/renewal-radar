@@ -179,11 +179,11 @@ See `docs/SECURITY_AND_RELEASE_GATE.md` and `docs/PRODUCT_MASTER_BLUEPRINT.md` f
 
 ## 8. Hackathons
 
-The supplied project briefs name **Build North** (October 16–25, 2026) and **Nebius × NVIDIA Global AI Hackathon** (deadline October 30, 2026). This package is a separate runnable artifact and does not authorize registration, public GitHub upload, Devpost submission, key creation or paid services. Consult `docs/HACKATHON_DEMO.md` and disclose any previously built scaffolding as required by each contest.
+The supplied project briefs name **Build North** and **Nebius × NVIDIA Global AI Hackathon** (deadline October 30, 2026). This package is a separate runnable artifact and does not authorize registration, public GitHub upload, Devpost submission, key creation or paid services. Consult `docs/HACKATHON_DEMO.md` and disclose any previously built scaffolding as required by each contest.
 
 **License:** MIT. No bank or Canadian agency endorses this product. `Maple Bank` is fictional. Rates in the sample are not live bank quotes.
 
-### Auditable amortization exports (added October 2026)
+### Auditable amortization exports
 
 The strategy report screen includes **Download amortization CSV**. The new
 `POST /api/ledger.csv` route accepts the same `AnalyzeRequest` as `/api/analyze`
@@ -199,7 +199,7 @@ confirmed with a lender.
 
 This branch adds versioned lender-method profiles, an independent `Decimal` penalty engine, auditable outputs, two v3 endpoints, and dedicated unit/API tests. See [penalty v3 documentation](docs/PENALTY_ENGINE_V3.md) and [50k+ line production file manifest](docs/ENTERPRISE_50000_LINE_FILE_MANIFEST.md). The 77,400-line manifest is a **target**, not a claim about implemented code. Existing v2 endpoints remain for compatibility.
 
-## V4 implementation increment (October 2026)
+## V4 implementation increment
 
 The codebase now includes `backend/renewal/intelligence/rate_history.py`, an
 append-only historical rate observation store. Every rate observation carries a
