@@ -225,17 +225,28 @@ def heatmap(m: Mortgage, policy: Policy, table: dict, start: date, months_ahead:
             "moves": list(moves), "rows": grid}
 
 
+def csv_safe(value) -> str:
+    """Neutralize spreadsheet formula injection in CSV cells."""
+    if value is None:
+        return ''
+    s = str(value)
+    if s and s[0] in ('=', '+', '-', '@', '\t', '\r'):
+        return "'" + s
+    return s
+
+
 def to_csv(result: dict, forecast_rows: list) -> str:
     buf = io.StringIO()
     w = csv.writer(buf)
     w.writerow(["field", "value"])
     for k, v in result.items():
         if k != "notes":
-            w.writerow([k, v])
+            w.writerow([csv_safe(k), csv_safe(v)])
     w.writerow([])
     w.writerow(["date", "compare_term_months", "three_month", "ird", "penalty", "method", "transition"])
     for f in forecast_rows:
-        w.writerow([f["payout"], f["compare_term"], f["three_month"], f["ird"], f["penalty"], f["method"], f["transition"]])
+        w.writerow([csv_safe(f["payout"]), csv_safe(f["compare_term"]), csv_safe(f["three_month"]),
+                    csv_safe(f["ird"]), csv_safe(f["penalty"]), csv_safe(f["method"]), csv_safe(f["transition"])])
     return buf.getvalue()
 
 

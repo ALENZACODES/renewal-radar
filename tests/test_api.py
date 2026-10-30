@@ -38,8 +38,8 @@ def test_pdf_upload_and_rejections():
         r=c.post('/api/documents/extract',files={'file':('letter.pdf',pdf,'application/pdf')})
         assert r.status_code==200
         assert r.json()['fields']['balance']['value']==480000
-        assert c.post('/api/documents/extract',files={'file':('wrong.pdf',b'not pdf','application/pdf')}).status_code==422
-        assert c.post('/api/documents/extract',files={'file':('huge.pdf',b'%PDF-'+b'A'*(9*1024*1024),'application/pdf')}).status_code==413
+        assert c.post('/api/documents/extract',files={'file':('wrong.pdf',b'not pdf','application/pdf')}).status_code==415
+        assert c.post('/api/documents/extract',files={'file':('huge.pdf',b'%PDF-'+b'A'*(16*1024*1024),'application/pdf')}).status_code==413
         assert c.get('/api/demo/sample.pdf').content.startswith(b'%PDF-')
 
 

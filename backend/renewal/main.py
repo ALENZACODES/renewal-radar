@@ -16,6 +16,8 @@ from .security.rate_limit import SlidingWindowLimiter
 from pydantic import ValidationError
 from .config import settings
 from .security.access import require_api_access, demo_enabled, demo_samples_allowed, is_production
+from .security.log_redact import install_log_redaction
+from .security.uploads import ingest_document_upload, read_upload_capped, MAX_UPLOAD_BYTES
 from .domain.schemas import AnalyzeRequest,Mortgage,Offer,PenaltyRequest,CaseCreate,CaseTokenMint,ShareRequest,NegotiationRequest
 from .domain.mortgage_math import compare_offers,stress_paths,simulate
 from .domain.rules import mqr,switch_decision,penalty_estimate,OSFI_MQR,OSFI_SWITCH,RENEWAL
@@ -41,6 +43,7 @@ logger=logging.getLogger('renewal_radar')
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
+    install_log_redaction()
     store.initialize()
     app.state.live_rate_tracker = LiveRateTracker()
     app.state.live_rate_tracker.start()
@@ -129,14 +132,13 @@ async def demo_scan():
 
 @app.post('/api/documents/extract')
 async def pdf_extract(file: UploadFile=File(...)):
-    if file.content_type not in ('application/pdf','application/octet-stream') and not file.filename.lower().endswith('.pdf'):
-        raise HTTPException(415,'Only PDF documents are accepted.')
-    content=await file.read(settings.max_pdf_bytes+1)
-    await file.close()
-    if len(content)>settings.max_pdf_bytes:
-        raise HTTPException(413,f'PDF must be smaller than {settings.max_pdf_bytes//1048576} MB.')
     try:
-        extracted=extract_pdf(content,file.filename)
+        ingested = await ingest_document_upload(
+            file, max_bytes=min(settings.max_pdf_bytes, MAX_UPLOAD_BYTES), allowed={'pdf'})
+    finally:
+        await file.close()
+    try:
+        extracted=extract_pdf(ingested.data, ingested.filename)
         extracted=await enrich_extraction(extracted)
         return extracted.model_dump()
     except ValueError as exc:raise HTTPException(422,str(exc))
@@ -146,12 +148,8 @@ async def pdf_extract(file: UploadFile=File(...)):
 async def document_read_v17(file: UploadFile = File(...), language: str = Query(default='eng', pattern=r'^(eng|fra|eng\+fra)$')):
     from starlette.concurrency import run_in_threadpool
     try:
-        if file.content_type not in ('application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'image/tiff', 'application/octet-stream'):
-            raise HTTPException(415, 'Supply a PDF or supported document image')
-        content = await file.read(8 * 1024 * 1024 + 1)
-        if len(content) > 8 * 1024 * 1024:
-            raise HTTPException(413, 'Document exceeds the 8 MB limit')
-        return await run_in_threadpool(read_mortgage_document, content, file.filename or 'document', language)
+        ingested = await ingest_document_upload(file, max_bytes=MAX_UPLOAD_BYTES, allowed={'pdf', 'png', 'jpeg'})
+        return await run_in_threadpool(read_mortgage_document, ingested.data, ingested.filename, language)
     except OCREngineError as exc:
         raise HTTPException(503, str(exc)) from exc
     except (ValueError, CameraError) as exc:
@@ -848,7 +846,7 @@ async def camera_inspect(file: UploadFile = File(...)):
     if file.content_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/tiff',
                                  'application/octet-stream'):
         raise HTTPException(415, 'Unsupported image MIME type.')
-    payload = await file.read(14 * 1024 * 1024 + 1)
+    payload = await read_upload_capped(file, max_bytes=MAX_UPLOAD_BYTES)
     await file.close()
     try:
         scan = prepare_scan(payload)
@@ -1214,12 +1212,8 @@ async def document_semantic_audit(body: DocumentSemanticAuditRequest):
 @app.post('/api/v16/ocr/semantic-audit/pdf')
 async def document_semantic_pdf(file: UploadFile = File(...)):
     try:
-        if file.content_type not in ('application/pdf', 'application/octet-stream'):
-            raise HTTPException(415, 'Only PDF documents are accepted')
-        content = await file.read(8 * 1024 * 1024 + 1)
-        if len(content) > 8 * 1024 * 1024:
-            raise HTTPException(413, 'PDF exceeds the 8 MB limit')
-        return audit_semantic_pdf(content, file.filename or 'document.pdf')
+        ingested = await ingest_document_upload(file, allowed={'pdf'})
+        return audit_semantic_pdf(ingested.data, ingested.filename)
     except DocumentSemanticAuditError as exc:
         raise HTTPException(422, str(exc)) from exc
     finally:
@@ -1306,7 +1300,7 @@ async def camera_ocr(file: UploadFile = File(...),
     if file.content_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/tiff',
                                  'application/octet-stream'):
         raise HTTPException(415, 'Unsupported image MIME type.')
-    payload = await file.read(14 * 1024 * 1024 + 1)
+    payload = await read_upload_capped(file, max_bytes=MAX_UPLOAD_BYTES)
     await file.close()
     try:
         scan = prepare_scan(payload)
@@ -1331,7 +1325,7 @@ async def camera_pdf(files: list[UploadFile] = File(...)):
             if file.content_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/tiff',
                                          'application/octet-stream'):
                 raise HTTPException(415, 'Unsupported image MIME type.')
-            prepared.append(prepare_scan(await file.read(14 * 1024 * 1024 + 1)))
+            prepared.append(prepare_scan(await read_upload_capped(file, max_bytes=MAX_UPLOAD_BYTES)))
             await file.close()
         pdf_bytes = scans_to_pdf(prepared)
         return Response(pdf_bytes, media_type='application/pdf',

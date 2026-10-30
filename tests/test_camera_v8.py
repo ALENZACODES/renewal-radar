@@ -24,6 +24,14 @@ from renewal.ocr.engines import (
 from renewal.main import app
 
 
+def _skip_ocr_if_missing():
+    if TesseractEngine().available():
+        return
+    if os.environ.get('CI', '').strip().lower() in {'1', 'true', 'yes'}:
+        pytest.fail('Tesseract OCR must be installed on CI runners')
+    pytest.skip('local OCR not installed')
+
+
 def make_image(width=1200, height=1600, fmt='PNG', message='RENEWAL OFFER 5.49%'):
     image = Image.new('RGB', (width, height), 'white')
     draw = ImageDraw.Draw(image)
@@ -331,8 +339,7 @@ def test_identifier_redaction():
 
 
 def test_document_hash_propagation(scan):
-    if not TesseractEngine().available():
-        pytest.skip('local OCR not installed')
+    _skip_ocr_if_missing()
     result = TesseractEngine().recognize(scan)
     assert result.source_hash == scan.source_sha256
     assert result.provider == 'tesseract'
@@ -346,8 +353,7 @@ def test_integration_inspect(sample):
 
 
 def test_integration_ocr(sample):
-    if not TesseractEngine().available():
-        pytest.skip('local OCR not installed')
+    _skip_ocr_if_missing()
     client = TestClient(app)
     response = client.post('/api/v8/camera/ocr', files={'file': ('scan.png', sample, 'image/png')})
     assert response.status_code == 200, response.text
