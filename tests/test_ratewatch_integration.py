@@ -181,8 +181,8 @@ def test_nbc_rules_from_its_calculator():
 
 
 def test_td_policy_is_marked_verified_and_others_are_not():
-    assert all(POLICIES[b].verified for b in ("TD", "Scotiabank", "CIBC", "BMO", "National Bank", "RBC"))
-    assert not POLICIES["Laurentian"].verified and not POLICIES["Credit union (generic)"].verified
+    assert all(POLICIES[b].verified for b in ("TD", "Scotiabank", "CIBC", "BMO", "National Bank", "RBC", "Laurentian"))
+    assert not POLICIES["Credit union (generic)"].verified
 
 
 # ---- regressions found in review (2026-10-14) ----
@@ -267,3 +267,57 @@ def test_small_lender_rules_from_their_calculators():
                 {12: 6.0, 24: 5.9, 36: 6.1, 48: 6.2, 60: 6.29, 72: 6.4, 84: 6.5, 120: 6.8}, today)
     assert r["penalty"] == 8904.88
     assert all(POLICIES[b].verified for b in ("Tangerine", "Desjardins", "Simplii"))
+
+
+WEB_APP_ORACLES = {"atb": ("atb_oracle", "mpp-calculator.app.js", 37), "haventree": ("haventree_oracle", "mortgage-calculator-chunk.js", 41),
+                   "laurentian": ("laurentian_oracle", "calculator-chunk.js", 43), "equitable": ("equitable_oracle", "calculator-chunk.js", 47),
+                   "bridgewater": ("bridgewater_oracle", "bwb-module.js", 53)}
+
+
+@pytest.mark.parametrize("name", sorted(WEB_APP_ORACLES))
+def test_web_app_lender_oracles_300_random_cases_exact_to_the_cent(name):
+    folder, file, seed = WEB_APP_ORACLES[name]
+    if shutil.which("node") is None or not (backtest.DATA / folder / file).exists():
+        pytest.skip(f"needs Node.js and {name}'s calculator code (python tools/fetch_web_app_oracles.py)")
+    r = getattr(backtest, f"{name}_oracle")(n=300, seed=seed)
+    assert r["exact_to_the_cent"] == 300, r["examples_of_misses"][:2]
+
+
+def test_web_app_lenders_are_verified_with_their_own_comparison():
+    for name, conv in (("ATB", "atb"), ("Haventree", "haventree"), ("Laurentian", "laurentian"),
+                       ("Equitable Bank", "equitable"), ("Bridgewater", "bridgewater")):
+        assert POLICIES[name].verified and POLICIES[name].months_convention == conv
+
+
+def test_comparison_tables_never_borrow_posted_mortgage_rates(tmp_path, monkeypatch):
+    from datetime import date
+    from renewal.ratewatch import comparison, history
+    monkeypatch.setattr(history, "DB", tmp_path / "rates.db", raising=False)
+    day = date(2024, 3, 1)
+    history.save("ALT02", "2024-02-28", [(12, "fixed_closed", "posted", 7.0), (60, "fixed_closed", "posted", 6.5)], "html")
+    assert comparison.table_for(POLICIES["TD"], day) is None                       # ordinary lenders: not handled here
+    assert comparison.table_for(POLICIES["Equitable Bank"], day, fetch_live=False)[0] == {}   # no yields stored -> needs data
+    history.save("GOC", "2024-02-28", [(24, "bond", "yield", 4.2), (36, "bond", "yield", 3.9), (60, "bond", "yield", 3.6)], "boc")
+    history.save("GOC", "2024-02-28", [(12, "tbill", "yield", 4.9)], "boc")
+    assert comparison.table_for(POLICIES["Equitable Bank"], day, fetch_live=False)[0] == {12: 4.9, 24: 4.2, 36: 3.9, 60: 3.6}
+    history.save("BWB_BONDS", "2024-02-29", [(t * 12, "bond", "yield", 3.0 + t / 10) for t in range(1, 7)], "api")
+    assert comparison.table_for(POLICIES["Bridgewater"], day, fetch_live=False)[0] == {12: 3.1, 24: 3.2, 36: 3.3, 48: 3.4, 60: 3.5}
+    table, label = comparison.table_for(POLICIES["Laurentian"], day, fetch_live=False)
+    assert table == {} and "reference rates" in label
+
+
+def test_haventree_reinvestment_table_read_from_its_calculator_page():
+    from renewal.ratewatch import comparison
+    page = ('self.__next_f.push([1,"{\\"reinvestmentRates\\":[{\\"minMonths\\":1,\\"maxMonths\\":17,\\"rate\\":3.54},'
+            '{\\"minMonths\\":18,\\"maxMonths\\":29,\\"rate\\":3.99},{\\"minMonths\\":30,\\"maxMonths\\":41,\\"rate\\":4.18},'
+            '{\\"minMonths\\":42,\\"maxMonths\\":\\"$Infinity\\",\\"rate\\":4.2}]}"])')
+    assert comparison.haventree_reinvestment_rows(page) == [(12, "reinvest", "rate", 3.54), (24, "reinvest", "rate", 3.99),
+                                                            (36, "reinvest", "rate", 4.18), (48, "reinvest", "rate", 4.2)]
+    assert comparison.haventree_reinvestment_rows("<html>no table</html>") == []
+
+
+def test_b2b_bank_is_not_mapped_to_laurentian():
+    from renewal.broker.book_review import resolve_lender
+    assert resolve_lender("B2B Bank")[1] == "ALT18"
+    assert resolve_lender("Laurentian Bank")[1] == "P036"
+    assert resolve_lender("Equitable Bank")[0].months_convention == "equitable"
