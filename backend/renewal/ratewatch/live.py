@@ -111,8 +111,47 @@ LENDERS = [
 
 
 # ---------------- readers ----------------
+class _CurlResponse:
+    """Minimal stand-in for requests.Response from the system curl fallback."""
+    def __init__(self, url, status, content):
+        self.url, self.status_code, self.content = url, status, content
+        self.ok = 200 <= status < 400
+        self.text = content.decode("utf-8", "replace")
+
+    def json(self):
+        return json.loads(self.text)
+
+    def raise_for_status(self):
+        if not self.ok:
+            raise requests.HTTPError(f"{self.status_code} for {self.url}")
+
+
+def _curl(url, headers):
+    """Same public GET through the operating system's curl over IPv4. Some lenders' edge networks drop Python's
+    TLS client or this machine's IPv6 route while a standard client still gets through."""
+    import shutil, subprocess
+    exe = shutil.which("curl") or shutil.which("curl.exe")
+    if not exe:
+        raise requests.ConnectionError("no system curl for fallback")
+    args = [exe, "-4", "-s", "-L", "--compressed", "-m", str(TIMEOUT), "-o", "-", "-w", "\n%{http_code}"]
+    for k, v in headers.items():
+        args += ["-H", f"{k}: {v}"]
+    out = subprocess.run(args + [url], capture_output=True, timeout=TIMEOUT + 15).stdout
+    body, _, code = out.rpartition(b"\n")
+    status = int(code or 0)
+    if status == 0:
+        raise requests.ConnectionError(f"curl fallback could not reach {url}")
+    return _CurlResponse(url, status, body)
+
+
 def _http(url, **kw):
-    return requests.get(url, headers={**UA, **kw.pop("headers", {})}, timeout=TIMEOUT, **kw)
+    headers = {**UA, **kw.pop("headers", {})}
+    try:
+        return requests.get(url, headers=headers, timeout=TIMEOUT, **kw)
+    except (requests.ConnectionError, requests.Timeout):
+        if kw:                                     # only plain GETs have a fallback
+            raise
+        return _curl(url, headers)
 
 
 def read_live(kind: str, url: str) -> list:
@@ -306,7 +345,7 @@ def resolve(lender, anchor, now=None) -> dict:
         rows, url, note = got
         as_of = now.isoformat(timespec="seconds")
         _save_cache(lid, {"at": as_of, "tier": tier, "url": url, "rows": rows})
-        history.save(lid, now.date().isoformat(), rows, "api" if pkind.endswith("_api") and tier == "primary" else "html")
+        history.save(lid, now.astimezone().date().isoformat(), rows, "api" if pkind.endswith("_api") and tier == "primary" else "html")
         return _row(lender, tier, as_of, url, rows, tried, anchor)
     entry = _load(CACHE).get(lid)
     if entry and datetime.fromisoformat(entry["at"]) >= now - timedelta(days=CACHE_DAYS):
