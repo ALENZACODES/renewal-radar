@@ -1,0 +1,2744 @@
+{
+ "version": 1,
+ "updated": "2026-10-28",
+ "sources": {
+  "fsra_cu_on": {
+   "name": "FSRA \u2014 Ontario credit unions and caisses populaires",
+   "regulator": true,
+   "url": "https://www.fsrao.ca/consumers/credit-unions-and-deposit-insurance/find-credit-union-or-caisses-populaires-ontario",
+   "last_good_pull": "2026-10-28",
+   "last_good_count": 48,
+   "stale": false,
+   "stale_since": null
+  },
+  "alberta_cu": {
+   "name": "Alberta Treasury Board and Finance \u2014 Alberta credit unions",
+   "regulator": true,
+   "url": "https://open.alberta.ca/dataset/680d90c3-97b2-4297-ab58-349d873883a9",
+   "last_good_pull": "2026-10-28",
+   "last_good_count": 11,
+   "stale": false,
+   "stale_since": null
+  },
+  "bcfsa_cu": {
+   "name": "BCFSA \u2014 BC credit unions",
+   "regulator": true,
+   "url": "https://www.bcfsa.ca/node/1520?type=cudic",
+   "last_good_pull": "2026-10-28",
+   "last_good_count": 20,
+   "stale": false,
+   "stale_since": null
+  },
+  "ccua": {
+   "name": "CCUA \u2014 Canadian Credit Union Association member directory",
+   "regulator": false,
+   "url": "https://ccua.com/find-a-credit-union/",
+   "last_good_pull": null,
+   "last_good_count": 0,
+   "stale": true,
+   "stale_since": "2026-10-28"
+  },
+  "cmhc_approved": {
+   "name": "CMHC \u2014 approved lenders",
+   "regulator": false,
+   "url": "https://www.cmhc-schl.gc.ca/professionals/project-funding-and-mortgage-financing/mortgage-loan-insurance/nha-approved-lenders/nha-approved-lenders",
+   "last_good_pull": "2026-10-28",
+   "last_good_count": 0,
+   "stale": false,
+   "stale_since": null
+  }
+ },
+ "lenders": {
+  "RBC": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "TD": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Scotiabank": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "BMO": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "CIBC": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "National Bank": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Tangerine": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Simplii": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Laurentian": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "ATB": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Equitable Bank": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Haventree": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Bridgewater": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Manulife Bank": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Home Trust": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "trust",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Desjardins": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Renewal Radar policy registry (verified lender)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active lender with a calibrated penalty policy.",
+   "kind": "cooperative",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Caisse Desjardins Ontario Credit Union Inc."
+   ]
+  },
+  "First National": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "First National Financial",
+    "First National Financial GP"
+   ]
+  },
+  "MCAP": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "MCAP Financial Corporation",
+    "MCAP Service Corporation"
+   ]
+  },
+  "RMG": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "RMG Mortgages",
+    "RMG Mortgage Corporation"
+   ]
+  },
+  "CMLS": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "CMLS Financial Ltd."
+   ]
+  },
+  "Marathon": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "Marathon Mortgage Corp."
+   ]
+  },
+  "Strive": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "Strive Capital Corporation"
+   ]
+  },
+  "Radius Financial": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "Radius Financial Inc."
+   ]
+  },
+  "Nesto": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "Nesto Inc."
+   ]
+  },
+  "THINK Financial": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "True North Mortgage Inc. (o/a THINK Financial)",
+    "THINK"
+   ]
+  },
+  "CanWise Financial": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "Ratehub Inc. (o/a CanWise Financial)",
+    "CanWise"
+   ]
+  },
+  "Merix": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the CMHC approved lender list (all jurisdictions) and insurer lists per the Oct 2026 census.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "Paradigm Quest Inc.",
+    "MERIX Financial"
+   ]
+  },
+  "MCAN": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "Insurer lists name the lending subsidiary MCAN Home Mortgage Corporation (CMHC: underwriting only, incl. ON/AB/BC; Sagen). Parent MCAN Mortgage Corporation is a loan company / MIC.",
+   "kind": "loan_company",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "MCAN Home Mortgage Corporation",
+    "MCAN Financial",
+    "MCAN Mortgage Corporation"
+   ]
+  },
+  "Pine": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Sagen and Canada Guaranty approved lists (Oct 15, 2026) as Pine Canada Lending Corporation; not on the CMHC list fetched. Digital direct lender; excludes Quebec (WOWA).",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Pine Canada Lending Corporation",
+    "Pine Financial"
+   ]
+  },
+  "Neo Financial": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "Included with a caveat: Sagen and Canada Guaranty list Neo Mortgage Services Inc. as an approved lender (Oct 15, 2026), but it is absent from the CMHC list and consumer sources describe Neo Mortgage as placing with partner lenders. Verify the lender of record on a live commitment letter before relying on a Neo-specific policy.",
+   "kind": "monoline",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Neo Mortgage Services Inc.",
+    "Neo Mortgage"
+   ]
+  },
+  "Lendwise": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "Brand of MERIX Financial (legal lender Paradigm Quest Inc., MCAP group). On no insurer list in its own name; not a separate lender.",
+   "kind": "brand",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Lendwise Mortgage"
+   ]
+  },
+  "B2B Bank": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "Schedule I bank (Laurentian Bank group), broker channel; CMHC + Sagen lists.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": []
+  },
+  "ICICI Bank Canada": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "Schedule II bank, broker channel; CMHC + Canada Guaranty lists.",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": []
+  },
+  "Wealth One Bank of Canada": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "Schedule I bank; Sagen list only in the Oct 2026 census (absent from CMHC and Canada Guaranty lists fetched).",
+   "kind": "bank",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "WealthONE"
+   ]
+  },
+  "Community Trust": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Census 2026-10-28: CMHC NHA Approved Lenders; Sagen and Canada Guaranty approved lender lists (Oct 15, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "Federally regulated trust company (Questrade Financial Group); on all three insurer lists. QuestMortgage is its brand, not a separate lender.",
+   "kind": "trust",
+   "provinces": [
+    "ON",
+    "AB",
+    "BC"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "Community Trust Company",
+    "QuestMortgage"
+   ]
+  },
+  "Alterna Savings and Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Alterna Savings",
+    "Peterborough Community Savings",
+    "TME Savings"
+   ]
+  },
+  "Bay Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Bay Credit Union"
+   ]
+  },
+  "Buduchnist Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "BCU Financial"
+   ]
+  },
+  "Caisse Desjardins Ontario Credit Union Inc.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Caisse Desjardins Ontario"
+   ]
+  },
+  "Caisse populaire Alliance limit\u00e9e": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Caisse Alliance"
+   ]
+  },
+  "DUCA Financial Services Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "DUCA"
+   ]
+  },
+  "Energy Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "The Energy Credit Union"
+   ]
+  },
+  "Equity Credit Union Inc.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Equity Credit Union"
+   ]
+  },
+  "FirstOntario Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "FirstOntario",
+    "Creative Arts Financial",
+    "Saven Financial"
+   ]
+  },
+  "Fort York Community Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Fort York Community Credit Union"
+   ]
+  },
+  "Frontline Financial Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Frontline Financial"
+   ]
+  },
+  "Ganaraska Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Ganaraska Credit Union"
+   ]
+  },
+  "Golden Horseshoe Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Golden Horseshoe Credit Union"
+   ]
+  },
+  "Healthcare and Municipal Employees' Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "HMECU"
+   ]
+  },
+  "Italian Canadian Savings & Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "IC Savings"
+   ]
+  },
+  "Kindred Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Kindred Credit Union"
+   ]
+  },
+  "Kingston Community Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Kingston Community Credit Union"
+   ]
+  },
+  "Korean (Toronto) Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Korean (Toronto) Credit Union"
+   ]
+  },
+  "Korean Catholic Church Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Korean Catholic Church Credit Union"
+   ]
+  },
+  "L.I.U.N.A. Local 183 Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "LIUNA Local 183 Credit Union"
+   ]
+  },
+  "Libro Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Libro",
+    "Kawartha Financial Services"
+   ]
+  },
+  "Lighthouse Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Lighthouse Credit Union"
+   ]
+  },
+  "Luminus Financial Services & Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Luminus Financial"
+   ]
+  },
+  "Mainstreet Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Mainstreet Credit Union"
+   ]
+  },
+  "Meridian Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Meridian"
+   ]
+  },
+  "Motor City Community Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Motor City Community Credit Union"
+   ]
+  },
+  "Moya Financial Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Moya Financial"
+   ]
+  },
+  "Northern Birch Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Northern Birch Credit Union"
+   ]
+  },
+  "Northern Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Northern Credit Union"
+   ]
+  },
+  "Ontario Educational Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Ontario Educational Credit Union"
+   ]
+  },
+  "Ontario Provincial Police Association Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "OPPA Credit Union"
+   ]
+  },
+  "OP Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "OP Credit Union"
+   ]
+  },
+  "Oshawa Community Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Oshawa Community Credit Union"
+   ]
+  },
+  "Parama Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Parama Credit Union"
+   ]
+  },
+  "Pathwise Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Pathwise Credit Union"
+   ]
+  },
+  "PenFinancial Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "PenFinancial"
+   ]
+  },
+  "Police Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "The Police Credit Union"
+   ]
+  },
+  "Resurrection Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "RCU Credit Union"
+   ]
+  },
+  "Southwest Regional Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Southwest Regional Credit Union"
+   ]
+  },
+  "St. Stanislaus-St. Casimir's Polish Parishes Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "St. Stanislaus-St. Casimir's",
+    "Blue Group Savings"
+   ]
+  },
+  "Sudbury Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Sudbury Credit Union"
+   ]
+  },
+  "Taiwanese - Canadian Toronto Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Taiwanese-Canadian Toronto Credit Union"
+   ]
+  },
+  "Talka Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Talka Credit Union"
+   ]
+  },
+  "Thorold Community Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Thorold Community Credit Union"
+   ]
+  },
+  "Ukrainian Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Ukrainian Credit Union"
+   ]
+  },
+  "Windsor Family Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "WFCU Credit Union",
+    "WFCU",
+    "Rapport",
+    "Omnia Direct"
+   ]
+  },
+  "Your Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "Your Credit Union"
+   ]
+  },
+  "Your Neighbourhood Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA list of Ontario credit unions and caisses populaires (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Active on FSRA's credit union list (Oct 2026 census; FSRA's own count of 48 regulated credit unions matches).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [
+    "fsra_cu_on",
+    "ccua"
+   ],
+   "aliases": [
+    "YNCU",
+    "Community First"
+   ]
+  },
+  "Momentum Credit Union Limited": {
+   "status": "merged",
+   "successor": "FirstOntario Credit Union Limited",
+   "status_since": "2024",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Rapport Credit Union Limited": {
+   "status": "merged",
+   "successor": "Windsor Family Credit Union Limited",
+   "status_since": "2024",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Smiths Falls Community Credit Union Limited": {
+   "status": "merged",
+   "successor": "Libro Credit Union Limited",
+   "status_since": "2024",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Copperfin Credit Union Limited": {
+   "status": "merged",
+   "successor": "Northern Credit Union Limited",
+   "status_since": "2025",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Dundalk District Credit Union Limited": {
+   "status": "merged",
+   "successor": "St. Stanislaus-St. Casimir's Polish Parishes Credit Union Limited",
+   "status_since": "2025",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Adjala Credit Union Limited": {
+   "status": "merged",
+   "successor": "St. Stanislaus-St. Casimir's Polish Parishes Credit Union Limited",
+   "status_since": "2025",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Comtech Fire Credit Union Limited": {
+   "status": "merged",
+   "successor": "Your Neighbourhood Credit Union Limited",
+   "status_since": "2025",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Tandia Financial Credit Union Limited": {
+   "status": "merged",
+   "successor": "Alterna Savings and Credit Union Limited",
+   "status_since": "2025",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Kawartha Credit Union Limited": {
+   "status": "merged",
+   "successor": "Libro Credit Union Limited",
+   "status_since": "2026",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Finnish Credit Union Limited": {
+   "status": "merged",
+   "successor": "OP Credit Union Limited",
+   "status_since": "2026",
+   "status_source": "FSRA merged register (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA's merged register and the successor's own merger announcement give this successor and effective year.",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Pace Savings & Credit Union Limited": {
+   "status": "ceased",
+   "successor": null,
+   "status_since": null,
+   "status_source": "FSRA credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "FSRA status: In Liquidation (the only Ontario credit union in that status at the census).",
+   "kind": "credit_union",
+   "provinces": [
+    "ON"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "1st Choice Savings and Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "1st Choice Savings"
+   ]
+  },
+  "Bow Valley Credit Union Ltd": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Bow Valley Credit Union"
+   ]
+  },
+  "Calgary Police Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Calgary Police Credit Union"
+   ]
+  },
+  "Christian Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Christian Credit Union"
+   ]
+  },
+  "Khalsa Credit Union (Alberta) Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Khalsa Credit Union (Alberta)"
+   ]
+  },
+  "Lakeland Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Lakeland Credit Union"
+   ]
+  },
+  "Rocky Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Rocky Credit Union"
+   ]
+  },
+  "Servus Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Servus Credit Union",
+    "Servus"
+   ]
+  },
+  "TransCanada Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "TransCanada Credit Union"
+   ]
+  },
+  "Vermilion Credit Union Limited": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Vermilion Credit Union"
+   ]
+  },
+  "Vision Credit Union Ltd.": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Alberta Treasury Board and Finance, Credit Unions Registered to Operate in Alberta (Apr 1, 2026 register)",
+   "status_checked": "2026-10-28",
+   "evidence": "On the Alberta register of credit unions (Apr 1, 2026) and, except Christian Credit Union, on CMHC's CU Central of Alberta member list.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "alberta_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Vision Credit Union"
+   ]
+  },
+  "Innovation Federal Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Innovation Federal Credit Union merger release (Mar 4, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "Federally regulated (Saskatchewan-based); absorbed ABCU Credit Union effective Apr 1, 2026 and now operates its Alberta footprint. On the CMHC and Sagen approved lists.",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [
+    "cmhc_approved"
+   ],
+   "aliases": [
+    "Innovation Credit Union"
+   ]
+  },
+  "Connect First Credit Union Ltd": {
+   "status": "merged",
+   "successor": "Servus Credit Union Ltd.",
+   "status_since": "2024",
+   "status_source": "Alberta register series / merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger documented in the Alberta census (register series and the lenders' own releases).",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "connectFirst",
+    "Connect First"
+   ]
+  },
+  "ABCU Credit Union Ltd": {
+   "status": "merged",
+   "successor": "Innovation Federal Credit Union",
+   "status_since": "2026",
+   "status_source": "Alberta register series / merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger documented in the Alberta census (register series and the lenders' own releases).",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "ABCU"
+   ]
+  },
+  "Encompass Credit Union Ltd.": {
+   "status": "merged",
+   "successor": "Vision Credit Union Ltd.",
+   "status_since": "2022",
+   "status_source": "Alberta register series / merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger documented in the Alberta census (register series and the lenders' own releases).",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Pincher Creek Credit Union Limited": {
+   "status": "merged",
+   "successor": "Vision Credit Union Ltd.",
+   "status_since": "2021",
+   "status_source": "Alberta register series / merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger documented in the Alberta census (register series and the lenders' own releases).",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Spark The Energy Credit Union Limited": {
+   "status": "merged",
+   "successor": "Connect First Credit Union Ltd",
+   "status_since": "2021",
+   "status_source": "Alberta register series / merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger documented in the Alberta census (register series and the lenders' own releases).",
+   "kind": "credit_union",
+   "provinces": [
+    "AB"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Spark The Energy Credit Union"
+   ]
+  },
+  "Beem Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Bulkley Valley Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Cascadia Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Coastal Community Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Community Savings Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Aria Savings"
+   ]
+  },
+  "Creston & District Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Greater Vancouver Community Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "GVC Credit Union"
+   ]
+  },
+  "Khalsa Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Kootenay Savings Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Ladysmith & District Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Lake View Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Nelson & District Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Northern Savings Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Salmon Arm Savings and Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Sharons Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "StellerVista Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Vancouver City Savings Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": [
+    "Vancity"
+   ]
+  },
+  "Vancouver Firefighters' Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "VantageOne Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Williams Lake and District Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "BCFSA CUDIC authorized credit union list (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "On BCFSA's CUDIC authorized credit union list (20 entities, Oct 2026 census).",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [
+    "bcfsa_cu",
+    "ccua"
+   ],
+   "aliases": []
+  },
+  "Coast Capital Savings Federal Credit Union": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "Coast Capital / CDIC (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Federally regulated BC credit union (continued federally Nov 1, 2018), so absent from BCFSA's provincial list; absorbed Prospera and Sunshine Coast Credit Union May 6, 2026.",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Coast Capital Savings",
+    "Prospera",
+    "Sunshine Coast Financial"
+   ]
+  },
+  "Tru Cooperative Bank": {
+   "status": "active",
+   "successor": null,
+   "status_since": null,
+   "status_source": "CDIC / GlobeNewswire (Apr 1, 2026)",
+   "status_checked": "2026-10-28",
+   "evidence": "First West Credit Union continued federally and renamed Tru Cooperative Bank on Apr 1, 2026; BC-based, absent from BCFSA's provincial list because it is federally regulated.",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "First West Credit Union",
+    "Envision Financial",
+    "Island Savings",
+    "Valley First"
+   ]
+  },
+  "Gulf and Fraser Fishermen's Credit Union": {
+   "status": "merged",
+   "successor": "Beem Credit Union",
+   "status_since": "2024",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Gulf & Fraser",
+    "G&F Financial"
+   ]
+  },
+  "Interior Savings Credit Union": {
+   "status": "merged",
+   "successor": "Beem Credit Union",
+   "status_since": "2024",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Interior Savings"
+   ]
+  },
+  "BlueShore Financial Credit Union": {
+   "status": "merged",
+   "successor": "Beem Credit Union",
+   "status_since": "2025",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "BlueShore"
+   ]
+  },
+  "Compensation Employees Credit Union": {
+   "status": "merged",
+   "successor": "Beem Credit Union",
+   "status_since": "2025",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "CECU"
+   ]
+  },
+  "North Peace Savings and Credit Union": {
+   "status": "merged",
+   "successor": "Beem Credit Union",
+   "status_since": "2023",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "North Peace Savings"
+   ]
+  },
+  "Grand Forks Credit Union": {
+   "status": "merged",
+   "successor": "Beem Credit Union",
+   "status_since": null,
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. Exact legal date not stated in the sources fetched.",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Osoyoos Credit Union": {
+   "status": "merged",
+   "successor": "Cascadia Credit Union",
+   "status_since": "2025",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Revelstoke Credit Union": {
+   "status": "merged",
+   "successor": "Cascadia Credit Union",
+   "status_since": "2025",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Summerland Credit Union": {
+   "status": "merged",
+   "successor": "Cascadia Credit Union",
+   "status_since": "2025",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "CCEC Credit Union": {
+   "status": "merged",
+   "successor": "Community Savings Credit Union",
+   "status_since": "2022",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "First Credit Union": {
+   "status": "merged",
+   "successor": "Vancouver City Savings Credit Union",
+   "status_since": "2025",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "FCU Community Financial"
+   ]
+  },
+  "Columbia Valley Credit Union": {
+   "status": "merged",
+   "successor": "Kootenay Savings Credit Union",
+   "status_since": "2026",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Integris Credit Union": {
+   "status": "merged",
+   "successor": "Coastal Community Credit Union",
+   "status_since": "2026",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Integris"
+   ]
+  },
+  "Prospera Credit Union": {
+   "status": "merged",
+   "successor": "Coast Capital Savings Federal Credit Union",
+   "status_since": "2026",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": [
+    "Prospera"
+   ]
+  },
+  "Sunshine Coast Credit Union": {
+   "status": "merged",
+   "successor": "Coast Capital Savings Federal Credit Union",
+   "status_since": "2026",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Heritage Credit Union": {
+   "status": "merged",
+   "successor": "StellerVista Credit Union",
+   "status_since": "2023",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "East Kootenay Community Credit Union": {
+   "status": "merged",
+   "successor": "StellerVista Credit Union",
+   "status_since": "2023",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "First West Credit Union": {
+   "status": "merged",
+   "successor": "Tru Cooperative Bank",
+   "status_since": "2026",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  },
+  "Coast Capital Savings": {
+   "status": "merged",
+   "successor": "Coast Capital Savings Federal Credit Union",
+   "status_since": "2018",
+   "status_source": "BCFSA list + lenders' merger releases (Oct 2026 census)",
+   "status_checked": "2026-10-28",
+   "evidence": "Merger/continuance documented in the BC census with dated sources. ",
+   "kind": "credit_union",
+   "provinces": [
+    "BC"
+   ],
+   "expected_in": [],
+   "aliases": []
+  }
+ },
+ "refresh_log": [
+  {
+   "date": "2026-10-28",
+   "mode": "manual census seed",
+   "note": "Registry seeded from the Oct 2026 census (FSRA, Alberta Treasury Board and Finance, BCFSA, CMHC, Sagen, Canada Guaranty lists, each fetched for the census). CCUA publishes no current public member directory, so the ccua source starts STALE rather than pretending a baseline exists."
+  }
+ ]
+}

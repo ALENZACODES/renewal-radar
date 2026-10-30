@@ -11,7 +11,7 @@ import collections, json, random, statistics, subprocess
 from datetime import date, timedelta
 from pathlib import Path
 from .paths import DATA, PROJECT_ROOT
-from .ird import Mortgage, POLICIES, add_months, penalty
+from .ird import TERMS, Mortgage, POLICIES, add_months, penalty
 from . import history
 
 TERMS_Y = [0.5, 1, 2, 3, 4, 5, 6, 7, 10]
@@ -207,6 +207,96 @@ def rbc_cases(path=None):
             misses.append({"maturity": c["maturity"], "rbc": c["rbc_charge"], "ours": ours, "error": err})
     return {"cases": len(cases), "exact_to_the_cent": exact, "within_30_cents": within_30c, "worst_error": worst,
             "examples_of_misses": misses}
+
+
+def first_national_cases(path=None):
+    """Our First National engine vs answers recorded from First National's own online prepayment
+    calculator (tools/record_first_national.py drives its RemainingBalanceFixed service; the
+    calculator computes server-side, so its answers are saved as a fixture rather than re-run)."""
+    path = path or PROJECT_ROOT / "tests" / "fixtures" / "first_national_calculator_2026-10-28.json"
+    blob = json.loads(Path(path).read_text())
+    cases = blob["cases"] if isinstance(blob, dict) else blob
+    exact = within_1 = 0
+    worst, misses = 0.0, []
+    for c in cases:
+        payout = date.fromisoformat(c["payout"])
+        mat = date.fromisoformat(c["maturity"])
+        m = Mortgage(c["balance"], c["contract"], c["term_months"], add_months(mat, -c["term_months"]),
+                     discount=0.0, maturity=mat, payment=c["payment"])
+        ours = penalty(m, POLICIES["First National"], {t: c["posted"] for t in TERMS}, payout)["penalty"]
+        err = round(ours - c["fn_charge"], 2)
+        exact += abs(err) < 0.005
+        within_1 += abs(err) <= 1.0
+        worst = max(worst, abs(err))
+        if abs(err) >= 0.005 and len(misses) < 10:
+            misses.append({"case": c, "ours": ours, "error": err})
+    return {"cases": len(cases), "exact_to_the_cent": exact,
+            "exact_rate": round(exact / max(len(cases), 1), 4), "within_1_dollar": within_1,
+            "worst_error": worst, "examples_of_misses": misses}
+
+
+def community_trust_oracle(n=2000, seed=2059):
+    """Random fixed mortgages through Community Trust's own calculator code
+    (tools/community_trust_oracle.mjs, transcribing the lender's published
+    MortgagePrePaymentPenaltyCalculatorPage) vs our engine. The posted-rate table is read
+    from the lender's fetched calculator page — the same table the harness uses."""
+    import re as _re
+    page = (DATA / "community_trust_oracle" / "page.html").read_text()
+    table = {int(years) * 12: float(_re.search(rf"rate_{years}\s*=\s*([0-9.]+)", page).group(1))
+             for years in range(1, 6)}
+    rng, today = random.Random(seed), date(2026, 10, 28)
+    cases = [{"balance": round(rng.uniform(50_000, 1_500_000), 2),
+              "contract": round(rng.uniform(1.5, 8.5), 2),
+              "months": rng.randint(3, 78)} for _ in range(n)]
+    answers = _node_oracle("community_trust_oracle.mjs", cases)
+
+    def ours(c):
+        mat = add_months(today, c["months"])
+        m = Mortgage(c["balance"], c["contract"], 60, add_months(today, -24),
+                     discount=0.0, maturity=mat)
+        return penalty(m, POLICIES["Community Trust"], table, today)["penalty"]
+    return _score(cases, answers, ours)
+
+
+def _ppcalc_cases(lender, fixture_name):
+    """Our engine vs answers recorded from the lender's own vendor-hosted prepayment calculator
+    (tools/record_mcap.py; the calculator computes server-side, so its answers are saved as a
+    fixture rather than re-run). A case counts exact only when BOTH the charge and the printed
+    reinvestment rate match — the rate match is what pins the term-band rule, since a wrong
+    band is invisible in the charge whenever the 3-month amount dominates."""
+    path = PROJECT_ROOT / "tests" / "fixtures" / fixture_name
+    blob = json.loads(Path(path).read_text())
+    table = {int(k): v for k, v in blob["reinvestment_table"].items()}
+    payout = date(2026, 10, 28)
+    exact = rate_exact = within_1 = 0
+    worst, misses = 0.0, []
+    for c in blob["cases"]:
+        mat = add_months(payout, c["rem_months"])
+        m = Mortgage(c["balance"], c["contract"], 60, add_months(payout, -24),
+                     discount=0.0, maturity=mat, payment=c["payment"])
+        r = penalty(m, POLICIES[lender], table, payout)
+        err = round(r["penalty"] - c["charge"], 2)
+        rate_ok = abs(r["compare_rate"] - c["reinvestment"]) < 0.005
+        rate_exact += rate_ok
+        exact += abs(err) < 0.005 and rate_ok
+        within_1 += abs(err) <= 1.0
+        worst = max(worst, abs(err))
+        if (abs(err) >= 0.005 or not rate_ok) and len(misses) < 10:
+            misses.append({"case": c, "ours": r["penalty"], "our_rate": r["compare_rate"], "error": err})
+    n = len(blob["cases"])
+    return {"cases": n, "exact_to_the_cent": exact, "exact_rate": round(exact / max(n, 1), 4),
+            "reinvestment_rate_matches": rate_exact, "within_1_dollar": within_1,
+            "worst_error": worst, "examples_of_misses": misses}
+
+
+def mcap_cases():
+    """MCAP vs its own published prepayment calculator (recorded fixture)."""
+    return _ppcalc_cases("MCAP", "mcap_calculator_2026-10-28.json")
+
+
+def rmg_cases():
+    """RMG vs its own published prepayment calculator (recorded fixture)."""
+    return _ppcalc_cases("RMG", "rmg_calculator_2026-10-28.json")
 
 
 def _node_oracle(tool, cases, env=None):
