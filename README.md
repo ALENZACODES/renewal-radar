@@ -16,7 +16,7 @@ The live demo runs on a free Render plan. If nobody has used it for a while, the
 
 ## Prior work and what was built during Build Week
 
-Renewal Radar existed before Build Week. Build Week submissions opened on October 16, 2026 at 12:00 PM ET. The git history has 119 commits: **96 came before Build Week** (October 12 up to commit `3d95a4f`, October 16 at 11:47 AM ET) and **23 came during Build Week** (`7f4381e` to `91a6020`, October 16 at 12:48 PM ET to October 22). Run `git log 3d95a4f..91a6020` to see exactly what was added during the event.
+Renewal Radar existed before Build Week. The core application was built before the event. The daily rate recorder, most of the exact lender penalty methods, the smaller lenders' rates, the public demo deployment and the demo video were added during it.
 
 A detailed list of what came when is in [Built during Build Week](#built-during-build-week).
 
@@ -173,7 +173,7 @@ tests/                      Python and Node tests
 
 ## Testing
 
-Both suites were rerun on October 22, 2026, at commit `91a6020`:
+Results from a full run of both suites:
 
 | Suite | Result |
 |---|---|
@@ -268,20 +268,20 @@ A real launch still needs a few things: user accounts in place of case tokens, e
 
 ## Built during Build Week
 
-The commit split is at the top of this README. This is what each part contains.
+A short summary is at the top of this README. This is what each part contains.
 
-**Before Build Week (October 12 to the morning of October 16):** the core application. That includes the mortgage math and switching rules, letter extraction, the browser interface, the general penalty workbench, the Bank of Canada data, reports, action plans, saved cases with share links, the test suite and CI. It also includes the Book review screen, the security gates, the exact penalty methods for TD, Scotiabank, CIBC, BMO and National Bank, and the first build of the five year rate history from web archives, which was refreshed again during Build Week.
+**Before Build Week:** the core application. That includes the mortgage math and switching rules, letter extraction, the browser interface, the general penalty workbench, the Bank of Canada data, reports, action plans, saved cases with share links, the test suite and CI. It also includes the Book review screen, the security gates, the exact penalty methods for TD, Scotiabank, CIBC, BMO and National Bank, and the first build of the five year rate history from web archives, which was refreshed again during Build Week.
 
-**During Build Week (October 16 at 12:00 PM ET onward):**
+**During Build Week:**
 
-* The daily rate recorder, with retries, backup sources and a watchdog (October 16 and 17).
-* RBC's penalty method rebuilt from 34 recorded answers of RBC's own calculator (October 18).
-* Exact penalty methods for Desjardins, Tangerine and Simplii (October 18).
-* Exact penalty methods for ATB, Haventree, Laurentian, Equitable and Bridgewater (October 18).
-* Posted rates read from thirteen smaller lenders' own websites (October 18).
-* Fixes for dead source links, and the sample letter relabelled as an illustrative RBC sample with a footer saying it is not an RBC document (October 22).
-* The public demo mode, the Docker image with Tesseract, Docker Compose set to demo mode and the free Render deployment (October 22).
-* The demo video (October 22).
+* The daily rate recorder, with retries, backup sources and a watchdog.
+* RBC's penalty method rebuilt from 34 recorded answers of RBC's own calculator.
+* Exact penalty methods for Desjardins, Tangerine and Simplii.
+* Exact penalty methods for ATB, Haventree, Laurentian, Equitable and Bridgewater.
+* Posted rates read from thirteen smaller lenders' own websites.
+* Fixes for dead source links, and the sample letter relabelled as an illustrative RBC sample with a footer saying it is not an RBC document.
+* The public demo mode, the Docker image with Tesseract, Docker Compose set to demo mode and the free Render deployment.
+* The demo video.
 
 So nine of the fourteen validated lender methods were built during Build Week.
 
