@@ -4,9 +4,11 @@ import {esc, money, percent, field, options, button, dt} from './ui.js';
 export const LENDERS = [['TD', 'TD (exact lender method)'], ['RBC', 'RBC'], ['Scotiabank', 'Scotiabank'], ['BMO', 'BMO'],
   ['CIBC', 'CIBC'], ['National Bank', 'National Bank'], ['Simplii', 'Simplii'], ['ATB', 'ATB'],
   ['Desjardins', 'Desjardins'], ['Tangerine', 'Tangerine'], ['Laurentian', 'Laurentian Bank'],
-  ['Equitable Bank', 'Equitable Bank'], ['Haventree', 'Haventree Bank'], ['Bridgewater', 'Bridgewater Bank']];
+  ['Equitable Bank', 'Equitable Bank'], ['Haventree', 'Haventree Bank'], ['Bridgewater', 'Bridgewater Bank'],
+  ['First National', 'First National'], ['MCAP', 'MCAP'], ['RMG', 'RMG'], ['Community Trust', 'Community Trust']];
 /** Lenders with no automatic posted-rate feed: the comparison rates must be entered from the lender's own page. */
-export const MANUAL_TABLE = new Set(['Laurentian', 'Equitable Bank', 'Haventree', 'Bridgewater']);
+export const MANUAL_TABLE = new Set(['Laurentian', 'Equitable Bank', 'Haventree', 'Bridgewater', 'First National', 'MCAP', 'RMG',
+  'Community Trust']);
 /** "12:5.29, 36:5.49, 60:6.09" -> {12: 5.29, 36: 5.49, 60: 6.09}; null when blank or malformed. */
 export function parseTable(text) {
   const out = {};
