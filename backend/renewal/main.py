@@ -12,6 +12,7 @@ from fastapi import FastAPI,HTTPException,UploadFile,File,Body,Header,Query
 from fastapi.responses import JSONResponse,Response,FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from .security.rate_limit import SlidingWindowLimiter
 from pydantic import ValidationError
 from .config import settings
 from .domain.schemas import AnalyzeRequest,Mortgage,Offer,PenaltyRequest,CaseCreate,ShareRequest,NegotiationRequest
@@ -52,6 +53,34 @@ app=FastAPI(title='Renewal Radar 2.0',version='2.0.0',
 from .ratewatch.api import router as ratewatch_router
 app.include_router(ratewatch_router)
 app.add_middleware(CORSMiddleware,allow_origins=list(settings.allowed_origins),allow_methods=['GET','POST','PUT','DELETE'],allow_headers=['Content-Type','X-Case-Token','X-Broker-Token','X-Rate-Ingest-Key','X-OCR-Review-Token'])
+
+limiter = SlidingWindowLimiter()
+
+
+@app.middleware('http')
+async def enforce_rate_limits(request, call_next):
+    """Apply in-process sliding-window limits using the direct client address."""
+    client = request.client.host if request.client else 'unknown'
+    decision = limiter.check(client, request.url.path)
+    if decision is None:
+        return await call_next(request)
+    if not decision.allowed:
+        retry = max(1, int(decision.retry_after + 0.999))
+        return JSONResponse(
+            {'detail': 'Rate limit exceeded. Try again shortly.'},
+            status_code=429,
+            headers={
+                'Retry-After': str(retry),
+                'X-RateLimit-Limit': str(decision.limit),
+                'X-RateLimit-Remaining': '0',
+                'X-Content-Type-Options': 'nosniff',
+            },
+        )
+    response = await call_next(request)
+    response.headers['X-RateLimit-Limit'] = str(decision.limit)
+    response.headers['X-RateLimit-Remaining'] = str(decision.remaining)
+    return response
+
 
 @app.middleware('http')
 async def add_security_headers(request,call_next):

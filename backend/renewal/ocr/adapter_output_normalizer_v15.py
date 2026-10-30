@@ -79,7 +79,7 @@ class NormalizationIssue:
 
 def _stable_id(prefix: str, *parts: Any) -> str:
     material = "|".join(str(part) for part in parts)
-    digest = hashlib.sha1(material.encode("utf-8")).hexdigest()[:12]
+    digest = hashlib.sha1(material.encode("utf-8"), usedforsecurity=False).hexdigest()[:12]
     readable = re.sub(r"[^a-z0-9]+", "-", prefix.lower()).strip("-")[:32]
     return f"{readable}-{digest}"
 

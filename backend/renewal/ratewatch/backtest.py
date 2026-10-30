@@ -79,8 +79,12 @@ def scraped_vs_boc():
     big6 = ("P021", "P023", "P025", "P027", "P029", "P031")
     with history.db() as c:
         boc = dict(c.execute("SELECT day, rate FROM rates WHERE source='BIG6_TYPICAL' AND term=60 AND rtype='posted'"))
-        ours = c.execute(f"SELECT source, day, rate FROM rates WHERE term=60 AND rtype='posted' AND kind='fixed_closed' "
-                         f"AND source IN ({','.join('?' * len(big6))})", big6).fetchall()
+        placeholders = ",".join("?" * len(big6))
+        ours = c.execute(
+            f"SELECT source, day, rate FROM rates WHERE term=60 AND rtype='posted' AND kind='fixed_closed' "  # nosec B608
+            f"AND source IN ({placeholders})",
+            big6,
+        ).fetchall()
     weekly = collections.defaultdict(dict)
     for src, day, rate in sorted(ours, key=lambda r: r[1]):               # oldest first: latest valid one wins
         d = date.fromisoformat(day)
