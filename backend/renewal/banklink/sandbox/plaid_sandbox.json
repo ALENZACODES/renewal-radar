@@ -1,0 +1,21 @@
+{
+  "link/token/create": {"link_token": "link-sandbox-3f6a", "expiration": "2026-10-12T18:00:00Z"},
+  "item/public_token/exchange": {"access_token": "access-sandbox-9c1e"},
+  "item/remove": {"removed": true},
+  "liabilities/get": {
+    "item": {"institution_name": "Tartan Bank of Canada"},
+    "accounts": [
+      {"account_id": "acc-mortgage-1", "type": "loan", "subtype": "mortgage",
+       "balances": {"current": 412345.67, "iso_currency_code": "CAD"}},
+      {"account_id": "acc-chq-1", "type": "depository", "subtype": "checking",
+       "balances": {"current": 2310.15, "iso_currency_code": "CAD"}}
+    ],
+    "liabilities": {
+      "mortgage": [
+        {"account_id": "acc-mortgage-1", "interest_rate": {"percentage": 5.29, "type": "fixed"},
+         "maturity_date": "2027-03-01", "origination_date": "2022-03-01",
+         "next_monthly_payment": 2868.60, "origination_principal_amount": 480000}
+      ]
+    }
+  }
+}
