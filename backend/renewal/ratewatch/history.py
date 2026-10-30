@@ -116,6 +116,12 @@ def official(start="2000-01-01"):
                     by_day.setdefault(ob["d"], []).append((term, "bond", "yield", float(v["v"])))
     for d, rows in by_day.items():
         save("GOC", d, rows, "boc")
+    # Government of Canada 1-year treasury bill, daily mid-market (V39067): Equitable Bank's short-term comparison
+    js = requests.get(f"{VALET}/TB.CDN.1Y.MID/json", params={"start_date": start}, timeout=60).json()
+    for ob in js.get("observations", []):
+        v = ob.get("TB.CDN.1Y.MID", {}).get("v")
+        if v:
+            save("GOC", ob["d"], [(12, "tbill", "yield", float(v))], "boc")
     return len(by_day)
 
 

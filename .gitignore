@@ -23,6 +23,11 @@ data/ratewatch/nbc_oracle/
 data/ratewatch/desjardins_oracle/
 data/ratewatch/tangerine_oracle/
 data/ratewatch/simplii_oracle/
+data/ratewatch/atb_oracle/
+data/ratewatch/haventree_oracle/
+data/ratewatch/laurentian_oracle/
+data/ratewatch/equitable_oracle/
+data/ratewatch/bridgewater_oracle/
 data/ratewatch/letters/
 data/ratewatch/backfill_progress.json
 data/ratewatch/alerts.csv
