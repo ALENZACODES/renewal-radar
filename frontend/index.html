@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0b2c25" />
+  <meta name="description" content="Renewal Radar: Canadian mortgage renewal intelligence. Read the letter, model your options, negotiate with confidence." />
+  <title>Renewal Radar — Don't Just Renew. Renegotiate.</title>
+  <link rel="stylesheet" href="/assets/app.css" />
+</head>
+<body>
+<div id="app" class="shell">
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <div class="brand-icon"><span class="radar-core"></span><span class="radar-ring radar-ring-a"></span><span class="radar-ring radar-ring-b"></span></div>
+      <div class="brand-word">renewal<span>radar</span><small>INTELLIGENT MORTGAGE RENEWAL</small></div>
+    </div>
+    <div class="nav-kicker">YOUR WORKSPACE</div>
+    <nav id="side-nav">
+      <button class="nav-link active" data-nav="overview"><span class="nav-icon">◈</span>Overview</button>
+      <button class="nav-link" data-nav="document"><span class="nav-icon">▤</span>Letter X-Ray</button>
+      <button class="nav-link" data-nav="scenarios"><span class="nav-icon">▥</span>Compare offers</button>
+      <button class="nav-link" data-nav="switch"><span class="nav-icon">⇄</span>Switch eligibility</button>
+      <button class="nav-link" data-nav="market"><span class="nav-icon">↗</span>Rate intelligence</button>
+      <button class="nav-link" data-nav="penalty"><span class="nav-icon">◷</span>Penalty workbench</button>
+      <button class="nav-link" data-nav="negotiate"><span class="nav-icon">✎</span>Negotiation coach</button>
+      <button class="nav-link" data-nav="plan"><span class="nav-icon">☑</span>Action plan</button>
+      <button class="nav-link" data-nav="report"><span class="nav-icon">▧</span>My strategy report</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="trust-mini"><span class="live-dot"></span> EVIDENCE-FIRST FINANCIAL TECH</div>
+      <p>Your documents are processed in memory, never saved as original PDF files.</p>
+      <button id="theme-toggle" class="theme-button" aria-label="Switch colour theme">◐ <span>Toggle theme</span></button>
+    </div>
+  </aside>
+  <div class="body-wrap">
+    <header class="topbar">
+      <div class="mobile-brand"><div class="mobile-brand-dot"></div> renewal<span>radar</span></div>
+      <div class="breadcrumb" id="breadcrumb">YOUR MORTGAGE / OVERVIEW</div>
+      <div class="top-actions"><span id="api-light" class="connection"><i></i><span>Connecting</span></span><button class="top-small" id="restart-demo" title="Load the synthetic sample">Reset demo</button><button class="top-primary" data-nav="report">Export report <span>↗</span></button></div>
+    </header>
+    <main id="content" tabindex="-1" aria-live="polite"></main>
+    <footer class="site-footer"><span>© 2026 Renewal Radar · Made for Canadian homeowners</span><span>Estimates, not approvals or lender quotes. <a href="https://www.canada.ca/en/financial-consumer-agency/services/mortgages/renew-mortgage.html" target="_blank" rel="noopener noreferrer">FCAC renewal guide ↗</a></span></footer>
+  </div>
+  <nav id="mobile-nav" aria-label="Mobile navigation"><button data-nav="overview">◈<span>Home</span></button><button data-nav="document">▤<span>Letter</span></button><button data-nav="scenarios">▥<span>Compare</span></button><button data-nav="negotiate">✎<span>Coach</span></button><button data-nav="report">▧<span>Report</span></button></nav>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
