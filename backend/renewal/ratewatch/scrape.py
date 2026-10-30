@@ -374,3 +374,18 @@ def equitable_rows(html: str) -> list:
                 kind = "variable" if m.group(3) == "Adjustable" else "fixed_closed"
                 out.append((months, kind, rtype, float(v.group(1))))
     return out
+
+
+def duca_pdf_rows(pdf: bytes) -> list:
+    """DUCA's own posted-rate notice (PDF 'Early Prepayment Charges and Interest Rate Differential (IRD)'):
+    'DUCA Posted Mortgage Rates-Effective <date>' / 'Term 1 Year Fixed ... 5 Year Fixed' / 'Posted Rate 5.34% ...'.
+    These are the rates DUCA's IRD clause uses (posted rate for a term equal to the remaining term)."""
+    import io
+    from pypdf import PdfReader
+    text = "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(pdf)).pages)
+    terms = [int(t) * 12 for t in re.findall(r"(\d+)\s*Year\s*Fixed", text, re.I)]
+    m = re.search(r"Posted\s*Rate\s*\d?\s*((?:\s*\d{1,2}\.\d{1,3}\s*%)+)", text, re.I)   # "Posted Rate1" footnote
+    if not terms or not m:
+        return []
+    rates = [float(x) for x in re.findall(r"(\d{1,2}\.\d{1,3})\s*%", m.group(1))]
+    return [(t, "fixed_closed", "posted", r) for t, r in zip(terms, rates)]
