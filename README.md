@@ -54,8 +54,8 @@ requirement. See `docs/OFFLINE_HELPER_V17.md`, `docs/CHARTS_AND_SOURCES_V17.md` 
 Requirements: Python 3.11+, pip; Node 20+ if running the frontend test suite. No npm install or account is required for the demonstration.
 
 ```bash
-unzip renewal-radar-enterprise-v17-code.zip -d renewal-radar-v17
-cd renewal-radar-v17
+git clone https://github.com/ALENZACODES/renewal-radar.git
+cd renewal-radar
 python -m venv .venv
 source .venv/bin/activate                 # on Windows: .venv\Scripts\activate
 pip install -r requirements.txt
