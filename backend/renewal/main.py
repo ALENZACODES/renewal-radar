@@ -54,9 +54,12 @@ async def lifespan(app:FastAPI):
     finally:
         await app.state.live_rate_tracker.stop()
 
+# The public demo (APP_ENV=demo) does not publish the interactive API docs.
+_PUBLIC_DEMO = os.environ.get('APP_ENV', '').strip().lower() in {'demo', 'public-demo'}
 app=FastAPI(title='Renewal Radar 2.0',version='2.0.0',
     description='Canadian mortgage renewal analysis, source-backed rule engine, privacy-conscious agent and PDF reports',lifespan=lifespan,
-    dependencies=[Depends(require_api_access)])
+    dependencies=[Depends(require_api_access)],
+    **({'docs_url': None, 'redoc_url': None, 'openapi_url': None} if _PUBLIC_DEMO else {}))
 from .ratewatch.api import router as ratewatch_router
 app.include_router(ratewatch_router)
 from .broker.book_api import router as broker_book_router
@@ -106,6 +109,7 @@ async def add_security_headers(request,call_next):
         response.headers['Cache-Control']='no-store'
     return response
 
+@app.get('/health')
 @app.get('/api/health')
 async def health():
     # Public liveness-shaped probe only. Detailed checks live on /api/health/ready (gated).

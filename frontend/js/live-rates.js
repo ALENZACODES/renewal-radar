@@ -40,7 +40,7 @@ export function liveRatesView(workspace) {
       ${banks ? '<th>5-yr posted</th><th>5-yr special</th>' : '<th>5-yr advertised</th>'}<th>Source</th><th>Updated</th><th></th></tr></thead>
       <tbody>${rows.map(r => lenderRow(r, banks)).join('')}</tbody></table></div>`;
   return `${head}
-    <div class="notice mb">Refreshed ${esc(ageText(b.refreshed_at))}${b.stale ? ' · refreshing in the background' : ''}.
+    <div class="notice mb">${b.refreshed_at ? `Refreshed ${esc(ageText(b.refreshed_at))}${b.stale ? ' · refreshing in the background' : ''}.` : 'First collection running in the background; reload in a few minutes.'}
       Bank of Canada big-six typical 5-year posted: <strong>${pct(a.boc_5y_posted)}</strong>
       ${a.boc_5y_posted_date ? `(${esc(dt(a.boc_5y_posted_date))})` : ''} · 5-year Government of Canada bond: <strong>${pct(a.goc_5y)}</strong></div>
     <section class="card padded"><h3>Big banks</h3>${table(b.banks || [], true)}</section>
