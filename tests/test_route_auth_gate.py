@@ -1,5 +1,6 @@
-﻿"""Regression: non-public HTTP routes must sit behind the API access gate."""
+"""Regression: non-public HTTP routes must sit behind the API access gate."""
 from __future__ import annotations
+from cryptography.fernet import Fernet
 
 import os
 
@@ -49,6 +50,7 @@ def test_production_fails_closed_without_api_key(monkeypatch):
     monkeypatch.delenv("RR_API_ACCESS_KEY", raising=False)
     # settings.app_env is frozen at import — patch the helper instead
     monkeypatch.setattr(access, "_env_name", lambda: "production")
+    monkeypatch.setenv("RR_BANKLINK_KEY", Fernet.generate_key().decode())
     with TestClient(app) as client:
         live = client.get("/api/health/live")
         assert live.status_code == 200 and live.json()["status"] == "alive"
@@ -60,6 +62,7 @@ def test_production_fails_closed_without_api_key(monkeypatch):
 def test_production_accepts_configured_api_key(monkeypatch):
     key = "k" * 32
     monkeypatch.setattr(access, "_env_name", lambda: "production")
+    monkeypatch.setenv("RR_BANKLINK_KEY", Fernet.generate_key().decode())
     monkeypatch.setenv("RR_API_ACCESS_KEY", key)
     with TestClient(app) as client:
         denied = client.get("/api/policy")
