@@ -99,6 +99,8 @@ The OpenAPI browser UI is available at `/docs`, and the machine-readable schema 
 | Endpoint | Action |
 | --- | --- |
 | `GET /api/health` | Health and connector configuration status (never secret values) |
+| `GET /api/health/live` | Liveness probe |
+| `GET /api/health/ready` | Readiness: case store, frontend assets, connector flags and circuit-breaker state; 503 when degraded |
 | `GET /api/demo` | Synthetic mortgage and illustrative alternatives |
 | `GET /api/demo/sample.pdf` | Synthetic renewal letter |
 | `POST /api/documents/extract` | Parse bounded PDF upload, page-linked fields |
@@ -178,3 +180,21 @@ The V4 APIs are under `/api/v4/rates` and `/api/v4/broker`. Their HTTP and unit
 contracts are exercised by `tests/test_v4_api.py` and `tests/test_v4_services.py`.
 Count production progress by genuine handwritten source code, not proposed
 manifest estimates, vendored code, generated fixtures or database rows.
+
+## Platform hardening (CI, rate limiting, resilience)
+
+- **CI:** `.github/workflows/ci.yml` runs the Python suite on 3.11, 3.12 and 3.13,
+  the frontend syntax check and Node tests, and a Docker build on every push and
+  pull request. `.github/workflows/security.yml` runs `pip-audit`, Bandit and a
+  gitleaks secret scan, plus a weekly scheduled run.
+- **Rate limiting:** `backend/renewal/security/rate_limit.py` is a sliding-window
+  limiter applied to `/api/*`, with tighter budgets for PDF extraction, agent,
+  report and market routes. Blocked requests get `429` with `Retry-After`. It is
+  in-process, so a multi-instance deployment needs a shared store. Disable with
+  `RR_RATE_LIMIT=0`.
+- **Circuit breakers:** `backend/renewal/resilience/circuit_breakers.py` gives
+  optional connectors closed, open and half-open states with a single trial call,
+  so a failing third-party source can't stall the deterministic engine.
+- **Health probes:** `backend/renewal/observability/health.py` backs
+  `/api/health/live` and `/api/health/ready`. Probe output never includes secret
+  values or raw exception messages.
