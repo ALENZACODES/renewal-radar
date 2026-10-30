@@ -8,5 +8,5 @@
     "syntax": "find frontend/js -type f -name '*.js' -exec node --check {} \\;"
   },
   "author": "John Khan",
-  "description": "Renewal Radar by Alenza Fintech - Canadian mortgage renewal intelligence"
+  "description": "Renewal Radar by John Khan: Canadian mortgage renewal intelligence"
 }

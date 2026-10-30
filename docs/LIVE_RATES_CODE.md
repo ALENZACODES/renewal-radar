@@ -1,6 +1,6 @@
 # Live rates: complete code
 
-*Renewal Radar · Alenza Fintech · John Khan*
+*Renewal Radar · John Khan*
 
 Generated from the source files in this repository (do not edit here; edit the files listed).
 Run: `cd backend && python -m renewal.ratewatch.live` or open the app's **Live rates** page.

@@ -1,6 +1,6 @@
 # Renewal Radar roadmap
 
-*John Khan · Alenza Fintech · status as of October 14, 2026*
+*John Khan · status as of October 14, 2026*
 
 Three separate statuses, never merged:
 
