@@ -97,6 +97,9 @@ def _historical_table(lender: str, day: date):
     table, seen = history.table_on(sid, day, max_age_days=10) if sid else ({}, None)
     if not table:
         raise HTTPException(422, f"no recorded {lender} posted rates near {day}; pass current_posted for a past payout")
+    how = history.provenance(sid, day, max_age_days=10)
+    if how in history.FILL_HOWS:
+        return table, f"history ({seen}; {history.FILL_LABEL[how]})"
     return table, f"history ({seen})"
 
 

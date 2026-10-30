@@ -404,7 +404,81 @@ def _run():
                         break
                 PROGRESS.write_text(json.dumps(prog, indent=1))
                 report(prog)
+    fill_gaps(prog)
     report(prog)
+
+
+FILLS = DATA / "history_fills.json"
+BRIDGE_MAX_MONTHS = 6
+
+
+def _boc_weekly(term=60):
+    with history.db() as c:
+        return sorted(c.execute("SELECT day, rate FROM rates WHERE source='BIG6_TYPICAL' AND term=? AND rtype='posted'", (term,)))
+
+
+def own_months(sid, prog):
+    """Months with a bank-own reading: the progress log plus any validated bank-own 5-year posted rate in the
+    database (e.g. a month collected by another worker). Never counts gap fills."""
+    ms = months()
+    own = {m: v for m, v in prog.get(sid, {}).items() if isinstance(v, dict) and m in ms}
+    with history.db() as c:
+        rows = c.execute("SELECT day, rate, how FROM rates WHERE source=? AND term=60 AND kind='fixed_closed' "
+                         "AND rtype='posted' AND how NOT IN ('bridged','boc_typical') ORDER BY day", (sid,)).fetchall()
+    for day, rate, how in rows:
+        m = day[:7].replace("-", "")
+        if m in ms and m not in own:
+            ok, rate5, boc = validate_month([(60, "fixed_closed", "posted", rate)], date.fromisoformat(day))
+            if ok:
+                own[m] = {"how": f"db/{how}", "ts": day.replace("-", ""), "rate5": rate5, "boc": boc}
+    return own
+
+
+def fill_gaps(prog=None):
+    """Cover every gap month with a labelled, auditable fill. Order of preference:
+    1. bridged - the bank's own 5-year posted rate is identical at the nearest readings on both sides (at most
+       BRIDGE_MAX_MONTHS apart) and the Bank of Canada big-six figure did not move at all between those two days:
+       the earlier full bank-own table is carried across the gap.
+    2. boc_typical - the Bank of Canada big-six typical posted 1, 3 and 5-year rates for the last week of the month.
+    Bank-own months are never touched. Every fill is listed in history_fills.json with its evidence."""
+    prog = prog if prog is not None else (json.loads(PROGRESS.read_text()) if PROGRESS.exists() else {})
+    ms = months()
+    with history.db() as c:                      # rebuild from scratch: a month that gained a bank-own reading loses its fill
+        c.execute("DELETE FROM rates WHERE how IN ('bridged','boc_typical') AND source IN (%s)" % ",".join("?" * len(SOURCES)),  # nosec B608
+                  tuple(SOURCES))
+    boc5 = _boc_weekly(60)
+    boc = {t: dict(_boc_weekly(t)) for t in (12, 36, 60)}
+    fills = {}
+    for sid in SOURCES:
+        own = own_months(sid, prog)
+        out = fills.setdefault(sid, {})
+        for i, m in enumerate(ms):
+            if m in own:
+                continue
+            before = next((ms[j] for j in range(i - 1, -1, -1) if ms[j] in own), None)
+            after = next((ms[j] for j in range(i + 1, len(ms)) if ms[j] in own), None)
+            if before and after and ms.index(after) - ms.index(before) <= BRIDGE_MAX_MONTHS                     and abs(own[before]["rate5"] - own[after]["rate5"]) < 0.005:
+                d0 = datetime.strptime(own[before]["ts"][:8], "%Y%m%d").date().isoformat()
+                d1 = datetime.strptime(own[after]["ts"][:8], "%Y%m%d").date().isoformat()
+                span = [r for d, r in boc5 if d0 <= d <= d1]
+                if span and max(span) - min(span) < 0.005:
+                    table, _ = history.table_on(sid, d0, max_age_days=0, own_only=True)
+                    if table:
+                        day = f"{m[:4]}-{m[4:]}-15"
+                        history.save(sid, day, [(t, "fixed_closed", "posted", r) for t, r in table.items()], "bridged")
+                        out[m] = {"how": "bridged", "day": day, "from": [before, after], "rate5": own[before]["rate5"],
+                                  "boc_range": [min(span), max(span)]}
+                        continue
+            last = [d for d, _ in boc5 if d[:7].replace("-", "") == m]
+            if not last:
+                out[m] = {"how": "gap", "why": "no Bank of Canada observation for this month"}
+                continue
+            day = max(last)
+            rows = [(t, "fixed_closed", "posted", boc[t][day]) for t in (12, 36, 60) if day in boc[t]]
+            history.save(sid, day, rows, "boc_typical")
+            out[m] = {"how": "boc_typical", "day": day, "terms": [r[0] for r in rows], "rate5": boc[60].get(day)}
+    FILLS.write_text(json.dumps(fills, indent=1))
+    return fills
 
 
 def report(prog=None):
@@ -412,11 +486,19 @@ def report(prog=None):
     ms = months()
     out = {"window": f"{ms[0]}-{ms[-1]}", "months": len(ms), "banks": {}}
     for sid in SOURCES:
-        got = {m: v for m, v in prog.get(sid, {}).items() if isinstance(v, dict)}
-        got = {m: v for m, v in got.items() if m in ms}
+        got = own_months(sid, prog)
         out["banks"][sid] = {"covered": len(got), "share": round(len(got) / len(ms), 3),
                              "gaps": [m for m in ms if m not in got],
                              "by_source": {k: sum(1 for v in got.values() if v["how"] == k) for k in {v["how"] for v in got.values()}}}
+    fills = json.loads(FILLS.read_text()) if FILLS.exists() else {}
+    for sid, b in out["banks"].items():
+        f = {m: v["how"] for m, v in fills.get(sid, {}).items() if m in b["gaps"]}
+        b["bridged"] = sum(1 for h in f.values() if h == "bridged")
+        b["boc_typical"] = sum(1 for h in f.values() if h == "boc_typical")
+        b["covered_with_fills"] = b["covered"] + b["bridged"] + b["boc_typical"]
+    out["all_months_covered"] = all(b["covered_with_fills"] == len(ms) for b in out["banks"].values())
+    out["coverage_grade"] = "A" if out["all_months_covered"] else "incomplete"   # every month has a labelled source
+    # "grade" stays the strict bank-own grade (weakest bank's share of months from its own data)
     shares = [b["share"] for b in out["banks"].values()]
     out["min_share"] = min(shares) if shares else 0
     out["grade"] = "A" if out["min_share"] >= 0.95 else "B" if out["min_share"] >= 0.85 else "C" if out["min_share"] >= 0.7 else "D"
@@ -442,10 +524,13 @@ def supervise(max_hours=10.0):
 
 
 if __name__ == "__main__":
-    if "--report" in sys.argv:
+    if "--fill" in sys.argv:                     # no network; safe while the backfill runs
+        fill_gaps()
+    if "--report" in sys.argv or "--fill" in sys.argv:
         r = report()
         print(json.dumps({k: v for k, v in r.items() if k != "banks"}, indent=1))
         for sid, b in r["banks"].items():
-            print(sid, b["covered"], "/", r["months"], b["by_source"])
+            print(sid, f"own {b['covered']:2d} + bridged {b['bridged']:2d} + BoC {b['boc_typical']:2d} = "
+                       f"{b['covered_with_fills']} / {r['months']}", b["by_source"])
     else:
         supervise()
