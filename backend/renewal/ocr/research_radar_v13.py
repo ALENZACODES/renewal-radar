@@ -1,7 +1,7 @@
 """V13 no-dependency research radar for OCR and contract intelligence.
 
-The user asked for double research across the web and GitHub, but also asked
-for our own code with no new dependency burden. This module records what those
+The goal was to research the web and GitHub twice over while keeping our own
+code free of new dependencies. This module records what those
 projects are useful for, then converts the research into an in-house adapter
 plan that the application can run immediately.
 """

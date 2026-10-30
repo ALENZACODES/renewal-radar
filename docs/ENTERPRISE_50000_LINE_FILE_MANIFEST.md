@@ -2,7 +2,7 @@
 
 **Product and technical master blueprint | October 11, 2026**  
 **Status:** proposed design, **not** implemented, deployed, or submitted. Data illustrations are synthetic unless an official dated observation is cited.  
-**Hackathon contexts:** Build North: Ship Something Real (build week Oct 16–25, 2026; short video at most 2 minutes per supplied brief); Nebius x NVIDIA (deadline Oct 30, 2026; demo video under 3 minutes per supplied brief). Any earlier Renewal Radar work must be disclosed where required. No sign-up or submission is authorized by this blueprint.
+**Hackathon contexts:** Build North: Ship Something Real (build week Oct 16–25, 2026; short video at most 2 minutes); Nebius x NVIDIA (deadline Oct 30, 2026; demo video under 3 minutes). Any earlier Renewal Radar work must be disclosed where required.
 
 ## 1. Concept, pitch and commercial objective
 
@@ -299,7 +299,7 @@ Delete rate-path deep dive, shorten architecture reveal, compress upload and let
 | 5 — shareable impact | Oct 23 | Script, action plan, branded PDF and sample sharing | Printable auditable result; no fabricated quote |
 | 6 — harden and cut video | Oct 24–25 | Mobile tests, no-login mode, security review, fallback, short demo | Live URL, public MIT repo, correct prior-work disclosure, ≤2m video; human approval to submit |
 | 7 — Nebius finalist expansion | Oct 26–29 | Nemotron substantive run, Tavily source verifier, more bank adapters, trace viewer, broker teaser | Meets Nebius rules, <3m YouTube video and feedback form; documented model ID |
-| 8 — submission deadline | Oct 30, 1:00 PM ET per supplied brief | Complete Nebius entry | Obtain explicit owner's approval first |
+| 8 — submission deadline | Oct 30, 1:00 PM ET | Complete Nebius entry | Final review before submitting |
 | 9 — commercialization | After hackathons, 3–6 months | Multi-tenant SaaS, complete lender coverage, additional regulation checks, penetration test, privacy counsel review, broker pilot | Paid pilots, signed lender/data rights as needed, security evidence |
 
 **Build-week reality:** shipping the entire estimated 77k-line codebase in 10 days would be irresponsible. A compelling hackathon vertical slice is **6k–10k tested lines**, plus preexisting disclosed work, with the remaining modules staged. Judges should see a robust working narrow product, not 50 static screens.
