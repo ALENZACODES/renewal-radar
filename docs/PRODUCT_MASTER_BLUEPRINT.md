@@ -12,7 +12,7 @@
 
 **North-star experience:** Upload a renewal letter → verify extracted terms against page-level source citations → pull official and lender-published rates → apply 2026 Canadian renewal/switch rules → compare fully amortized and cash-flow scenarios → estimate contract-specific exit costs → generate the negotiation plan → export and share an auditable report.
 
-The category is not a generic calculator or generic AI assistant. It is a **mortgage renewal operating system** for homeowners, and a consent-based retention/decision-support workspace for licensed mortgage professionals. The core defensibility is a carefully versioned policy engine plus deterministic mortgage math and a provenance graph, not a prompt.
+The category is not a generic calculator or generic chatbot. It is a **mortgage renewal operating system** for homeowners, and a consent-based retention/decision-support workspace for licensed mortgage professionals. The core defensibility is a carefully versioned policy engine plus deterministic mortgage math and a provenance graph, not a prompt.
 
 ### Products and buyers
 
@@ -183,7 +183,7 @@ flowchart LR
 - **Identity:** Clerk for fast safe authentication and sponsor relevance; no-login fully synthetic demo; API independently checks Clerk JWT plus object ownership. Production tenants are isolated using scoped queries and PostgreSQL row-level security defense in depth.
 - **Backend:** FastAPI / Pydantic v2; Postgres transactions; consistent REST/OpenAPI and async job/status endpoints; Server-Sent Events for agent progress.
 - **Documents:** private S3-compatible bucket, presigned upload, MIME/magic verification, antivirus scan, PyMuPDF text+position extraction, table parsing, bounded OCR only when necessary, source image previews; PII redaction before logging.
-- **Intelligence:** Nebius Token Factory with deployed **NVIDIA Nemotron open model** selected/pinned at release for Nebius contest compliance; agent graph with explicit tool calls; JSON-schema/Pydantic strict output. Optional model abstraction (including Anthropic for other sponsor tracks) cannot replace the required substantive Nemotron execution in Nebius demo.
+- **Intelligence:** Nebius Token Factory with deployed **NVIDIA Nemotron open model** selected/pinned at release for Nebius contest compliance; agent graph with explicit tool calls; JSON-schema/Pydantic strict output. Optional model abstraction (including other providers for other sponsor tracks) cannot replace the required substantive Nemotron execution in Nebius demo.
 - **Retrieval:** read-only policy source registry and evidence index; `pgvector` only for retrieval, never for policy truth. Tavily for fresh web discovery and source corroboration. Optional Eon search and SurrealDB scoped memory only if they strengthen the UX and sponsor award; avoid stack inflation for the core.
 - **Money math:** Python `Decimal` for financial accumulators, tested native float tolerance for rate-path visualization, correct rounding at payment posting; **the AI is prohibited from free-form arithmetic**. Domain models are currency-aware CAD and date/frequency-aware.
 - **Workers:** Celery + Redis to refresh market data, ingest PDFs, generate reports and fire consented reminders; idempotent and retry-safe, error queue and human-review fallback.
