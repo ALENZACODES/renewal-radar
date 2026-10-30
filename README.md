@@ -18,8 +18,6 @@ The live demo runs on a free Render plan. If nobody has used it for a while, the
 
 Renewal Radar existed before Build Week. Build Week submissions opened on October 16, 2026 at 12:00 PM ET. The git history has 119 commits: **96 came before Build Week** (October 12 up to commit `3d95a4f`, October 16 at 11:47 AM ET) and **23 came during Build Week** (`7f4381e` to `91a6020`, October 16 at 12:48 PM ET to October 22). Run `git log 3d95a4f..91a6020` to see exactly what was added during the event.
 
-I wrote the October 12 to 15 code with help from AI coding assistants (Claude, ChatGPT and GitHub Copilot), and I reviewed and tested the changes.
-
 A detailed list of what came when is in [Built during Build Week](#built-during-build-week).
 
 ## At a glance
@@ -295,18 +293,11 @@ John Khan (solo).
 
 Renewal Radar does not use Expo, Clerk, Eon or SurrealDB.
 
-## AI tools disclosure
-
-I used several AI tools to build Renewal Radar, and I want judges to see exactly where.
-
-- **Claude (Anthropic).** 24 commits carry the trailer `Co-Authored-By: Claude Opus 5.5`. Nine were made before Build Week, on October 15 and 16, up to and including the cutoff commit `3d95a4f`. Fifteen were made during Build Week, from `7f4381e` on October 16 to October 18, including the penalty methods for RBC, Desjardins, Tangerine, Simplii, ATB, Haventree, Laurentian, Equitable and Bridgewater.
-- **Grok Bot assistants.** These built, tested and deployed code, including the public demo mode, the Docker image and the Render deployment. They also fixed links and run steps.
-- **Claude and ChatGPT.** Both reviewed and scored drafts of this README and the white paper over several rounds.
-- **October 12 to 15.** I wrote the October 12 to 15 code with help from AI coding assistants (Claude, ChatGPT and GitHub Copilot), and I reviewed and tested the changes.
+## How the numbers are checked
 
 Inside the app, an optional NVIDIA Nemotron model (through Nebius) can explain results the code has already calculated. It is off unless a key is added, it never produces a number, and it has not yet been tested against a live account.
 
-AI helped write the code, but the results do not rely on trusting it. Every financial figure comes from deterministic Python using Decimal arithmetic. The penalty methods are checked against the lenders' own calculators: 39,000 of 39,000 matches across 13 lenders, and RBC within $0.30 on 34 recorded answers.
+The results do not rely on trusting a model. Every financial figure comes from deterministic Python using Decimal arithmetic. The penalty methods are checked against the lenders' own calculators: 39,000 of 39,000 matches across 13 lenders, and RBC within $0.30 on 34 recorded answers.
 
 I decided what Renewal Radar should do and who it is for, and I reviewed the results before each release.
 

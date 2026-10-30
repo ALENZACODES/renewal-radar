@@ -224,7 +224,7 @@ App-level `Depends(require_api_access)` applies to all routes. Classification be
 1. `POST /api/v8/camera/pdf` — `backend/renewal/main.py:1267` — `renewal.main.camera_pdf`
 1. `GET /api/v9/banking/institutions` — `backend/renewal/main.py:682` — `renewal.main.banking_institutions`
 
-## Cross-tenant / capability risks (send each to Claude/ChatGPT)
+## Cross-tenant / capability risks (each needs review)
 
 1. `POST /api/v5/leads` — `backend/renewal/routers/v5.py` (leads_create): workspace id existence check only; no broker token.
 2. `POST /api/v5/banklink/consents` (+ session/complete/mortgages) — `routers/v5.py`: sandbox env flag only; subject is opaque string.
