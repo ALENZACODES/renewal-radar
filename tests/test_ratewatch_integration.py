@@ -321,3 +321,30 @@ def test_b2b_bank_is_not_mapped_to_laurentian():
     assert resolve_lender("B2B Bank")[1] == "ALT18"
     assert resolve_lender("Laurentian Bank")[1] == "P036"
     assert resolve_lender("Equitable Bank")[0].months_convention == "equitable"
+
+
+def test_laurentian_reference_rates_read_from_its_calculator_page():
+    from renewal.ratewatch import comparison
+    page = ('<script id="__NEXT_DATA__">{"modules":[{"__typename":"MortgagePenaltyCalculator","referenceRates":'
+            '{"__typename":"ReferenceRates","sixMonths":7.84,"oneYear":5.64,"twoYears":5.94,"threeYears":6.09,"fourYears":6.19,'
+            '"fiveYears":6.29,"sixYears":6.69,"sevenYears":6.69,"eightYears":7.14,"nineYears":7.14,"tenYears":7.14}}]}</script>')
+    rows = comparison.laurentian_reference_rows(page)
+    assert len(rows) == 11 and (6, "reference", "rate", 7.84) in rows and (120, "reference", "rate", 7.14) in rows
+    assert comparison.laurentian_reference_rows("<html></html>") == []
+
+
+def test_laurentian_review_uses_reference_rates_and_needs_the_signing_rate(tmp_path, monkeypatch):
+    from datetime import date
+    from renewal.broker.book_ingest import Deal
+    from renewal.broker.book_review import review_deal
+    from renewal.ratewatch import comparison, history
+    monkeypatch.setattr(history, "DB", tmp_path / "rates.db", raising=False)
+    today = date(2026, 10, 18)
+    history.save("LBC_REFERENCE", "2026-10-18", [(t, "reference", "rate", r) for t, r in
+                 zip(comparison.LAURENTIAN_KEYS, (7.84, 5.64, 5.94, 6.09, 6.19, 6.29, 6.69, 6.69, 7.14, 7.14, 7.14))], "html")
+    deal = dict(deal_id="x", lender="Laurentian Bank", rate_type="fixed", balance=400000, contract_rate=5.49, term_months=60,
+                closing_date=date(2023, 11, 1), maturity_date=date(2028, 11, 1), amort_months=300)
+    r = review_deal(Deal(**deal, discount=1.0), today)
+    assert r["penalty"]["penalty"] == 6490.0 and r["penalty"]["method"] == "3-month"   # 400k x 6.49% / 4
+    r = review_deal(Deal(**deal, discount=None), today)
+    assert r["status"] == "needs_data" and "posted rate at signing" in r["recommendation"]
