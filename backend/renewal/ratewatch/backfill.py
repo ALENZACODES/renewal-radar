@@ -151,6 +151,22 @@ def bmo_include_rows(text):
     return sorted(set(rows))
 
 
+def body_text(resp):
+    """Archived body as text. Some archive copies hold the bank's gzip-compressed bytes (stored without the
+    Content-Encoding header), so they look empty unless unpacked."""
+    raw = getattr(resp, "content", None)
+    if not isinstance(raw, bytes):
+        return resp.text
+    if raw[:2] == b"\x1f\x8b":
+        import gzip
+        try:
+            raw = gzip.decompress(raw)
+        except OSError:
+            pass
+        return raw.decode("utf-8", "replace")
+    return resp.text
+
+
 def parse(kind, text):
     try:
         if kind == "bmo_include":
@@ -366,7 +382,7 @@ def arquivo_pass(prog):
                         print(f"{sid} arquivo busy ({resp.status_code}); waiting 5 min", flush=True)
                         time.sleep(300)
                         continue
-                    rows = parse(kind, resp.text) if resp.ok else []
+                    rows = parse(kind, body_text(resp)) if resp.ok else []
                     day = datetime.strptime(ts[:8], "%Y%m%d").date()
                     ok, rate5, boc = validate_month(rows, day)
                     if resp.ok and rows and boc is None:
@@ -413,7 +429,7 @@ def _run():
                         continue
                     if r is None or r.status_code >= 500:
                         continue                                   # transient: leave untried so a restart retries it
-                    rows = parse(kind, r.text) if r.ok else []
+                    rows = parse(kind, body_text(r)) if r.ok else []
                     day = datetime.strptime(ts[:8], "%Y%m%d").date()
                     ok, rate5, boc = validate_month(rows, day)
                     if r.ok and rows and boc is None:

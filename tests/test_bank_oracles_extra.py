@@ -88,3 +88,13 @@ def test_bmo_rate_include_parser():
     rows = backfill.parse("bmo_include", js)
     assert (60, "fixed_closed", "posted", 4.79) in rows and (6, "fixed_closed", "posted", 3.04) in rows
     assert (6, "open", "posted", 5.95) in rows and not any(r[3] == 2.0 for r in rows)    # variable block ignored
+
+
+def test_gzip_archived_bodies_are_unpacked():
+    import gzip
+    from renewal.ratewatch import backfill
+
+    class R:
+        content = gzip.compress(b"<table><tr><td>5 year fixed</td><td>7.14%</td></tr></table>")
+        text = "\x1f\x8bgarbage"
+    assert "7.14%" in backfill.body_text(R())
