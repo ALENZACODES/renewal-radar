@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import socket
 import subprocess
@@ -36,7 +37,10 @@ def runtime_environment(root=ROOT):
 def is_running(port):
     try:
         with urllib.request.urlopen(f'http://127.0.0.1:{port}/service-worker.js', timeout=1) as response:
-            return b'renewal-radar-shell-v17' in response.read(10000)
+            return re.search(
+                rb"const\s+shellCacheName\s*=\s*['\"]renewal-radar-shell-v\d+['\"]",
+                response.read(10000),
+            ) is not None
     except (OSError, ValueError):
         return False
 

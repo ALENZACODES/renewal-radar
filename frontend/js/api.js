@@ -14,7 +14,7 @@ export const api={
   penalty:(body)=>request('/api/penalty',{method:'POST',body:JSON.stringify(body)}),
   penaltyTimeline:(body)=>request('/api/v17/penalty/timeline',{method:'POST',body:JSON.stringify(body)}),
   liveRates:()=>request('/api/ratewatch/live'),
-  bookImport:(file)=>{const form=new FormData();form.append('file',file);return request('/api/broker/book/import',{method:'POST',body:form})},
+  bookImport:(file,options={})=>{const form=new FormData();form.append('file',file);if(options.date_order)form.append('date_order',options.date_order);return request('/api/broker/book/import',{method:'POST',body:form})},
   bookOcr:(files)=>{const form=new FormData();for(const f of files)form.append('files',f);return request('/api/broker/book/ocr',{method:'POST',body:form})},
   bookReview:(body)=>request('/api/broker/book/review',{method:'POST',body:JSON.stringify(body)}),
   bookReviewCsv:(body)=>request('/api/broker/book/review.csv',{method:'POST',body:JSON.stringify(body)}),

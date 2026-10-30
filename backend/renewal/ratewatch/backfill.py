@@ -53,22 +53,31 @@ class Archive:
     def __init__(self):
         self.last = 0.0
 
+    MAX_TRIES = 6                       # then give up on this request; the caller leaves it for the next run
+
     def get(self, url, params=None, timeout=120):
-        while True:
+        """Returns a response, or None after MAX_TRIES failures. Every failure is logged (never a silent loop)."""
+        for attempt in range(1, self.MAX_TRIES + 1):
             wait = PACE - (time.time() - self.last)
             if wait > 0:
                 time.sleep(wait)
             self.last = time.time()
             try:
                 r = requests.get(url, params=params, headers=UA, timeout=timeout)
-            except requests.RequestException:
-                time.sleep(60)
+            except requests.RequestException as e:
+                pause = min(60 * 2 ** (attempt - 1), BLOCK_WAIT)
+                print(f"{datetime.now():%H:%M} archive connection {type(e).__name__} (try {attempt}/{self.MAX_TRIES}); "
+                      f"waiting {pause // 60} min", flush=True)
+                time.sleep(pause)
                 continue
             if r.status_code in (429, 503):
-                print(f"{datetime.now():%H:%M} archive busy ({r.status_code}); waiting {BLOCK_WAIT // 60} min", flush=True)
+                print(f"{datetime.now():%H:%M} archive busy ({r.status_code}, try {attempt}/{self.MAX_TRIES}); "
+                      f"waiting {BLOCK_WAIT // 60} min", flush=True)
                 time.sleep(BLOCK_WAIT)
                 continue
             return r
+        print(f"{datetime.now():%H:%M} giving up on {url[:90]} for this run", flush=True)
+        return None
 
 
 def captures(arc, url, match):
@@ -81,6 +90,8 @@ def captures(arc, url, match):
         params["collapse"] = "timestamp:8"
     r = arc.get(CDX, params=params)
     out = {}
+    if r is None:
+        return out                                          # empty -> not cached, retried next run
     try:
         rows = r.json()[1:]
     except ValueError:
