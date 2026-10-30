@@ -111,6 +111,7 @@ def test_summary(env):
 def test_dashboard_api(monkeypatch):
     from renewal import main
     monkeypatch.setenv('RR_ENABLE_DEMO_WORKSPACES', '1')
+    monkeypatch.setattr(main.broker_dashboard, '_today', lambda: TODAY)   # recorded rates cover this day
     with TestClient(main.app) as c:
         w = c.post('/api/v4/broker/workspaces', json={'name': 'API broker'}).json()
         h = {'X-Broker-Token': w['access_token']}
