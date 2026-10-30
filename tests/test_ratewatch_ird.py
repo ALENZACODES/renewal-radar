@@ -42,9 +42,10 @@ def test_first_months_are_three_month_interest():
     assert r["method"] == "3-month" and r["ird"] == 0
 
 
-def test_cibc_three_month_on_posted():
+def test_cibc_three_month_on_contract_plus_discount_compounded_semi_annually():
+    # CIBC's calculator: 0.25 * 12 * ((1 + (contract + discount)/200)**(1/6) - 1) * balance
     r = penalty(big6_case(), POLICIES["CIBC"], {**TODAY_POSTED, 60: 6.89}, date(2024, 3, 1))
-    assert r["three_month"] == round(400_000 * 0.0689 / 4, 2)
+    assert r["three_month"] == round(0.25 * 12 * ((1 + 6.89 / 200) ** (2 / 12) - 1) * 400_000, 2)
 
 
 def test_offered_rate_method():

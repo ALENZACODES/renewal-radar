@@ -57,3 +57,31 @@ three months' interest = amount x rate / 4; cents rounded half-up.
 
 Other lenders stay labelled **estimate** until real payout statements in `data/ratewatch/penalty_cases.csv`
 pass `python -m renewal.ratewatch.run accuracy` (10+ cases, 99% within 1%).
+
+## Lender-exact penalties: five banks checked against their own calculator code
+
+Each bank's public calculator code is downloaded (never committed) and run in Node as the answer key. Random mortgages go
+through both that code and `ird.py`, and the results must agree to the cent.
+
+| Bank | Calculator code | Fetch | Oracle | Backtest | Result |
+|---|---|---|---|---|---|
+| TD | td-prepayment.min.js | `tools/fetch_td_oracle.py` | `tools/td_oracle.mjs` | `backtest.td_oracle` | 3000/3000 |
+| Scotiabank | dmts.scotiabank.com prepayment main.js (logic.js) + termRates.json | `tools/fetch_scotia_oracle.py` | `tools/scotia_oracle.mjs` | `backtest.scotia_oracle` | 3000/3000 |
+| CIBC | mortgageprepayment.min.js (cibc_rules) | `tools/fetch_cibc_oracle.py` | `tools/cibc_oracle.mjs` | `backtest.cibc_oracle` | 3000/3000 |
+| BMO | prepayment-calculator app bundle (y() and the pay-in-full charge) | `tools/fetch_bmo_oracle.py` | `tools/bmo_oracle.mjs` | `backtest.bmo_oracle` | 3000/3000 |
+| National Bank | nbc.ca/forms/financing/prepayment-charges-calculator (fixed, full payout script) | `tools/fetch_nbc_oracle.py` | `tools/nbc_oracle.mjs` | `backtest.nbc_oracle` | 3000/3000 |
+
+Rules found in each bank's code:
+- **Scotiabank:** whole months remaining; term bands from termRates.json; comparison is posted minus discount; no charge if the comparison rate is 3 or more points above the contract rate; terms of 84+ months with 60+ months elapsed are charged 3 months' interest.
+- **CIBC:** remaining days × 12 / 365; posted-term limits 12/18/30/42/54/78/102/120 months. The IRD is interest payable at (contract + discount) minus interest payable at posted, payment by payment over the remaining payments, rounded to the cent each step. Three months' interest is at (contract + discount), compounded semi-annually. Every charge is capped at the interest left to maturity, and under 3 months remaining the charge is the interest to maturity.
+- **BMO:** calendar months remaining. Exactly on a term boundary (9, 18, 30, 42, 54, 66, 78, 102 months) it takes the higher of the two posted rates; a 6-year (72-month) term is used. Charge = max(IRD, 3 months); with 1–2 months left it is prorated to that many thirds.
+- **National Bank:** whole months remaining. The comparison is NBC's posted rate for the remaining term with **no discount add-back**, plus one month's interest capped at $500.
+
+Caveats:
+- National Bank's form asks the user for the posted rate, so our term choice (nearest posted term) is an assumption. The formula itself is exact.
+- CIBC's IRD needs the regular payment. Pass `Mortgage(payment=...)`; otherwise it is computed from the balance, rate and amortization.
+
+The Interest Act s.10 cap for individuals (terms over 5 years, more than 5 years elapsed) is still applied for CIBC, BMO and National Bank, even though their calculators do not model it.
+
+Equitable Bank's own page (equitablebank.ca/mortgage-rates) is now backup 1 for EQ Bank on the live board, read by `scrape.equitable_rows`.
+It takes only the Standard posted table and skips reverse-mortgage and APR rows.

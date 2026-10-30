@@ -9,6 +9,7 @@ Accuracy comes from four inputs (the same four that make paid tools like Prepaym
 Policies marked verified=False are best-known defaults. Promote one to verified=True only after calibrate()
 reproduces a real payout statement or the lender's own calculator to the dollar.
 """
+import math
 from dataclasses import dataclass, field, replace
 from datetime import date
 from itertools import product
@@ -38,16 +39,27 @@ BIG6 = dict(comparison="posted_minus_discount", term_match="nearest")
 # Read from TD's own calculator code (ix0.apps.td.com/mortgage-prepayment-calculator/js/td-prepayment.min.js)
 TD_BANDS = ((0, 8.999, 6), (9, 17.999, 12), (18, 29.999, 24), (30, 41.999, 36), (42, 53.999, 48),
             (54, 65.999, 60), (66, 77.999, 72), (78, 101.999, 84), (102, 119.999, 120))
+# Read from Scotiabank's own calculator (dmts.scotiabank.com/tools/prepayment: main.js logic.js + termRates.json)
+SCOTIA_BANDS = ((0, 8.999, 6), (9, 17.999, 12), (18, 29.999, 24), (30, 41.999, 36), (42, 53.999, 48),
+                (54, 71.999, 60), (72, 101.999, 84), (102, 120, 120))
 MONO = dict(comparison="offered", term_match="nearest")
 POLICIES = {p.lender: p for p in [
     Policy("RBC", **BIG6, source="posted-discount; 3mo window ~7 months per CMT 2026-04"),
     Policy("TD", comparison="posted_minus_discount", term_match="bands", bands=TD_BANDS, min_term=6,
            months_convention="td", verified=True,
            source="TD's published calculator code; reproduced to the cent by backtest.py against td-prepayment.min.js"),
-    Policy("Scotiabank", **BIG6, source="posted-discount"),
-    Policy("BMO", **BIG6, source="posted-discount"),
-    Policy("CIBC", **BIG6, three_month_basis="posted_at_origination", source="3mo at initial posted rate per CMT 2025-07"),
-    Policy("National Bank", **BIG6, source="posted-discount"),
+    Policy("Scotiabank", comparison="posted_minus_discount", term_match="bands", bands=SCOTIA_BANDS, min_term=6,
+           months_convention="scotia", verified=True,
+           source="Scotiabank's published calculator code; reproduced to the cent by backtest.scotia_oracle against main.js"),
+    Policy("BMO", comparison="posted_minus_discount", months_convention="bmo", min_term=6, verified=True,
+           source="BMO's published calculator code; reproduced to the cent by backtest.bmo_oracle against its app bundle"),
+    Policy("CIBC", comparison="posted_minus_discount", months_convention="cibc", min_term=6, verified=True,
+           source="CIBC's published calculator code; reproduced to the cent by backtest.cibc_oracle against "
+                  "mortgageprepayment.min.js"),
+    Policy("National Bank", comparison="posted", term_match="nearest", months_convention="nbc", min_term=6, verified=True,
+           source="National Bank's published prepayment-charges calculator script; reproduced to the cent by "
+                  "backtest.nbc_oracle. NBC compares with its posted rate for the remaining term (no discount add-back) "
+                  "and adds one month's interest capped at $500"),
     Policy("Tangerine", **BIG6), Policy("Simplii", **BIG6), Policy("Desjardins", **BIG6),
     Policy("Laurentian", **BIG6), Policy("Manulife Bank", **BIG6), Policy("ATB", **BIG6),
     Policy("First National", **MONO), Policy("MCAP", **MONO), Policy("RMG", **MONO), Policy("CMLS", **MONO),
@@ -70,6 +82,7 @@ class Mortgage:
     privilege_used_this_year: float = 0.0
     borrower_is_corporation: bool = False
     maturity: date | None = None   # use the exact maturity date when known (overrides start + term)
+    payment: float | None = None   # regular monthly P&I payment (CIBC's IRD amortizes with it); None -> computed
 
     def resolved_discount(self):
         if self.discount is not None:
@@ -146,11 +159,142 @@ def pick_term(remaining: float, policy: Policy, table: dict):
     return (lo, table[lo]) if d_lo < d_hi else (hi, table[hi])
 
 
+def _js_round(x: float) -> float:
+    return math.floor(x + 0.5)
+
+
+def monthly_payment(balance: float, rate: float, amort_months: int) -> float:
+    """Canadian fixed-rate monthly payment (semi-annual compounding)."""
+    i = (1 + rate / 200) ** (2 / 12) - 1
+    return balance / amort_months if i == 0 else balance * i / (1 - (1 + i) ** -amort_months)
+
+
+# CIBC calculator: remaining months (days * 12 / 365) <= limit -> posted term used for the comparison
+CIBC_LIMITS = ((12, 6), (18, 12), (30, 24), (42, 36), (54, 48), (78, 60), (102, 84), (120, 120))
+
+
+def _cibc(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """CIBC's own rules (cibc_rules.js inside mortgageprepayment.min.js), monthly payments, full payout."""
+    days = max((end - payout).days, 0)
+    months = days * 12 / 365
+    bal, disc = m.balance, m.resolved_discount()
+    factor = lambda r: (1 + r / (2 * 100)) ** (2 / 12) - 1          # noqa: E731  semi-annual, monthly
+    rate = m.contract_rate + disc                                     # CIBC: "current rate + discount"
+    three = 0.25 * factor(rate) * 12 * bal
+    to_maturity = days / 365 * factor(m.contract_rate) * 12 * bal
+    term = next((t for lim, t in CIBC_LIMITS if months <= lim), 120)
+    if term not in current:
+        raise ValueError(f"CIBC rule needs the {term}-month posted rate, which is missing from the rate table")
+    posted = current[term]
+    payment = m.payment if m.payment is not None else monthly_payment(bal, m.contract_rate, m.amort_months)
+    n = math.ceil(days / (365 / 12))
+
+    def payable(r):
+        b, f, interest = bal, factor(r), 0.0
+        for _ in range(n):
+            ip = b * f
+            interest = _js_round(100 * (interest + ip)) / 100
+            b = b + ip - payment
+            if b < 0:
+                break
+        return interest
+
+    ird = max(payable(rate) - payable(posted), 0.0)
+    if months < 3:
+        method = "maturity"
+    else:
+        method = "IRD" if ird > three else "3-month"
+        if ird > to_maturity or three > to_maturity:
+            method = "maturity"
+    pen = {"maturity": to_maturity, "IRD": ird, "3-month": three}[method]
+    notes = []
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    if method == "maturity":
+        notes.append("CIBC: charge capped at the interest left to maturity")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": round(months, 2),
+        "compare_term": term, "compare_posted": round(posted, 4), "discount": round(disc, 4),
+        "compare_rate": round(posted - disc, 4), "rate_diff": round(max(m.contract_rate - (posted - disc), 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(ird), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
+# BMO calculator y(): whole months remaining -> (low term, high term, take the higher rate when between two terms)
+def _bmo_terms(n: int):
+    if n == 9: return 6, 12, True
+    if 10 <= n <= 17: return 12, 12, False
+    for edge, lo, hi in ((18, 12, 24), (30, 24, 36), (42, 36, 48), (54, 48, 60), (66, 60, 72), (78, 72, 84), (102, 84, 120)):
+        if n == edge: return lo, hi, True
+    for a, b, t in ((19, 29, 24), (31, 41, 36), (43, 53, 48), (55, 65, 60), (67, 77, 72), (79, 101, 84)):
+        if a <= n <= b: return t, t, False
+    if n > 102: return 120, 120, False
+    return 0, 6, False
+
+
+def _bmo(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """BMO's own pay-in-full rules (prepayment-calculator app bundle), fixed rate."""
+    n = max(12 * (end.year - payout.year) + (end.month - payout.month), 0)   # BMO counts calendar months
+    lo, hi, take_max = _bmo_terms(n)
+    terms = [t for t in current if lo <= t <= hi]
+    if not terms:
+        raise ValueError(f"BMO rule needs the {hi}-month posted rate, which is missing from the rate table")
+    rates = [current[t] for t in sorted(terms)]
+    posted = max(rates) if take_max else min(rates)
+    term = next(t for t in sorted(terms) if current[t] == posted)
+    disc, cur, bal = m.resolved_discount(), m.contract_rate, m.balance
+    ird = (cur - (posted - disc)) * bal * (n / 12) / 100
+    three = bal * cur / 4 / 100
+    pen = max(ird, three)
+    method = "IRD" if pen == ird else "3-month"
+    if n in (1, 2):
+        pen = pen / 3 * n
+    pen = max(pen, 0.0)
+    notes = []
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": float(n),
+        "compare_term": term, "compare_posted": round(posted, 4), "discount": round(disc, 4),
+        "compare_rate": round(posted - disc, 4), "rate_diff": round(max(cur - (posted - disc), 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(max(ird, 0.0)), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
+def _nbc(m: Mortgage, policy: Policy, current: dict, payout: date, end: date):
+    """National Bank's own fixed-rate full-payout script (nbc.ca/forms/financing/prepayment-charges-calculator)."""
+    n = int(months_between(payout, end) + 1e-9)                      # the form takes whole months remaining
+    term, posted = pick_term(n, policy, current)
+    bal, cur = m.balance, m.contract_rate
+    interest = bal * cur / 100 / 12
+    month_interest = interest if interest < 500 else 500
+    ird = (bal * ((cur / 100) - (posted / 100))) / 12 * n + month_interest
+    three = ((bal * (cur / 100)) / 12) * 3
+    pen, method = (ird, "IRD") if ird > three else (three, "3-month")
+    notes = ["National Bank adds one month's interest (max $500) to the rate differential"]
+    if m.term_months > 60 and months_between(m.start, payout) >= 60 and not m.borrower_is_corporation:
+        pen, method = three, "3-month"
+        notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+    return {
+        "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": float(n),
+        "compare_term": term, "compare_posted": round(posted, 4), "discount": 0.0,
+        "compare_rate": round(posted, 4), "rate_diff": round(max(cur - posted, 0.0), 4),
+        "three_month": _js_round2(three), "ird": _js_round2(max(ird, 0.0)), "penalty": _js_round2(pen),
+        "method": method, "ird_minus_3mo": round(ird - three, 2), "policy_verified": policy.verified, "notes": notes,
+    }
+
+
 def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_offered: dict | None = None):
     """current: lender's posted table {term_months: rate} on payout date.
     current_offered: lender's discounted/offered table (for comparison='offered')."""
     end = maturity_of(m)
     remaining = max(td_months_remaining(payout, end) if policy.months_convention == "td" else months_between(payout, end), 0.0)
+    if policy.months_convention == "scotia":     # Scotiabank's calculator takes whole months remaining
+        remaining = float(int(remaining + 1e-9))
     remaining_days = max((end - payout).days, 0)
     bal = m.balance
     notes = []
@@ -159,6 +303,12 @@ def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_of
                 "compare_posted": None, "discount": None, "compare_rate": None, "rate_diff": 0.0, "three_month": 0.0,
                 "ird": 0.0, "penalty": 0.0, "method": "matured", "ird_minus_3mo": 0.0, "policy_verified": policy.verified,
                 "notes": ["Term has matured: no prepayment charge (discharge or administration fees may still apply)."]}
+    if policy.months_convention == "cibc":
+        return _cibc(m, policy, current, payout, end)
+    if policy.months_convention == "nbc":
+        return _nbc(m, policy, current, payout, end)
+    if policy.months_convention == "bmo":
+        return _bmo(m, policy, current, payout, end)
     if policy.privilege_first and policy.privilege_pct:
         free = max(policy.privilege_pct / 100 * bal - m.privilege_used_this_year, 0)
         bal -= free
@@ -184,6 +334,29 @@ def penalty(m: Mortgage, policy: Policy, current: dict, payout: date, current_of
         ird = bal * diff / 100 * years
 
     pen = max(three, ird)
+    if policy.months_convention == "scotia":
+        # Scotiabank logic.js, in its own order and units (decimal rates)
+        cur, sc, dr = m.contract_rate / 100, comp / 100, disc / 100
+        three = bal * cur / 4
+        ird = (cur - (sc - dr)) * bal * remaining / 12
+        comp_rate, diff = comp - disc, max(m.contract_rate - (comp - disc), 0.0)
+        if m.term_months >= 84 and m.term_months - remaining >= 60:
+            pen = three
+            notes.append("Interest Act s.10 cap applied (3 months' interest after year 5)")
+        else:
+            pen = max(ird, three)
+        if cur - (sc - dr) <= -0.03:
+            pen = 0.0
+            notes.append("Scotiabank: no charge when the comparison rate is 3+ points above the contract rate")
+        pen = max(0.0, pen)
+        return {
+            "lender": policy.lender, "payout": payout.isoformat(), "remaining_months": remaining,
+            "compare_term": term, "compare_posted": round(comp, 4), "discount": round(disc, 4),
+            "compare_rate": round(comp_rate, 4), "rate_diff": round(diff, 4),
+            "three_month": _js_round2(three), "ird": _js_round2(max(ird, 0.0)), "penalty": _js_round2(pen),
+            "method": "IRD" if ird > three and pen else "3-month", "ird_minus_3mo": round(ird - three, 2),
+            "policy_verified": policy.verified, "notes": notes,
+        }
     # Interest Act s.10: term > 5 years and 5+ years elapsed -> max 3 months' interest (individuals)
     if policy.months_convention == "td":
         # TD's calculator controller: term > 5 years and remaining <= 12 * (term_years - 5) -> three months only

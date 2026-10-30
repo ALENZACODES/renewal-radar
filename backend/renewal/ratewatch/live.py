@@ -74,7 +74,8 @@ LENDERS = [
     # ---- B lenders, trust companies, MICs and private lenders. Most quote brokers privately and publish no rates;
     #      they run through the same chain and show "Unavailable" until a public lender source exists. ----
     ("ALT01", "Home Trust", "alternative", ("html", "https://www.hometrust.ca"), None),
-    ("ALT02", "Equitable Bank (EQ Bank)", "alternative", ("html", "https://www.eqbank.ca/residential/mortgage-rates"), None),
+    ("ALT02", "Equitable Bank (EQ Bank)", "alternative", ("html", "https://www.eqbank.ca/residential/mortgage-rates"),
+     ("equitable", "https://www.equitablebank.ca/mortgage-rates")),
     ("ALT03", "Haventree Bank", "alternative", ("html", "https://www.haventreebank.com"), None),
     ("ALT04", "Community Trust", "alternative", ("html", "https://www.communitytrust.ca"), None),
     ("ALT05", "Bridgewater Bank", "alternative", ("html", "https://bridgewaterbank.ca"), None),
@@ -139,6 +140,8 @@ def parse_text(kind: str, text: str) -> list:
         return scrape.cibc_rows(text)
     if kind == "td_json":
         return parse_feed("td_json", text)
+    if kind == "equitable":
+        return scrape.equitable_rows(text)
     return extract_rates(text)
 
 
