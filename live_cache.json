@@ -1,6 +1,6 @@
 {
  "P025": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://dmtsms.scotiabank.com/api/rates/daily/nonspecialmortgage",
   "rows": [
@@ -128,7 +128,7 @@
   "level": 3
  },
  "P021": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.rbcroyalbank.com/mortgages/mortgage-rates.html",
   "rows": [
@@ -250,7 +250,7 @@
   "level": 3
  },
  "P029": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.cibconline.cibc.com/ebm-pno/api/v1/json/productRatesLegacy?lobId=5&sourceProductCode=FRCM%2c5YRVARCLO%2cFOM%2cVROM%2c",
   "rows": [
@@ -462,7 +462,7 @@
   "level": 3
  },
  "P035": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.desjardins.com/en/mortgage/mortgage-rates.html",
   "rows": [
@@ -536,7 +536,7 @@
   "level": 3
  },
  "CU01": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.meridiancu.ca/personal/rates-and-fees/mortgage-and-borrowing-rates",
   "rows": [
@@ -646,7 +646,7 @@
   "level": 3
  },
  "P031": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.nbc.ca/personal/mortgages/rates.html",
   "rows": [
@@ -744,7 +744,7 @@
   "level": 3
  },
  "CU04": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://servus.ca/rates",
   "rows": [
@@ -866,7 +866,7 @@
   "level": 3
  },
  "CU05": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.alterna.ca/en/rates/mortgages",
   "rows": [
@@ -1006,7 +1006,7 @@
   "level": 3
  },
  "CU07": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.firstontario.com/personal/rates/",
   "rows": [
@@ -1110,7 +1110,7 @@
   "level": 3
  },
  "P023": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.td.com/ca/en/personal-banking/products/mortgages/mortgage-rates",
   "rows": [
@@ -1406,7 +1406,7 @@
   "level": 3
  },
  "CU10": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.conexus.ca/rates/mortgage-rates",
   "rows": [
@@ -1492,7 +1492,7 @@
   "level": 3
  },
  "CU11": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.yncu.com/resources/rates/mortgage-rates",
   "rows": [
@@ -1542,7 +1542,7 @@
   "level": 3
  },
  "CU09": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.affinitycu.ca/rates/mortgage-rates",
   "rows": [
@@ -1616,7 +1616,7 @@
   "level": 3
  },
  "CU08": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.libro.ca/rates-fees/mortgage/",
   "rows": [
@@ -1678,7 +1678,7 @@
   "level": 3
  },
  "CU12": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.synergycu.ca/en/rates/mortgages",
   "rows": [
@@ -1746,7 +1746,7 @@
   "level": 3
  },
  "CU14": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.accesscu.ca/en/rates",
   "rows": [
@@ -1784,7 +1784,7 @@
   "level": 3
  },
  "CU15": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://beemcreditunion.ca/rates",
   "rows": [
@@ -1900,7 +1900,7 @@
   "level": 3
  },
  "CU13": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://cccu.ca/financial-tools/rates/mortgage-rates/",
   "rows": [
@@ -1968,7 +1968,7 @@
   "level": 3
  },
  "CU17": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.innovationcu.ca/personal/borrowing/mortgage-rates.html",
   "rows": [
@@ -2096,7 +2096,7 @@
   "level": 3
  },
  "CU19": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://scu.mb.ca/rates/borrowing",
   "rows": [
@@ -2164,7 +2164,7 @@
   "level": 3
  },
  "CU06": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.duca.com/assets/pdf/Media_CXP/Rates/Early Prepayment Charges and Interest Rate Differential (IRD).pdf",
   "rows": [
@@ -2202,7 +2202,7 @@
   "level": 3
  },
  "ALT04": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://communitytrust.com/mortgage-rates/",
   "rows": [
@@ -2240,7 +2240,7 @@
   "level": 3
  },
  "ALT05": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://bwbbrokerinfo.ca/mortgage-rates/",
   "rows": [
@@ -2266,7 +2266,7 @@
   "level": 3
  },
  "ALT02": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.eqbank.ca/residential/mortgage-rates",
   "rows": [
@@ -2346,7 +2346,7 @@
   "level": 2
  },
  "CU18": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "backup1",
   "url": "https://www.kawarthacu.com/rates",
   "rows": [
@@ -2372,7 +2372,7 @@
   "level": 3
  },
  "ALT07": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.rfa.ca/prime",
   "rows": [
@@ -2410,7 +2410,7 @@
   "level": 3
  },
  "ALT09": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.cmls.ca/what-we-do/cmls-residential/mortgage-rates",
   "rows": [
@@ -2508,7 +2508,7 @@
   "level": 3
  },
  "ALT08": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.peoplesgroup.com/personal/resources/mortgage-rates",
   "rows": [
@@ -2558,7 +2558,7 @@
   "level": 3
  },
  "ALT14": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://efforttrust.com/trust-banking-mortgage-rates.php",
   "rows": [
@@ -2614,7 +2614,7 @@
   "level": 3
  },
  "ALT15": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://communitytrust.com/questbank/mortgage-rates/",
   "rows": [
@@ -2652,7 +2652,7 @@
   "level": 3
  },
  "CU20": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "backup1",
   "url": "https://www.tandia.com/rates",
   "rows": [
@@ -2756,7 +2756,7 @@
   "level": 3
  },
  "ALT20": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://antriminvestments.com/lending-guidelines/",
   "rows": [
@@ -2770,7 +2770,7 @@
   "level": 3
  },
  "ALT16": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.hanabank.ca/pb/pu/pbpu008s01",
   "rows": [
@@ -2808,7 +2808,7 @@
   "level": 3
  },
  "ALT24": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://www.atriummic.com/residential-products",
   "rows": [
@@ -2822,7 +2822,7 @@
   "level": 3
  },
  "ALT30": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://api.bloomfin.ca/api/rates",
   "rows": [
@@ -2866,7 +2866,7 @@
   "level": 3
  },
  "ALT18": {
-  "at": "2026-10-31T12:42:26+00:00",
+  "at": "2026-10-31T21:41:34+00:00",
   "tier": "primary",
   "url": "https://b2bbank.com/advisor-broker-rates/mortgage-rates",
   "rows": [
