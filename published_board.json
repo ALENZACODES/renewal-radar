@@ -25,7 +25,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 6.28,
     "posted": 6.357,
@@ -117,7 +117,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -180,7 +180,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -276,7 +276,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.89,
     "posted": null,
@@ -339,7 +339,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.84,
     "posted": 4.84,
@@ -402,7 +402,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.09,
     "posted": null,
@@ -463,13 +463,13 @@
       "ok": true
      },
      {
-      "detail": "no independent second reading yet",
+      "detail": "matches the reading from 0.3 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
-      "ok": false
+      "ok": true
      }
     ],
-    "level": 2,
+    "level": 3,
     "of": 3
    }
   },
@@ -561,7 +561,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.5,
     "posted": 5.5,
@@ -627,7 +627,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -690,7 +690,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 6.22,
     "posted": 6.22,
@@ -777,7 +777,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 6.29,
     "posted": 6.29,
@@ -873,7 +873,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -1011,7 +1011,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -1158,7 +1158,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 6.33,
     "posted": null,
@@ -1223,7 +1223,7 @@
  },
  "banks": [
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.14,
     "posted": 6.19,
@@ -1301,7 +1301,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.39,
     "posted": 6.14,
@@ -1385,7 +1385,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 6.19,
     "posted": 6.19,
@@ -1497,7 +1497,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 6.49,
@@ -1572,7 +1572,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 6.18,
     "posted": 6.18,
@@ -1648,7 +1648,7 @@
  ],
  "credit_unions": [
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 6.29,
@@ -1725,7 +1725,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.74,
     "posted": 6.49,
@@ -1878,7 +1878,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.79,
     "posted": 6.09,
@@ -1949,7 +1949,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.04,
     "posted": 6.04,
@@ -2021,7 +2021,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2084,7 +2084,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.04,
     "posted": 5.04,
@@ -2156,7 +2156,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 5.34,
@@ -2225,7 +2225,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.24,
     "posted": 4.24,
@@ -2296,7 +2296,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2362,7 +2362,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 4.99,
@@ -2428,7 +2428,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.94,
@@ -2496,7 +2496,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.3,
     "posted": 4.3,
@@ -2568,7 +2568,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.49,
     "posted": 4.49,
@@ -2631,7 +2631,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.69,
     "posted": 4.79,
@@ -2742,7 +2742,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 6.1,
@@ -2822,7 +2822,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.29,
     "posted": 4.29,
@@ -2871,7 +2871,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.15 points",
+      "detail": "matches the reading from 0.3 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2882,7 +2882,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.39,
     "posted": 4.39,
@@ -2945,7 +2945,7 @@
    }
   },
   {
-   "as_of": "2026-10-31T05:52:53+00:00",
+   "as_of": "2026-10-31T12:42:26+00:00",
    "five_year": {
     "advertised": 4.64,
     "posted": 4.64,
@@ -3019,7 +3019,7 @@
    }
   }
  ],
- "refreshed_at": "2026-10-31T05:52:53+00:00",
+ "refreshed_at": "2026-10-31T12:42:26+00:00",
  "summary": {
   "archive": 0,
   "backup1": 2,
@@ -3033,6 +3033,6 @@
  "verified": {
   "level1": 36,
   "level2": 36,
-  "level3": 34
+  "level3": 35
  }
 }
