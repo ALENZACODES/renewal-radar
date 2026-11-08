@@ -25,7 +25,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 6.28,
     "posted": 6.357,
@@ -117,7 +117,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -169,7 +169,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -180,7 +180,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -226,7 +226,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -276,7 +276,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.89,
     "posted": null,
@@ -328,7 +328,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -339,7 +339,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.84,
     "posted": 4.84,
@@ -391,7 +391,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -402,7 +402,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.09,
     "posted": null,
@@ -463,7 +463,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -561,7 +561,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.5,
     "posted": 5.5,
@@ -616,7 +616,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -627,7 +627,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -679,7 +679,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -690,7 +690,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 6.22,
     "posted": 6.22,
@@ -742,7 +742,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -777,7 +777,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 6.29,
     "posted": 6.29,
@@ -838,7 +838,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -873,7 +873,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -913,7 +913,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1011,7 +1011,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -1051,7 +1051,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1158,7 +1158,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 6.33,
     "posted": null,
@@ -1204,7 +1204,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1223,7 +1223,7 @@
  },
  "banks": [
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.14,
     "posted": 6.19,
@@ -1290,7 +1290,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1301,7 +1301,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.39,
     "posted": 6.14,
@@ -1385,7 +1385,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 6.19,
     "posted": 6.19,
@@ -1443,7 +1443,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1454,23 +1454,44 @@
    }
   },
   {
-   "as_of": "2026-11-04",
+   "as_of": "wayback 20261027",
    "five_year": {
-    "advertised": 6.19,
-    "posted": 6.19,
+    "advertised": 6.09,
+    "posted": 6.09,
     "special": null
    },
    "id": "P027",
-   "lender_specific": false,
+   "lender_specific": true,
    "name": "BMO",
    "rates": {
+    "12": {
+     "posted": 5.49
+    },
+    "120": {
+     "posted": 6.8
+    },
+    "24": {
+     "posted": 4.94
+    },
+    "36": {
+     "posted": 6.05
+    },
+    "48": {
+     "posted": 5.99
+    },
     "60": {
-     "posted": 6.19
+     "posted": 6.09
+    },
+    "72": {
+     "posted": 6.29
+    },
+    "84": {
+     "posted": 6.4
     }
    },
-   "source_url": "https://www.bankofcanada.ca/rates/banking-and-financial-statistics/posted-interest-rates-offered-by-chartered-banks/",
-   "tier": "boc_typical",
-   "tier_label": "Bank of Canada big-six typical",
+   "source_url": "https://www.bmo.com/public-data/api/epm/v1.0/bmo-epm-mortgage.json",
+   "tier": "archive",
+   "tier_label": "Archive copy",
    "tried": [
     {
      "ok": false,
@@ -1488,16 +1509,39 @@
      "tier": "cache"
     },
     {
-     "ok": false,
-     "reason": "web archive is rate-limiting requests; no recent Common Crawl copy",
+     "ok": true,
+     "reason": "wayback 20261027",
      "tier": "archive"
     }
    ],
    "type": "bank",
-   "verification": null
+   "verification": {
+    "checks": [
+     {
+      "detail": "8 terms consistent",
+      "level": 1,
+      "name": "structure",
+      "ok": true
+     },
+     {
+      "detail": "consistent with Bank of Canada reference figures",
+      "level": 2,
+      "name": "market",
+      "ok": true
+     },
+     {
+      "detail": "no independent second reading yet",
+      "level": 3,
+      "name": "corroborated",
+      "ok": false
+     }
+    ],
+    "level": 2,
+    "of": 3
+   }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 6.49,
@@ -1572,7 +1616,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 6.18,
     "posted": 6.18,
@@ -1648,7 +1692,7 @@
  ],
  "credit_unions": [
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 6.29,
@@ -1725,7 +1769,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.79,
     "posted": 6.49,
@@ -1789,7 +1833,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1831,7 +1875,7 @@
     },
     {
      "ok": false,
-     "reason": "web archive is rate-limiting requests; no recent Common Crawl copy",
+     "reason": "newest web-archive copy (20260519) is older than 14 days; no recent Common Crawl copy",
      "tier": "archive"
     }
    ],
@@ -1878,7 +1922,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.79,
     "posted": 6.09,
@@ -1938,7 +1982,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1949,7 +1993,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.04,
     "posted": 6.04,
@@ -2010,7 +2054,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2021,7 +2065,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2084,7 +2128,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.04,
     "posted": 5.04,
@@ -2145,7 +2189,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2156,7 +2200,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 5.34,
@@ -2214,7 +2258,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2225,7 +2269,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.34,
     "posted": 4.34,
@@ -2285,7 +2329,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2296,7 +2340,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2351,7 +2395,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2362,7 +2406,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 4.99,
@@ -2417,7 +2461,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2428,7 +2472,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.94,
@@ -2485,7 +2529,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2496,7 +2540,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.3,
     "posted": 4.3,
@@ -2557,7 +2601,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2568,7 +2612,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.49,
     "posted": 4.49,
@@ -2620,7 +2664,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2631,7 +2675,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.69,
@@ -2692,7 +2736,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2742,7 +2786,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 6.1,
@@ -2811,7 +2855,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2822,10 +2866,10 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
-    "advertised": 4.29,
-    "posted": 4.29,
+    "advertised": 4.44,
+    "posted": 4.44,
     "special": null
    },
    "id": "CU18",
@@ -2833,11 +2877,11 @@
    "name": "Kawartha",
    "rates": {
     "36": {
-     "posted": 4.69,
-     "special": 4.24
+     "posted": 4.84,
+     "special": 4.39
     },
     "60": {
-     "posted": 4.29
+     "posted": 4.44
     }
    },
    "source_url": "https://www.kawarthacu.com/rates",
@@ -2851,7 +2895,7 @@
     },
     {
      "ok": true,
-     "reason": "rediscovered: https://www.kawarthacu.com/mortgages",
+     "reason": "rediscovered: https://www.kawarthacu.com/personal/borrowing/mortgages",
      "tier": "backup1"
     }
    ],
@@ -2871,7 +2915,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.15 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2882,7 +2926,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.39,
     "posted": 4.39,
@@ -2934,7 +2978,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2945,7 +2989,7 @@
    }
   },
   {
-   "as_of": "2026-11-08T13:34:48+00:00",
+   "as_of": "2026-11-08T22:13:46+00:00",
    "five_year": {
     "advertised": 4.64,
     "posted": 4.64,
@@ -3008,7 +3052,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.3 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -3019,11 +3063,11 @@
    }
   }
  ],
- "refreshed_at": "2026-11-08T13:34:48+00:00",
+ "refreshed_at": "2026-11-08T22:13:46+00:00",
  "summary": {
-  "archive": 0,
+  "archive": 1,
   "backup1": 2,
-  "boc_typical": 1,
+  "boc_typical": 0,
   "cache": 0,
   "not_public": 12,
   "primary": 34,
@@ -3031,8 +3075,8 @@
   "unavailable": 6
  },
  "verified": {
-  "level1": 36,
-  "level2": 36,
+  "level1": 37,
+  "level2": 37,
   "level3": 35
  }
 }
