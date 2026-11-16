@@ -221,6 +221,36 @@ Then open http://localhost:8000.
 
 The hosted demo is deployed from `render.yaml`, which builds this same Dockerfile on a free Render web service with `APP_ENV=demo` and a health check at `/health`.
 
+## Project structure
+
+```text
+renewal-radar/
+├── .github/                       # 4 files
+├── backend/                       # Application backend (155 files)
+├── data/                          # Reference data (27 files)
+├── docs/                          # Documentation (39 files)
+├── fixtures/                      # Test fixtures (5 files)
+├── frontend/                      # Web frontend (43 files)
+├── infra/                         # Scheduling example (1 file)
+├── scripts/                       # Maintenance scripts (4 files)
+├── tests/                         # Automated tests (121 files)
+├── tools/                         # Lender calculator checks and utilities (36 files)
+├── .dockerignore
+├── .env.example                   # Environment variable template
+├── .gitignore
+├── docker-compose.yml             # Local container setup
+├── Dockerfile                     # Container build
+├── LICENSE                        # Licence
+├── Makefile                       # Common tasks
+├── package.json                   # npm scripts and dependencies
+├── pytest.ini                     # Test settings
+├── README.md                      # This file
+├── render.yaml                    # Render deploy settings
+├── requirements-ocr-optional.txt  # Optional OCR dependencies
+├── requirements.txt               # Python dependencies
+└── Start Renewal Radar.cmd        # Windows launcher
+```
+
 ## Data sources
 
 **Bank of Canada**
