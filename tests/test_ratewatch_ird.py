@@ -51,7 +51,7 @@ def test_cibc_three_month_on_contract_plus_discount_compounded_semi_annually():
 def test_offered_rate_method():
     # The generic offered-rate method, exercised on a generic monoline policy. (First National's own
     # policy left this generic path when it was calibrated against First National's calculator:
-    # months_convention="first_national" — see backtest.first_national_cases.)
+    # months_convention="first_national"; see backtest.first_national_cases.)
     m = Mortgage(300_000, 5.24, 60, date(2024, 4, 1), discount=0)
     r = penalty(m, Policy("Generic monoline", comparison="offered", term_match="nearest"), {},
                 date(2026, 10, 1), current_offered={12: 4.9, 24: 4.4, 36: 4.2})

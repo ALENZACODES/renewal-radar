@@ -195,8 +195,8 @@ def test_banklink_api(monkeypatch):
                      json={'state': sess.json()['state'], 'code_verifier': verifier,
                            'public_token': 't', 'extra': {'password': 'x'}})
         assert bad.status_code == 422
-        # new session after failed complete attempt still ok — claim not done on 422 before claim?
-        # Credential refuse happens inside complete after claim — recreate session
+        # new session after failed complete attempt still ok; claim not done on 422 before claim?
+        # Credential refuse happens inside complete after claim, so recreate the session
         sess = c.post(f'/api/v5/banklink/consents/{cid}/session',
                       json={'code_challenge': challenge, 'bind_cookie': False},
                       headers={'X-Case-Token': token})

@@ -379,7 +379,7 @@ def build_router(
                 _day(body.get("due")),
             )
         except AccessDenied as exc:
-            # Consent missing or wrong tenant — tests expect 403 for consent, 404 for tenant.
+            # Consent missing or wrong tenant: tests expect 403 for consent, 404 for tenant.
             msg = str(exc).lower()
             raise HTTPException(403 if "consent" in msg else 404, str(exc)) from exc
         except ValueError as exc:

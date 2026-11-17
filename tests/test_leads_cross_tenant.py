@@ -87,7 +87,7 @@ def test_cannot_delete_other_tenant_lead(monkeypatch, tmp_path):
             headers={"X-Broker-Token": a["access_token"]},
             json=body,
         ).json()
-        # Broker B tries to delete A's lead — must be 404 (no existence leak)
+        # Broker B tries to delete A's lead: must be 404 (no existence leak)
         denied = c.request(
             "DELETE",
             f"/api/v5/leads/{created['id']}",
@@ -95,7 +95,7 @@ def test_cannot_delete_other_tenant_lead(monkeypatch, tmp_path):
             json={},
         )
         assert denied.status_code == 404
-        # Wrong withdraw token — 404
+        # Wrong withdraw token: 404
         wrong = c.request(
             "DELETE",
             f"/api/v5/leads/{created['id']}",

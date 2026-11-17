@@ -3,9 +3,9 @@
 // data/ratewatch/community_trust_oracle/pages.js, fetched by
 // tools/fetch_community_trust_oracle.py).
 //
-// The class's three computations are transcribed line for line below —
-// monthDiff, the remaining-term band that selects the posted rate, calculate_ird
-// and calculate_3mi — and the posted rates (window.rate_1..rate_5) and the
+// The class's three computations are transcribed line for line below
+// (monthDiff, the remaining-term band that selects the posted rate, calculate_ird
+// and calculate_3mi) and the posted rates (window.rate_1..rate_5) and the
 // business variant (window.business) are read from the lender's own calculator
 // page as fetched, so a refetch re-points the oracle at the current build.
 // The calculator's $300 full-repayment addition is a discharge fee, not part of

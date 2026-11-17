@@ -113,7 +113,7 @@ def open_handle(sealed: str) -> str:
     try:
         return vault.open(sealed)
     except ValueError:
-        # Wrong key / corrupt ciphertext — do not silently return sealed blob as handle.
+        # Wrong key or corrupt ciphertext: do not silently return sealed blob as handle.
         from ..security.access import is_production
 
         if is_production():

@@ -43,7 +43,7 @@ CAPABILITY_URL_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r'^/shared/[^/]+$'),
 )
 
-# OpenAPI UIs — allowed only outside production; production requires the API key.
+# OpenAPI UIs are allowed only outside production; production requires the API key.
 DOCS_EXACT: frozenset[str] = frozenset({
     '/docs',
     '/docs/oauth2-redirect',

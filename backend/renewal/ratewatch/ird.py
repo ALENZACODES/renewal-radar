@@ -44,13 +44,13 @@ SCOTIA_BANDS = ((0, 8.999, 6), (9, 17.999, 12), (18, 29.999, 24), (30, 41.999, 3
                 (54, 71.999, 60), (72, 101.999, 84), (102, 120, 120))
 MONO = dict(comparison="offered", term_match="nearest")
 # Read from MCAP's own prepayment calculator (the calculator linked from mcap.com): the term whose
-# posted ("reinvestment") rate applies is set by whole months remaining — nearest term, ties upward.
+# posted ("reinvestment") rate applies is set by whole months remaining, rounded to the nearest term with ties going up.
 # (4..6 -> 6, 7..17 -> 12, 18..29 -> 24, ...; at 3 or fewer months the calculator instead sets the
-# reinvestment rate equal to the contract rate — see _ppcalc.)
+# reinvestment rate equal to the contract rate; see _ppcalc.)
 MCAP_BANDS = ((4, 6, 6), (7, 17, 12), (18, 29, 24), (30, 41, 36), (42, 53, 48),
               (54, 71, 60), (72, 101, 84), (102, 9999, 120))
 # RMG's instance of the same vendor calculator: identical at every yearly term, but its table
-# carries no 3- or 6-month reinvestment rate — remainders under a year use the 1-year rate.
+# carries no 3- or 6-month reinvestment rate, so remainders under a year use the 1-year rate.
 RMG_BANDS = ((0, 17, 12), (18, 29, 24), (30, 41, 36), (42, 53, 48),
              (54, 71, 60), (72, 101, 84), (102, 9999, 120))
 # Read from Community Trust's own prepayment calculator (communitytrust.com): the band that

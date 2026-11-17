@@ -36,7 +36,7 @@ def test_non_public_api_routes_are_covered_by_gate_or_resource_auth():
             continue
         if access.path_allows_anonymous(path):
             continue
-        # Inherits app-level gate — required.
+        # Inherits the app-level gate: required.
         headers = access.route_header_names(route)
         deps = access.route_dependency_names(route)
         has_gate = access.AUTH_DEP_NAME in deps or access.app_has_access_gate(app)
@@ -48,7 +48,7 @@ def test_non_public_api_routes_are_covered_by_gate_or_resource_auth():
 def test_production_fails_closed_without_api_key(monkeypatch):
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.delenv("RR_API_ACCESS_KEY", raising=False)
-    # settings.app_env is frozen at import — patch the helper instead
+    # settings.app_env is frozen at import, so patch the helper instead
     monkeypatch.setattr(access, "_env_name", lambda: "production")
     monkeypatch.setenv("RR_BANKLINK_KEY", Fernet.generate_key().decode())
     with TestClient(app) as client:

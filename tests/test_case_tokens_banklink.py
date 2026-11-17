@@ -64,7 +64,7 @@ def test_create_case_requires_broker(demo_ws):
         json={"title": "x", "workspace_id": ws["workspace_id"], "mortgage": d["mortgage"], "offers": []},
     )
     assert r.status_code == 404
-    # api key alone still no broker — wrong token
+    # API key alone is still no broker: wrong token
     r = c.post(
         "/api/cases",
         json={"title": "x", "workspace_id": ws["workspace_id"], "mortgage": d["mortgage"], "offers": []},
