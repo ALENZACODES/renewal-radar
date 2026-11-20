@@ -25,7 +25,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 6.28,
     "posted": 6.357,
@@ -117,7 +117,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -169,7 +169,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -180,7 +180,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -226,7 +226,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -276,7 +276,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.74,
     "posted": null,
@@ -328,7 +328,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -339,7 +339,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.79,
     "posted": 4.79,
@@ -391,7 +391,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -402,7 +402,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.94,
     "posted": null,
@@ -463,7 +463,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -561,7 +561,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 5.5,
     "posted": 5.5,
@@ -616,7 +616,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -627,7 +627,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -679,7 +679,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -690,7 +690,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 6.22,
     "posted": 6.22,
@@ -742,7 +742,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -777,7 +777,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 6.29,
     "posted": 6.29,
@@ -838,7 +838,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -873,7 +873,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-19T07:34:08+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -888,23 +888,13 @@
     }
    },
    "source_url": "https://antriminvestments.com/lending-guidelines/",
-   "tier": "cache",
-   "tier_label": "Last good reading",
+   "tier": "primary",
+   "tier_label": "Live",
    "tried": [
     {
-     "ok": false,
-     "reason": "no rates found",
-     "tier": "primary"
-    },
-    {
-     "ok": false,
-     "reason": "no rates found",
-     "tier": "backup1"
-    },
-    {
      "ok": true,
-     "reason": "saved 2026-11-19T07:34:08+00:00",
-     "tier": "cache"
+     "reason": "ok",
+     "tier": "primary"
     }
    ],
    "type": "alternative",
@@ -923,13 +913,13 @@
       "ok": true
      },
      {
-      "detail": "no independent second reading yet",
+      "detail": "matches the reading from 1.0 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
-      "ok": false
+      "ok": true
      }
     ],
-    "level": 2,
+    "level": 3,
     "of": 3
    }
   },
@@ -1013,7 +1003,7 @@
     },
     {
      "ok": false,
-     "reason": "newest web-archive copy (20260521) is older than 14 days; no recent Common Crawl copy",
+     "reason": "web archive is rate-limiting requests; no recent Common Crawl copy",
      "tier": "archive"
     }
    ],
@@ -1178,7 +1168,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 6.33,
     "posted": null,
@@ -1224,7 +1214,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1243,7 +1233,7 @@
  },
  "banks": [
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 5.14,
     "posted": 6.19,
@@ -1310,7 +1300,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1321,7 +1311,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 5.29,
     "posted": 6.14,
@@ -1405,7 +1395,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 6.19,
     "posted": 6.19,
@@ -1463,7 +1453,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -1509,7 +1499,7 @@
     },
     {
      "ok": false,
-     "reason": "web archive is rate-limiting requests; no recent Common Crawl copy",
+     "reason": "newest web-archive copy (20261027) is older than 14 days; no recent Common Crawl copy",
      "tier": "archive"
     }
    ],
@@ -1517,7 +1507,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 6.49,
@@ -1592,7 +1582,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 6.18,
     "posted": 6.18,
@@ -1668,7 +1658,7 @@
  ],
  "credit_unions": [
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 5.09,
     "posted": 6.29,
@@ -1745,7 +1735,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T07:34:08+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 6.49,
@@ -1784,23 +1774,13 @@
     }
    },
    "source_url": "https://www.meridiancu.ca/personal/rates-and-fees/mortgage-and-borrowing-rates",
-   "tier": "cache",
-   "tier_label": "Last good reading",
+   "tier": "primary",
+   "tier_label": "Live",
    "tried": [
     {
-     "ok": false,
-     "reason": "no rates found",
-     "tier": "primary"
-    },
-    {
-     "ok": false,
-     "reason": "no rates found",
-     "tier": "backup1"
-    },
-    {
      "ok": true,
-     "reason": "saved 2026-11-19T07:34:08+00:00",
-     "tier": "cache"
+     "reason": "ok",
+     "tier": "primary"
     }
    ],
    "type": "credit_union",
@@ -1819,13 +1799,13 @@
       "ok": true
      },
      {
-      "detail": "no independent second reading yet",
+      "detail": "matches the reading from 1.0 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
-      "ok": false
+      "ok": true
      }
     ],
-    "level": 2,
+    "level": 3,
     "of": 3
    }
   },
@@ -1869,60 +1849,19 @@
    "verification": null
   },
   {
-   "as_of": "wayback 20261109",
+   "as_of": null,
    "five_year": {
-    "advertised": 4.76,
-    "posted": 6.1,
-    "special": 4.76
+    "advertised": null,
+    "posted": null,
+    "special": null
    },
    "id": "CU03",
-   "lender_specific": true,
+   "lender_specific": false,
    "name": "Coast Capital",
-   "rates": {
-    "108": {
-     "posted": 6.7,
-     "special": 5.12
-    },
-    "12": {
-     "posted": 5.5,
-     "special": 4.84
-    },
-    "120": {
-     "posted": 6.8,
-     "special": 5.23
-    },
-    "24": {
-     "posted": 5.0,
-     "special": 4.43
-    },
-    "36": {
-     "posted": 6.05,
-     "special": 4.53
-    },
-    "48": {
-     "posted": 6.0,
-     "special": 4.64
-    },
-    "60": {
-     "posted": 6.1,
-     "special": 4.76
-    },
-    "72": {
-     "posted": 6.29,
-     "special": 4.82
-    },
-    "84": {
-     "posted": 6.4,
-     "special": 4.9
-    },
-    "96": {
-     "posted": 6.5,
-     "special": 5.01
-    }
-   },
+   "rates": {},
    "source_url": "https://www.coastcapitalsavings.com/rates/mortgages",
-   "tier": "archive",
-   "tier_label": "Archive copy",
+   "tier": "unavailable",
+   "tier_label": "Unavailable",
    "tried": [
     {
      "ok": false,
@@ -1940,39 +1879,16 @@
      "tier": "cache"
     },
     {
-     "ok": true,
-     "reason": "wayback 20261109",
+     "ok": false,
+     "reason": "web archive is rate-limiting requests; no recent Common Crawl copy",
      "tier": "archive"
     }
    ],
    "type": "credit_union",
-   "verification": {
-    "checks": [
-     {
-      "detail": "10 terms consistent",
-      "level": 1,
-      "name": "structure",
-      "ok": true
-     },
-     {
-      "detail": "consistent with Bank of Canada reference figures",
-      "level": 2,
-      "name": "market",
-      "ok": true
-     },
-     {
-      "detail": "no independent second reading yet",
-      "level": 3,
-      "name": "corroborated",
-      "ok": false
-     }
-    ],
-    "level": 2,
-    "of": 3
-   }
+   "verification": null
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.79,
     "posted": 6.09,
@@ -2032,7 +1948,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2043,7 +1959,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 5.04,
     "posted": 6.04,
@@ -2104,7 +2020,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2115,7 +2031,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2178,7 +2094,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.94,
     "posted": 4.94,
@@ -2239,7 +2155,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2250,7 +2166,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 5.34,
@@ -2308,7 +2224,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2319,7 +2235,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.34,
     "posted": 4.34,
@@ -2379,7 +2295,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2390,7 +2306,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2445,7 +2361,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2456,7 +2372,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 4.99,
@@ -2511,7 +2427,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2522,7 +2438,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.94,
@@ -2579,7 +2495,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2590,7 +2506,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.3,
     "posted": 4.3,
@@ -2651,7 +2567,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2662,7 +2578,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.49,
     "posted": 4.49,
@@ -2714,7 +2630,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2725,7 +2641,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.69,
@@ -2786,7 +2702,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2836,7 +2752,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 6.1,
@@ -2905,7 +2821,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2916,7 +2832,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.44,
     "posted": 4.44,
@@ -2965,7 +2881,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.20 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2976,7 +2892,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.39,
     "posted": 4.39,
@@ -3028,7 +2944,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -3039,7 +2955,7 @@
    }
   },
   {
-   "as_of": "2026-11-19T20:44:31+00:00",
+   "as_of": "2026-11-20T07:25:42+00:00",
    "five_year": {
     "advertised": 4.64,
     "posted": 4.64,
@@ -3102,7 +3018,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.4 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -3113,20 +3029,20 @@
    }
   }
  ],
- "refreshed_at": "2026-11-19T20:44:31+00:00",
+ "refreshed_at": "2026-11-20T07:25:42+00:00",
  "summary": {
-  "archive": 1,
+  "archive": 0,
   "backup1": 2,
   "boc_typical": 1,
-  "cache": 3,
+  "cache": 1,
   "not_public": 12,
-  "primary": 31,
+  "primary": 33,
   "published": 0,
-  "unavailable": 5
+  "unavailable": 6
  },
  "verified": {
-  "level1": 37,
-  "level2": 37,
-  "level3": 32
+  "level1": 36,
+  "level2": 36,
+  "level3": 34
  }
 }
