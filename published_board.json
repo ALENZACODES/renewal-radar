@@ -25,7 +25,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 6.28,
     "posted": 6.357,
@@ -117,7 +117,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -180,7 +180,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -276,7 +276,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.74,
     "posted": null,
@@ -339,7 +339,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.79,
     "posted": 4.79,
@@ -402,7 +402,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.94,
     "posted": null,
@@ -529,7 +529,7 @@
     },
     {
      "ok": false,
-     "reason": "newest web-archive copy (20260512) is older than 14 days; no recent Common Crawl copy",
+     "reason": "web archive is rate-limiting requests; no recent Common Crawl copy",
      "tier": "archive"
     }
    ],
@@ -561,7 +561,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 5.5,
     "posted": 5.5,
@@ -627,7 +627,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -690,7 +690,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 6.22,
     "posted": 6.22,
@@ -777,7 +777,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 6.29,
     "posted": 6.29,
@@ -873,7 +873,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -1168,7 +1168,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 6.33,
     "posted": null,
@@ -1233,7 +1233,7 @@
  },
  "banks": [
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 5.14,
     "posted": 6.19,
@@ -1311,7 +1311,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 5.29,
     "posted": 6.14,
@@ -1395,7 +1395,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 6.19,
     "posted": 6.19,
@@ -1507,7 +1507,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 6.49,
@@ -1582,7 +1582,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 6.18,
     "posted": 6.18,
@@ -1658,7 +1658,7 @@
  ],
  "credit_unions": [
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 5.09,
     "posted": 6.29,
@@ -1735,7 +1735,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 6.49,
@@ -1849,11 +1849,11 @@
    "verification": null
   },
   {
-   "as_of": "wayback 20261109",
+   "as_of": "wayback 20261123",
    "five_year": {
-    "advertised": 4.76,
+    "advertised": 4.86,
     "posted": 6.1,
-    "special": 4.76
+    "special": 4.86
    },
    "id": "CU03",
    "lender_specific": true,
@@ -1861,7 +1861,7 @@
    "rates": {
     "108": {
      "posted": 6.7,
-     "special": 5.12
+     "special": 5.31
     },
     "12": {
      "posted": 5.5,
@@ -1869,35 +1869,35 @@
     },
     "120": {
      "posted": 6.8,
-     "special": 5.23
+     "special": 5.42
     },
     "24": {
      "posted": 5.0,
-     "special": 4.43
+     "special": 4.54
     },
     "36": {
      "posted": 6.05,
-     "special": 4.53
+     "special": 4.62
     },
     "48": {
      "posted": 6.0,
-     "special": 4.64
+     "special": 4.73
     },
     "60": {
      "posted": 6.1,
-     "special": 4.76
+     "special": 4.86
     },
     "72": {
      "posted": 6.29,
-     "special": 4.82
+     "special": 5.01
     },
     "84": {
      "posted": 6.4,
-     "special": 4.9
+     "special": 5.09
     },
     "96": {
      "posted": 6.5,
-     "special": 5.01
+     "special": 5.2
     }
    },
    "source_url": "https://www.coastcapitalsavings.com/rates/mortgages",
@@ -1921,7 +1921,7 @@
     },
     {
      "ok": true,
-     "reason": "wayback 20261109",
+     "reason": "wayback 20261123",
      "tier": "archive"
     }
    ],
@@ -1952,7 +1952,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.79,
     "posted": 6.09,
@@ -2023,7 +2023,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 5.04,
     "posted": 6.04,
@@ -2095,7 +2095,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2158,7 +2158,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.94,
     "posted": 4.94,
@@ -2230,7 +2230,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 5.34,
@@ -2299,7 +2299,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.34,
     "posted": 4.34,
@@ -2370,7 +2370,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2436,7 +2436,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 4.99,
@@ -2502,7 +2502,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.94,
@@ -2570,7 +2570,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.3,
     "posted": 4.3,
@@ -2642,7 +2642,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.49,
     "posted": 4.49,
@@ -2705,7 +2705,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.69,
@@ -2816,7 +2816,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 6.1,
@@ -2896,7 +2896,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.29,
     "posted": 4.29,
@@ -2945,7 +2945,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.35 points",
+      "detail": "matches the reading from 0.5 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2956,7 +2956,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.39,
     "posted": 4.39,
@@ -3019,7 +3019,7 @@
    }
   },
   {
-   "as_of": "2026-11-22T19:47:32+00:00",
+   "as_of": "2026-11-23T07:49:28+00:00",
    "five_year": {
     "advertised": 4.64,
     "posted": 4.64,
@@ -3093,7 +3093,7 @@
    }
   }
  ],
- "refreshed_at": "2026-11-22T19:47:32+00:00",
+ "refreshed_at": "2026-11-23T07:49:28+00:00",
  "summary": {
   "archive": 1,
   "backup1": 2,
