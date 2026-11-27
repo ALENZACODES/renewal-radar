@@ -25,7 +25,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 6.28,
     "posted": 6.357,
@@ -117,7 +117,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -180,7 +180,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -276,7 +276,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.74,
     "posted": null,
@@ -339,7 +339,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.79,
     "posted": 4.79,
@@ -402,7 +402,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.94,
     "posted": null,
@@ -561,7 +561,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 5.5,
     "posted": 5.5,
@@ -627,7 +627,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 5.69,
     "posted": 5.69,
@@ -690,7 +690,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 6.22,
     "posted": 6.22,
@@ -777,7 +777,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 6.29,
     "posted": 6.29,
@@ -873,7 +873,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": null,
     "posted": null,
@@ -1003,7 +1003,7 @@
     },
     {
      "ok": false,
-     "reason": "web archive is rate-limiting requests; no recent Common Crawl copy",
+     "reason": "newest web-archive copy (20260521) is older than 14 days; no recent Common Crawl copy",
      "tier": "archive"
     }
    ],
@@ -1168,7 +1168,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 6.33,
     "posted": null,
@@ -1228,12 +1228,12 @@
  "anchor": {
   "boc_5y_posted": 6.19,
   "boc_5y_posted_date": "2026-11-25",
-  "goc_5y": 3.41,
-  "goc_5y_date": "2026-11-25"
+  "goc_5y": 3.4,
+  "goc_5y_date": "2026-11-26"
  },
  "banks": [
   {
-   "as_of": "2026-11-26T21:40:27+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 5.14,
     "posted": 6.19,
@@ -1275,23 +1275,13 @@
     }
    },
    "source_url": "https://www.rbcroyalbank.com/mortgages/mortgage-rates.html",
-   "tier": "cache",
-   "tier_label": "Last good reading",
+   "tier": "primary",
+   "tier_label": "Live",
    "tried": [
     {
-     "ok": false,
-     "reason": "no rates found",
-     "tier": "primary"
-    },
-    {
-     "ok": false,
-     "reason": "no rates found",
-     "tier": "backup1"
-    },
-    {
      "ok": true,
-     "reason": "saved 2026-11-26T21:40:27+00:00",
-     "tier": "cache"
+     "reason": "ok",
+     "tier": "primary"
     }
    ],
    "type": "bank",
@@ -1310,18 +1300,18 @@
       "ok": true
      },
      {
-      "detail": "no independent second reading yet",
+      "detail": "matches the reading from 1.0 days ago within 0.00 points",
       "level": 3,
       "name": "corroborated",
-      "ok": false
+      "ok": true
      }
     ],
-    "level": 2,
+    "level": 3,
     "of": 3
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 5.29,
     "posted": 6.14,
@@ -1405,7 +1395,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 6.19,
     "posted": 6.19,
@@ -1509,7 +1499,7 @@
     },
     {
      "ok": false,
-     "reason": "web archive is rate-limiting requests; no recent Common Crawl copy",
+     "reason": "newest web-archive copy (20261027) is older than 14 days; no recent Common Crawl copy",
      "tier": "archive"
     }
    ],
@@ -1517,7 +1507,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 6.49,
@@ -1592,7 +1582,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 6.18,
     "posted": 6.18,
@@ -1668,7 +1658,7 @@
  ],
  "credit_unions": [
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 5.09,
     "posted": 6.29,
@@ -1745,7 +1735,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 6.49,
@@ -1898,7 +1888,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.79,
     "posted": 6.09,
@@ -1969,7 +1959,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 5.04,
     "posted": 6.04,
@@ -2041,7 +2031,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2104,7 +2094,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.94,
     "posted": 4.94,
@@ -2176,7 +2166,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 5.34,
     "posted": 5.34,
@@ -2245,7 +2235,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.34,
     "posted": 4.34,
@@ -2316,7 +2306,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.59,
@@ -2382,7 +2372,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.99,
     "posted": 4.99,
@@ -2448,7 +2438,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.94,
@@ -2516,7 +2506,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.3,
     "posted": 4.3,
@@ -2588,7 +2578,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.49,
     "posted": 4.49,
@@ -2651,7 +2641,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 4.69,
@@ -2762,7 +2752,7 @@
    "verification": null
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.59,
     "posted": 6.1,
@@ -2842,10 +2832,10 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
-    "advertised": 4.64,
-    "posted": 4.64,
+    "advertised": 4.44,
+    "posted": 4.44,
     "special": null
    },
    "id": "CU18",
@@ -2853,11 +2843,11 @@
    "name": "Kawartha",
    "rates": {
     "36": {
-     "posted": 5.04,
-     "special": 4.59
+     "posted": 4.84,
+     "special": 4.39
     },
     "60": {
-     "posted": 4.64
+     "posted": 4.44
     }
    },
    "source_url": "https://www.kawarthacu.com/rates",
@@ -2871,7 +2861,7 @@
     },
     {
      "ok": true,
-     "reason": "rediscovered: https://www.kawarthacu.com/personal/borrowing/mortgage-special",
+     "reason": "rediscovered: https://www.kawarthacu.com/personal/borrowing/mortgages",
      "tier": "backup1"
     }
    ],
@@ -2891,7 +2881,7 @@
       "ok": true
      },
      {
-      "detail": "matches the reading from 0.5 days ago within 0.00 points",
+      "detail": "matches the reading from 0.5 days ago within 0.20 points",
       "level": 3,
       "name": "corroborated",
       "ok": true
@@ -2902,7 +2892,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.49,
     "posted": 4.49,
@@ -2965,7 +2955,7 @@
    }
   },
   {
-   "as_of": "2026-11-27T08:44:34+00:00",
+   "as_of": "2026-11-27T21:24:55+00:00",
    "five_year": {
     "advertised": 4.64,
     "posted": 4.64,
@@ -3039,20 +3029,20 @@
    }
   }
  ],
- "refreshed_at": "2026-11-27T08:44:34+00:00",
+ "refreshed_at": "2026-11-27T21:24:55+00:00",
  "summary": {
   "archive": 0,
   "backup1": 2,
   "boc_typical": 1,
-  "cache": 2,
+  "cache": 1,
   "not_public": 12,
-  "primary": 32,
+  "primary": 33,
   "published": 0,
   "unavailable": 6
  },
  "verified": {
   "level1": 36,
   "level2": 36,
-  "level3": 33
+  "level3": 34
  }
 }
